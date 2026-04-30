@@ -1,26 +1,37 @@
-import { useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Info, Send, User, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
 
-export default function MeetingRoom({ onNavigate }) {
+export default function MeetingRoom({ onLeave, roomId }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+
+  // Update time every minute
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(roomId || 'xyz-abcd-efg');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="flex-1 flex h-screen overflow-hidden bg-[#202124] text-white font-sans">
       
       {/* 1. MAIN VIDEO AREA */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 relative ${isChatOpen ? 'pr-80' : 'pr-0'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 relative ${isChatOpen ? 'pr-0 md:pr-80' : 'pr-0'}`}>
         
-        {/* Top Info Bar (Floating) */}
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-          <div className="pointer-events-auto flex items-center space-x-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-md border border-white/10">
-            <Info size={16} className="text-slate-300" />
-            <span className="text-sm font-medium text-white">WabiSeminar Design Review</span>
-          </div>
-        </div>
-
         {/* Video Grid */}
         <div className="flex-1 p-4 md:p-6 pb-24 md:pb-28 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-7xl max-h-[800px]">
@@ -81,9 +92,29 @@ export default function MeetingRoom({ onNavigate }) {
           </div>
         </div>
 
-        {/* BOTTOM CONTROL BAR (Floating like Google Meet) */}
+        {/* BOTTOM LEFT INFO (Google Meet Style) */}
+        <div className="absolute bottom-6 left-6 z-20 flex items-center text-white pointer-events-auto">
+          <span className="text-[15px] font-medium mr-4">{currentTime}</span>
+          <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block"></div>
+          <span className="text-[15px] font-medium hidden sm:block mr-4">WabiSeminar Design Review</span>
+          <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block"></div>
+          <span className="text-[15px] font-mono mr-2">{roomId || 'xyz-abcd-efg'}</span>
+          <button 
+            onClick={handleCopyLink}
+            className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white relative group"
+            title="Copy Room ID"
+          >
+            {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+            {/* Tooltip */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              {copied ? 'Copied!' : 'Copy join info'}
+            </div>
+          </button>
+        </div>
+
+        {/* BOTTOM CONTROL BAR (Floating Center) */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-          <div className="bg-[#3c4043]/90 backdrop-blur-xl px-6 py-3 rounded-2xl flex items-center space-x-4 border border-white/10 shadow-2xl">
+          <div className="bg-[#3c4043] px-6 py-3 rounded-full flex items-center space-x-4 shadow-xl">
             
             <button 
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isMuted ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
@@ -99,28 +130,30 @@ export default function MeetingRoom({ onNavigate }) {
               {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
             </button>
 
-            <div className="w-px h-8 bg-white/20 mx-2"></div>
-
             <button 
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isChatOpen ? 'bg-indigo-500/20 text-indigo-400' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
-              onClick={() => setIsChatOpen(!isChatOpen)}
-            >
-              <MessageSquare size={20} />
-            </button>
-
-            <button 
-              className="w-16 h-12 rounded-full flex items-center justify-center bg-[#ea4335] text-white hover:bg-[#d93025] transition-all shadow-lg shadow-red-500/30 ml-4"
-              onClick={() => onNavigate('dashboard')}
+              className="w-16 h-12 rounded-[24px] flex items-center justify-center bg-[#ea4335] text-white hover:bg-[#d93025] transition-all shadow-lg shadow-red-500/30 ml-2"
+              onClick={onLeave}
             >
               <PhoneOff size={22} />
             </button>
           </div>
         </div>
+        
+        {/* BOTTOM RIGHT (Chat toggle) */}
+        <div className="absolute bottom-6 right-6 z-20">
+          <button 
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${isChatOpen ? 'bg-indigo-500/20 text-indigo-400' : 'bg-[#3c4043] hover:bg-[#4a4d51] text-white'}`}
+            onClick={() => setIsChatOpen(!isChatOpen)}
+          >
+            <MessageSquare size={20} />
+          </button>
+        </div>
+
       </div>
 
       {/* 2. RIGHT CHAT PANEL (Google Meet Style) */}
       <div className={`
-        fixed md:absolute right-0 top-0 bottom-0 w-full md:w-80 bg-white dark:bg-[#202124] md:border-l border-[#3c4043] flex flex-col z-30 transition-transform duration-300 shadow-2xl md:shadow-none
+        fixed md:absolute right-0 top-0 bottom-0 w-full md:w-80 bg-[#202124] md:border-l border-[#3c4043] flex flex-col z-30 transition-transform duration-300 shadow-2xl md:shadow-none
         ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         {/* Chat Header */}
@@ -169,10 +202,16 @@ export default function MeetingRoom({ onNavigate }) {
               type="text" 
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Send a message to everyone" 
+              placeholder="Send a message" 
               className="w-full bg-[#3c4043] border border-transparent rounded-full pl-5 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors" 
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && message.trim()) setMessage('');
+              }}
             />
-            <button className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`}>
+            <button 
+              className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`}
+              onClick={() => setMessage('')}
+            >
               <Send size={18} />
             </button>
           </div>

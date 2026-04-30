@@ -1,6 +1,34 @@
+import { useState } from 'react';
 import { Video, LogOut, Plus, Users, LayoutDashboard } from 'lucide-react';
 
-export default function Dashboard({ onNavigate }) {
+export default function Dashboard({ onNavigate, onJoinRoom }) {
+  const [joinId, setJoinId] = useState('');
+
+  const handleCreateRoom = () => {
+    // Generate a Google Meet style random ID: xxx-xxxx-xxx
+    const generateSegment = (length) => Math.random().toString(36).substring(2, 2 + length);
+    const newRoomId = `${generateSegment(3)}-${generateSegment(4)}-${generateSegment(3)}`;
+    onJoinRoom(newRoomId);
+  };
+
+  const handleJoinRoom = () => {
+    let id = joinId.trim();
+    if (!id) return;
+    
+    // Extract ID if the user pastes a full URL (e.g., https://domain.com/abc-defg-hij)
+    if (id.includes('/')) {
+      const parts = id.split('/');
+      id = parts[parts.length - 1];
+    }
+    
+    // Remove query parameters if any
+    if (id.includes('?')) {
+      id = id.split('?')[0];
+    }
+
+    onJoinRoom(id);
+  };
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-slate-950 relative overflow-hidden text-slate-50">
       {/* Background Glows */}
@@ -52,7 +80,7 @@ export default function Dashboard({ onNavigate }) {
               </h2>
               <button 
                 className="premium-btn premium-btn-primary w-full py-4 text-base shadow-indigo-500/25"
-                onClick={() => onNavigate('meeting')}
+                onClick={handleCreateRoom}
               >
                 Create Instant Room
               </button>
@@ -74,12 +102,16 @@ export default function Dashboard({ onNavigate }) {
               <div className="flex flex-col space-y-3">
                 <input 
                   type="text" 
-                  placeholder="Enter Room ID or Link" 
+                  value={joinId}
+                  onChange={(e) => setJoinId(e.target.value)}
+                  placeholder="Enter Room ID (e.g. abc-defg-hij)" 
                   className="premium-input bg-slate-950/80" 
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
                 />
                 <button 
-                  className="premium-btn premium-btn-secondary w-full"
-                  onClick={() => onNavigate('meeting')}
+                  className={`premium-btn w-full ${joinId.trim() ? 'premium-btn-secondary' : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'}`}
+                  onClick={handleJoinRoom}
+                  disabled={!joinId.trim()}
                 >
                   Join Room
                 </button>
