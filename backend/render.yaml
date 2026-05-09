@@ -21,9 +21,9 @@ services:
         sync: false
       - key: GOOGLE_CALLBACK_URL
         value: https://wabiskills-seminar.onrender.com/api/auth/google/callback
-      # Browser origin where the app is opened (same as your public site URL). Use comma-separated URLs if you still use a separate static frontend.
+      # First entry = public app URL (used for Google OAuth return + browser origin). Add your API host too if you open the app from both.
       - key: CORS_ORIGIN
-        value: https://wabiskills-seminar.onrender.com
+        value: https://wabiskills-seminar-1.onrender.com,https://wabiskills-seminar.onrender.com
       # Optional override for OAuth return URL; otherwise derived from GOOGLE_CALLBACK_URL (strip /api/auth/google/callback).
       - key: PUBLIC_APP_URL
         sync: false

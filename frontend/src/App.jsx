@@ -1,51 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect, useEffect, useCallback } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
+import { roomIdFromPathname } from './routeUtils.js';
 
 function App() {
   const [currentView, setCurrentView] = useState('auth');
   const [currentRoomId, setCurrentRoomId] = useState('');
 
-  // Check for room ID in URL on initial load
-  useEffect(() => {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts[1] === 'room' && pathParts[2]) {
-      const roomId = pathParts[2];
-      const token = localStorage.getItem('token');
-      const username = localStorage.getItem('username');
-      
-      if (token && username) {
-        // User is authenticated, join room directly
-        setCurrentRoomId(roomId);
-        setCurrentView('meeting');
-      } else {
-        // User needs to authenticate first
-        setCurrentRoomId(roomId);
-        setCurrentView('auth');
-      }
+  const syncRouteFromLocation = useCallback(() => {
+    const roomId = roomIdFromPathname(window.location.pathname);
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    const authed = Boolean(token && username);
+
+    if (roomId) {
+      setCurrentRoomId(roomId);
+      setCurrentView(authed ? 'meeting' : 'auth');
+      return;
     }
+
+    setCurrentRoomId('');
+    setCurrentView(authed ? 'dashboard' : 'auth');
   }, []);
+
+  useLayoutEffect(() => {
+    syncRouteFromLocation();
+  }, [syncRouteFromLocation]);
+
+  useEffect(() => {
+    const onPop = () => syncRouteFromLocation();
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [syncRouteFromLocation]);
 
   const navigateToRoom = (roomId) => {
     setCurrentRoomId(roomId);
     setCurrentView('meeting');
-    // Update URL
     window.history.pushState({}, '', `/room/${roomId}`);
   };
 
   const leaveRoom = () => {
     setCurrentRoomId('');
     setCurrentView('dashboard');
-    // Update URL
     window.history.pushState({}, '', '/');
   };
 
   const handleAuthSuccess = () => {
-    if (currentRoomId) {
-      // User was trying to join a room, now redirect to it
+    const roomId = roomIdFromPathname(window.location.pathname) || currentRoomId;
+    if (roomId) {
+      setCurrentRoomId(roomId);
       setCurrentView('meeting');
-      window.history.pushState({}, '', `/room/${currentRoomId}`);
+      window.history.pushState({}, '', `/room/${roomId}`);
     } else {
       setCurrentView('dashboard');
     }
