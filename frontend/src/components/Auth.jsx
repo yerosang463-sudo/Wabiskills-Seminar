@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Video, Loader2 } from 'lucide-react';
 import api from '../services/api';
 
@@ -68,18 +68,18 @@ export default function Auth({ onNavigate }) {
   };
 
   // Check for token in URL (from OAuth callback)
-  usconst username = urlParams.get('username');
-    eState(() => {
-    const urlParams = new URLSearchParaen);
-      if (usmrsame( {
-        localStorage.setItem('username', username)w
-      }indow.location.search);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (username) {
+      localStorage.setItem('username', username);
+    }
     const token = urlParams.get('token');
     if (token) {
       localStorage.setItem('token', token);
       window.location.href = window.location.pathname;
     }
-  });
+  }, []);
 
   return (
     <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-slate-950 min-h-screen">
