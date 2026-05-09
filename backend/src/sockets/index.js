@@ -53,84 +53,78 @@ export const setupSocketHandlers = (io) => {
       }
     });
 
-    // User leaves a room;
-        
-        const userId = socket.id
-    socket.on('leave-room', ({ roomId, userId }) => {
+    // User leaves a room
+    socket.on('leave-room', ({ roomId }) => {
       try {
         socket.leave(roomId);
+        
+        const userId = socket.id;
+        const user = activeUsers.get(socket.id);
         
         // Remove from active users
         activeUsers.delete(socket.id);
         
         // Remove from room participants
         if (roomParticipants.has(roomId)) {
-          roomParticipants.get(roomId).lufed);ocktd: socket.i
+          roomParticipants.get(roomId).delete(userId);
           
           // Notify others
-          socket.to(roomId).emit('user-disconnected', { userId });
+          socket.to(roomId).emit('user-left', { userId, socketId: socket.id });
         }
 
         console.log(`User ${userId} left room ${roomId}`);
       } catch (error) {
-        consolewebrtc-.error('ErroargetSrcketId leaving room:', error);
-      }argetScketId
+        console.error('Error leaving room:', error);
+      }
     });
-argetScketIdwebrtc-
-    // WebsCcketId Offer
-    socket.on('offer', ({ to, offer, roomId }) => {
-      const targetUser = activeUsers.get(to);
+
+    // WebRTC Offer
+    socket.on('webrtc-offer', ({ targetSocketId, offer, roomId }) => {
+      const targetUser = activeUsers.get(targetSocketId);
       if (targetUser) {
-        io.to(to).emit('offer', {
-          from: socket.id,
+        io.to(targetSocketId).emit('webrtc-offer', {
+          socketId: socket.id,
           offer,
           roomId,
-        });webrtc-argetScketId
-      }argetScketId
+        });
+      }
     });
-targeScketIdwebrtc-
-    // WebsCcketId Answer
-    socket.on('answer', ({ to, answer, roomId }) => {
-      const targetUser = activeUsers.get(to);
+    // WebRTC Answer
+    socket.on('webrtc-answer', ({ targetSocketId, answer, roomId }) => {
+      const targetUser = activeUsers.get(targetSocketId);
       if (targetUser) {
-        io.to(to).emit('answer', {
-          from: socket.id,
+        io.to(targetSocketId).emit('webrtc-answer', {
+          socketId: socket.id,
           answer,
           roomId,
-        });webrtc-targeScketId
-      }targeScketId
+        });
+      }
     });
-targeScketIdwebrtc-
-    // WebsCcketId ICE Candidate
-    socket.on('ice-candidate', ({ to, candidate, roomId }) => {
-      const targetUser = activeUsers.get(to);
+    // WebRTC ICE Candidate
+    socket.on('webrtc-ice-candidate', ({ targetSocketId, candidate, roomId }) => {
+      const targetUser = activeUsers.get(targetSocketId);
       if (targetUser) {
-        io.to(to).emit('ice-candidate', {
-          from: socket.id,
+        io.to(targetSocketId).emit('webrtc-ice-candidate', {
+          socketId: socket.id,
           candidate,
           roomId,
-        });chat,timestamp 
-      }
-    });const userId = socket.id;
-        
-         (optional - can be skipped for in-memory chat)
-// 
-    // C//ha t: Send message
-    sock//et .on('send-message', async ({ roomId, userId, username, message }) => {
-      tr//y  {
-          r}
-          message,
         });
-hatait User.findByPk(userId);
+      }
+    });
+
+    // Chat: Send message
+    socket.on('chat-message', async ({ roomId, message, username, timestamp }) => {
+      try {
+        const msgData = {
+          id: Date.now().toString(),
+          message,
+          username: username || 'Guest',
+          timestamp: timestamp || new Date().toISOString(),
+          socketId: socket.id
+        };
 
         // Broadcast to room
-        io.to(roomId)time.temp || n'w Dcti()vsoISOSering()', {
-          id: savedMessage.id,
-          sender: userId,
-          senderName: sender?.username || username,
-          message,
-          timestamp: savedMessage.createdAt,
-        });
+        io.to(roomId).emit('chat-message', msgData);
 
         console.log(`Message sent in room ${roomId} by ${username}`);
       } catch (error) {
@@ -180,9 +174,9 @@ hatait User.findByPk(userId);
         // Remove from room participants
         if (roomParticipants.has(roomId)) {
           roomParticipants.get(roomId).delete(userId);
-          lfocktd: socket.i
+          
           // Notify others in room
-          socket.to(roomId).emit('user-disconnected', { userId });
+          socket.to(roomId).emit('user-left', { userId, socketId: socket.id });
         }
 
         // Remove from active users

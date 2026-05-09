@@ -16,6 +16,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [messages, setMessages] = useState([]);
   const [localStream, setLocalStream] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [remoteStreams, setRemoteStreams] = useState({});
   
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
@@ -57,11 +58,35 @@ export default function MeetingRoom({ onLeave, roomId }) {
     socket.on('user-joined', (data) => {
       console.log('User joined:', data);
       setParticipants((prev) => [...prev, data]);
+      
+      // Create and send offer to new participant
+      setTimeout(() => {
+        const pc = createPeerConnection(data.socketId);
+        pc.createOffer().then(offer => {
+          pc.setLocalDescription(offer);
+          socket.emit('webrtc-offer', {
+            targetSocketId: data.socketId,
+            offer,
+            roomId
+          });
+        });
+      }, 1000);
     });
 
     socket.on('user-left', (data) => {
       console.log('User left:', data);
       setParticipants((prev) => prev.filter((p) => p.socketId !== data.socketId));
+      
+      // Clean up peer connection and remote stream
+      if (peerConnections.current[data.socketId]) {
+        peerConnections.current[data.socketId].close();
+        delete peerConnections.current[data.socketId];
+      }
+      setRemoteStreams(prev => {
+        const newStreams = { ...prev };
+        delete newStreams[data.socketId];
+        return newStreams;
+      });
     });
 
     socket.on('chat-message', (data) => {
@@ -116,7 +141,12 @@ export default function MeetingRoom({ onLeave, roomId }) {
     };
 
     pc.ontrack = (event) => {
-      console.log('Received remote track');
+      console.log('Received remote track from', targetSocketId);
+      const [remoteStream] = event.streams;
+      setRemoteStreams(prev => ({
+        ...prev,
+        [targetSocketId]: remoteStream
+      }));
     };
 
     peerConnections.current[targetSocketId] = pc;
@@ -124,6 +154,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
   };
 
   const handleOffer = async (data) => {
+    console.log('Handling offer from', data.socketId);
     const pc = createPeerConnection(data.socketId);
     await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
     const answer = await pc.createAnswer();
@@ -165,9 +196,21 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
   const handleCopyLink = () => {
     const fullUrl = `${window.location.origin}/room/${roomId}`;
-    navigator.clipboard.writeText(fullUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy link:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = fullUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   const handleSendMessage = () => {
@@ -221,18 +264,34 @@ export default function MeetingRoom({ onLeave, roomId }) {
             </div>
 
             {/* Remote Participants */}
-            {participants.map((participant, index) => (
-              <div key={participant.socketId} className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
-                <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <span className="text-4xl text-purple-400 font-semibold">
-                    {participant.username?.[0]?.toUpperCase() || 'U'}
-                  </span>
+            {participants.map((participant) => {
+              const remoteStream = remoteStreams[participant.socketId];
+              return (
+                <div key={participant.socketId} className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
+                  {remoteStream ? (
+                    <video
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                      ref={(videoEl) => {
+                        if (videoEl && videoEl.srcObject !== remoteStream) {
+                          videoEl.srcObject = remoteStream;
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <span className="text-4xl text-purple-400 font-semibold">
+                        {participant.username?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+                    <span>{participant.username || 'User'}</span>
+                  </div>
                 </div>
-                <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg">
-                  <span>{participant.username || 'User'}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
           </div>
         </div>
