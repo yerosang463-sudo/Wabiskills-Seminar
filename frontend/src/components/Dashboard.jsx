@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { resolveApiBase } from '../utils/url.js';
-import { Video, LogOut, Plus, Users, LayoutDashboard } from 'lucide-react';
+import { Video, LogOut, Plus, Users, LayoutDashboard, X } from 'lucide-react';
 
 export default function Dashboard({ onNavigate, onJoinRoom }) {
   const [joinId, setJoinId] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
@@ -91,15 +92,18 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
           
           {/* Welcome Section */}
           <div className="flex flex-col justify-center space-y-6">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 w-fit text-sm font-medium">
+            <button 
+              onClick={() => setShowInfoModal(true)}
+              className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 w-fit text-sm font-medium hover:bg-indigo-500/20 transition-colors cursor-pointer"
+            >
               <LayoutDashboard size={14} />
               <span>Dashboard Overview</span>
-            </div>
+            </button>
             <h1 className="text-4xl md:text-5xl font-bold leading-tight">
               Ready to host your next <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">masterclass?</span>
             </h1>
             <p className="text-slate-400 text-lg max-w-md">
-              Create a new premium meeting room or join an existing session with your team in seconds.
+              Create a new completely free meeting room or join an existing session with your team in seconds. No limits, 100% free.
             </p>
           </div>
 
@@ -153,6 +157,41 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
 
         </div>
       </main>
+
+      {/* Info Modal */}
+      {showInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowInfoModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-2xl font-bold text-white mb-4">About WabiSeminar</h2>
+            <div className="space-y-4 text-slate-300">
+              <p>
+                WabiSeminar is a completely <strong>free</strong>, high-quality video conferencing platform designed for seamless collaboration.
+              </p>
+              <p>
+                Whether you're hosting a masterclass, a team sync, or catching up with friends, WabiSeminar provides real-time video, audio, and chat without any time limits or hidden fees.
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-400">
+                <li>Instant meeting creation</li>
+                <li>Secure Waiting Room for guests</li>
+                <li>Real-time Text Chat</li>
+                <li>100% Free forever</li>
+              </ul>
+            </div>
+            <button 
+              onClick={() => setShowInfoModal(false)}
+              className="mt-8 w-full premium-btn bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow-lg shadow-indigo-500/25 transition-all"
+            >
+              Let's get started!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
