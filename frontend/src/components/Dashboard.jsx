@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { resolveApiBase } from '../utils/url.js';
 import { Video, LogOut, Plus, Users, LayoutDashboard } from 'lucide-react';
 
 export default function Dashboard({ onNavigate, onJoinRoom }) {
@@ -15,7 +16,7 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       // Save room to database
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms`, {
+        const response = await fetch(`${resolveApiBase()}/rooms`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Video, Loader2 } from 'lucide-react';
-import api from '../services/api';
+import api, { API_BASE_URL } from '../services/api';
 
 const GOOGLE_CLIENT_ID = '148617595998-ojlmp47m5ith9jdevm376gcrmhkb87kd.apps.googleusercontent.com';
 
@@ -63,8 +63,7 @@ export default function Auth({ onNavigate }) {
   };
 
   const handleGoogleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://wabiskills-seminar.onrender.com/api';
-    window.location.href = `${apiUrl}/auth/google`;
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   // Check for token in URL (from OAuth callback)

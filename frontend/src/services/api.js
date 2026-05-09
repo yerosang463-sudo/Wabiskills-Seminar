@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://wabiskills-seminar.onrender.com/api';
+import { resolveApiBase } from '../utils/url.js';
+
+export const API_BASE_URL = resolveApiBase();
 
 export const api = {
   // Auth endpoints
