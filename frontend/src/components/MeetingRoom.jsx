@@ -57,11 +57,19 @@ export default function MeetingRoom({ onLeave, roomId }) {
         
         setLocalStream(stream);
         
-        // Set video element source
+        // Debug: Log stream details
+        console.log('Stream obtained:', stream);
+        console.log('Video tracks:', stream.getVideoTracks());
+        console.log('Audio tracks:', stream.getAudioTracks());
+        
+        // Set video element source and force playback
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
-          // Wait for video to be ready
-          await localVideoRef.current.play();
+          console.log('Video element srcObject set');
+          // Force video to play
+          localVideoRef.current.play().catch(err => {
+            console.error('Local video play error:', err);
+          });
         }
         
         console.log('Media initialized successfully');
