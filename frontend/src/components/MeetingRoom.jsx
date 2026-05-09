@@ -30,6 +30,12 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [mediaError, setMediaError] = useState('');
   const [isInitializing, setIsInitializing] = useState(true);
   const [retryNonce, setRetryNonce] = useState(0);
+  
+  // Waiting Room States
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [isHost, setIsHost] = useState(false);
+  const [waitingUsers, setWaitingUsers] = useState([]);
+  const [joinDenied, setJoinDenied] = useState(false);
 
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
@@ -139,6 +145,30 @@ export default function MeetingRoom({ onLeave, roomId }) {
       if (pc) await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
     };
 
+    const onRoomJoined = (data) => {
+      setIsWaiting(false);
+      setIsHost(data.isHost);
+    };
+
+    const onWaitingForHost = () => {
+      setIsWaiting(true);
+    };
+
+    const onJoinDenied = () => {
+      setJoinDenied(true);
+    };
+
+    const onUserWaiting = (data) => {
+      setWaitingUsers((prev) => {
+        if (prev.some(u => u.socketId === data.socketId)) return prev;
+        return [...prev, data];
+      });
+    };
+
+    const onWaitingUsersList = (list) => {
+      setWaitingUsers(list);
+    };
+
     const onUserJoined = (data) => {
       setParticipants((prev) => {
         if (prev.some((p) => p.socketId === data.socketId)) return prev;
@@ -195,6 +225,13 @@ export default function MeetingRoom({ onLeave, roomId }) {
     socket.on('webrtc-offer', handleOffer);
     socket.on('webrtc-answer', handleAnswer);
     socket.on('webrtc-ice-candidate', handleIceCandidate);
+
+    // Waiting room events
+    socket.on('room-joined', onRoomJoined);
+    socket.on('waiting-for-host', onWaitingForHost);
+    socket.on('join-denied', onJoinDenied);
+    socket.on('user-waiting', onUserWaiting);
+    socket.on('waiting-users-list', onWaitingUsersList);
 
     async function acquireMediaThenJoin() {
       try {
@@ -260,6 +297,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
         socket.emit('join-room', {
           roomId,
           username: localStorage.getItem('username') || 'Guest',
+          token: localStorage.getItem('token'),
         });
       } catch (err) {
         console.error('Error accessing media devices:', err);
@@ -298,6 +336,11 @@ export default function MeetingRoom({ onLeave, roomId }) {
       socket.off('webrtc-offer', handleOffer);
       socket.off('webrtc-answer', handleAnswer);
       socket.off('webrtc-ice-candidate', handleIceCandidate);
+      socket.off('room-joined', onRoomJoined);
+      socket.off('waiting-for-host', onWaitingForHost);
+      socket.off('join-denied', onJoinDenied);
+      socket.off('user-waiting', onUserWaiting);
+      socket.off('waiting-users-list', onWaitingUsersList);
 
       stopLocalMedia();
       closeAllPeers();
@@ -383,6 +426,48 @@ export default function MeetingRoom({ onLeave, roomId }) {
     setMessages((prev) => [...prev, { ...msgData, isOwn: true }]);
     setMessage('');
   };
+
+  const handleAdmit = (socketId) => {
+    getSocket().emit('admit-user', { roomId, targetSocketId: socketId });
+    setWaitingUsers(prev => prev.filter(u => u.socketId !== socketId));
+  };
+
+  const handleDeny = (socketId) => {
+    getSocket().emit('deny-user', { roomId, targetSocketId: socketId });
+    setWaitingUsers(prev => prev.filter(u => u.socketId !== socketId));
+  };
+
+  if (joinDenied) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-screen bg-[#202124] text-white">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+            <X size={32} className="text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold">Entry Denied</h2>
+          <p className="text-slate-400">The host declined your request to join.</p>
+          <button onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isWaiting) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-screen bg-[#202124] text-white">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto" />
+          <h2 className="text-2xl font-bold">Waiting for Host</h2>
+          <p className="text-slate-400">Please wait, the meeting host will let you in soon.</p>
+          <button onClick={onLeave} className="text-red-400 hover:text-red-300 mt-6 block mx-auto underline">
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex h-screen overflow-hidden bg-[#202124] text-white font-sans">
@@ -476,6 +561,30 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
           </div>
         </div>
+
+        {isHost && waitingUsers.length > 0 && (
+          <div className="absolute top-20 right-6 z-50 w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center">
+              <span className="bg-indigo-500 text-xs px-2 py-0.5 rounded-full mr-2">{waitingUsers.length}</span>
+              Waiting to join
+            </h3>
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {waitingUsers.map(user => (
+                <div key={user.socketId} className="flex items-center justify-between bg-slate-800 p-3 rounded-lg">
+                  <span className="text-sm font-medium text-slate-200 truncate pr-2">{user.username}</span>
+                  <div className="flex space-x-2">
+                    <button onClick={() => handleDeny(user.socketId)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-md transition-colors">
+                      <X size={16} />
+                    </button>
+                    <button onClick={() => handleAdmit(user.socketId)} className="p-1.5 text-emerald-400 hover:bg-emerald-500/20 rounded-md transition-colors">
+                      <Check size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="absolute bottom-6 left-6 z-20 flex items-center text-white pointer-events-auto">
           <span className="text-[15px] font-medium mr-4">{currentTime}</span>

@@ -1,55 +1,175 @@
+import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
 import models from '../database/index.js';
 
-const { Message, User } = models;
+const { Message, User, Room } = models;
 
 // Store active users and their socket IDs
 const activeUsers = new Map();
 // Store room participants
 const roomParticipants = new Map();
+// Store waiting users: roomId -> Map(socketId -> userInfo)
+const waitingUsers = new Map();
 
 export const setupSocketHandlers = (io) => {
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    // User joins a room
-    socket.on('join-room', async ({ roomId, username }) => {
+    // Helper to join actual room
+    const proceedToJoinRoom = (roomId, username, userId, isHost) => {
+      socket.join(roomId);
+      
+      activeUsers.set(socket.id, { userId, username, roomId, isHost });
+      
+      if (!roomParticipants.has(roomId)) {
+        roomParticipants.set(roomId, new Map());
+      }
+      roomParticipants.get(roomId).set(userId, {
+        userId,
+        username,
+        socketId: socket.id,
+        audioEnabled: true,
+        videoEnabled: true,
+        isHost
+      });
+
+      // Notify the user they joined successfully
+      socket.emit('room-joined', { isHost, roomId });
+
+      // Notify others in the room
+      socket.to(roomId).emit('user-joined', {
+        socketId: socket.id,
+        username,
+      });
+
+      // Send current participants to the new user
+      const participants = Array.from(roomParticipants.get(roomId).values()).filter(
+        (p) => p.userId !== userId
+      );
+      socket.emit('participants-list', participants);
+
+      console.log(`User ${username} (${userId}) joined room ${roomId}. Host: ${isHost}`);
+    };
+
+    // User attempts to join a room
+    socket.on('join-room', async ({ roomId, username, token }) => {
       try {
-        socket.join(roomId);
-        
-        // Use socket.id as userId if not provided
-        const userId = socket.id;
-        
-        // Store user info
-        activeUsers.set(socket.id, { userId, username, roomId });
-        
-        // Add to room participants
-        if (!roomParticipants.has(roomId)) {
-          roomParticipants.set(roomId, new Map());
+        let dbUserId = null;
+        if (token) {
+          try {
+            const decoded = jwt.verify(token, config.jwt.secret);
+            dbUserId = decoded.userId;
+          } catch (e) {
+            console.log('Invalid token provided for join-room');
+          }
         }
-        roomParticipants.get(roomId).set(userId, {
-          userId,
-          username,
-          socketId: socket.id,
-          audioEnabled: true,
-          videoEnabled: true,
-        });
 
-        // Notify others in the room
-        socket.to(roomId).emit('user-joined', {
-          socketId: socket.id,
-          username,
-        });
+        const room = await Room.findOne({ where: { roomId } });
+        const userId = dbUserId || socket.id;
+        const isHost = Boolean(room && dbUserId && room.createdBy === dbUserId);
 
-        // Send current participants to the new user
-        const participants = Array.from(roomParticipants.get(roomId).values()).filter(
-          (p) => p.userId !== userId
-        );
-        socket.emit('participants-list', participants);
-
-        console.log(`User ${username} (${userId}) joined room ${roomId}`);
+        if (isHost) {
+          // Join immediately
+          proceedToJoinRoom(roomId, username, userId, true);
+          
+          // Send list of waiting users to the host
+          if (waitingUsers.has(roomId)) {
+            const waiting = Array.from(waitingUsers.get(roomId).values());
+            if (waiting.length > 0) {
+              socket.emit('waiting-users-list', waiting);
+            }
+          }
+        } else {
+          // Put in waiting room
+          socket.emit('waiting-for-host');
+          
+          if (!waitingUsers.has(roomId)) {
+            waitingUsers.set(roomId, new Map());
+          }
+          const waitingUserInfo = { username, socketId: socket.id, userId };
+          waitingUsers.get(roomId).set(socket.id, waitingUserInfo);
+          
+          // Notify any hosts currently in the room
+          if (roomParticipants.has(roomId)) {
+            const participants = Array.from(roomParticipants.get(roomId).values());
+            const hosts = participants.filter(p => p.isHost);
+            hosts.forEach(host => {
+              io.to(host.socketId).emit('user-waiting', waitingUserInfo);
+            });
+          }
+          
+          console.log(`User ${username} (${userId}) is waiting for host in room ${roomId}`);
+        }
       } catch (error) {
         console.error('Error joining room:', error);
         socket.emit('error', { message: 'Failed to join room' });
+      }
+    });
+
+    // Host admits a user
+    socket.on('admit-user', ({ roomId, targetSocketId }) => {
+      const user = activeUsers.get(socket.id);
+      if (!user || !user.isHost) return;
+
+      if (waitingUsers.has(roomId)) {
+        const waitingUser = waitingUsers.get(roomId).get(targetSocketId);
+        if (waitingUser) {
+          waitingUsers.get(roomId).delete(targetSocketId);
+          
+          // Find the socket object of the waiting user
+          const targetSocket = io.sockets.sockets.get(targetSocketId);
+          if (targetSocket) {
+            // We need to execute the join logic in the context of the target socket
+            // Because proceedToJoinRoom uses `socket` closure, we have to replicate it
+            // or we can emit a success event to the target socket, and target socket responds with 'proceed-join'
+            
+            targetSocket.join(roomId);
+            activeUsers.set(targetSocket.id, { 
+              userId: waitingUser.userId, 
+              username: waitingUser.username, 
+              roomId, 
+              isHost: false 
+            });
+            
+            if (!roomParticipants.has(roomId)) {
+              roomParticipants.set(roomId, new Map());
+            }
+            roomParticipants.get(roomId).set(waitingUser.userId, {
+              userId: waitingUser.userId,
+              username: waitingUser.username,
+              socketId: targetSocket.id,
+              audioEnabled: true,
+              videoEnabled: true,
+              isHost: false
+            });
+
+            targetSocket.emit('room-joined', { isHost: false, roomId });
+            
+            targetSocket.to(roomId).emit('user-joined', {
+              socketId: targetSocket.id,
+              username: waitingUser.username,
+            });
+
+            const participants = Array.from(roomParticipants.get(roomId).values()).filter(
+              (p) => p.userId !== waitingUser.userId
+            );
+            targetSocket.emit('participants-list', participants);
+            
+            console.log(`User ${waitingUser.username} was admitted to room ${roomId}`);
+          }
+        }
+      }
+    });
+
+    // Host denies a user
+    socket.on('deny-user', ({ roomId, targetSocketId }) => {
+      const user = activeUsers.get(socket.id);
+      if (!user || !user.isHost) return;
+
+      if (waitingUsers.has(roomId)) {
+        waitingUsers.get(roomId).delete(targetSocketId);
+        io.to(targetSocketId).emit('join-denied');
+        console.log(`Socket ${targetSocketId} was denied entry to room ${roomId}`);
       }
     });
 
@@ -58,8 +178,8 @@ export const setupSocketHandlers = (io) => {
       try {
         socket.leave(roomId);
         
-        const userId = socket.id;
         const user = activeUsers.get(socket.id);
+        const userId = user ? user.userId : socket.id;
         
         // Remove from active users
         activeUsers.delete(socket.id);
@@ -115,8 +235,6 @@ export const setupSocketHandlers = (io) => {
     // Chat: Send message
     socket.on('chat-message', async ({ roomId, message, username, timestamp }) => {
       try {
-        // Find the room to get its database ID
-        const { Room, User, Message } = models;
         const room = await Room.findOne({ where: { roomId } });
         
         if (!room) {
@@ -124,10 +242,8 @@ export const setupSocketHandlers = (io) => {
           return;
         }
 
-        // Find user by username
         const user = await User.findOne({ where: { username } });
         
-        // Create message in database
         const dbMessage = await Message.create({
           roomId: room.id,
           sender: user?.id || null,
@@ -142,9 +258,7 @@ export const setupSocketHandlers = (io) => {
           socketId: socket.id
         };
 
-        // Broadcast to room
         io.to(roomId).emit('chat-message', msgData);
-
         console.log(`Message saved and sent in room ${roomId} by ${username}`);
       } catch (error) {
         console.error('Error sending message:', error);
@@ -158,12 +272,7 @@ export const setupSocketHandlers = (io) => {
         const participant = roomParticipants.get(roomId).get(userId);
         if (participant) {
           participant.audioEnabled = enabled;
-          
-          // Notify others in room
-          socket.to(roomId).emit('user-audio-toggled', {
-            userId,
-            enabled,
-          });
+          socket.to(roomId).emit('user-audio-toggled', { userId, enabled });
         }
       }
     });
@@ -174,33 +283,30 @@ export const setupSocketHandlers = (io) => {
         const participant = roomParticipants.get(roomId).get(userId);
         if (participant) {
           participant.videoEnabled = enabled;
-          
-          // Notify others in room
-          socket.to(roomId).emit('user-video-toggled', {
-            userId,
-            enabled,
-          });
+          socket.to(roomId).emit('user-video-toggled', { userId, enabled });
         }
       }
     });
 
     // Handle disconnection
     socket.on('disconnect', () => {
+      // Remove from waiting rooms
+      for (const [roomId, users] of waitingUsers.entries()) {
+        if (users.has(socket.id)) {
+          users.delete(socket.id);
+        }
+      }
+
       const user = activeUsers.get(socket.id);
       if (user) {
         const { userId, username, roomId } = user;
         
-        // Remove from room participants
         if (roomParticipants.has(roomId)) {
           roomParticipants.get(roomId).delete(userId);
-          
-          // Notify others in room
           socket.to(roomId).emit('user-left', { userId, socketId: socket.id });
         }
 
-        // Remove from active users
         activeUsers.delete(socket.id);
-
         console.log(`User ${username} (${userId}) disconnected`);
       }
     });
