@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -14,8 +15,33 @@ import { setupSocketHandlers } from './sockets/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendDist = path.resolve(__dirname, '../../frontend/dist');
-const canServeFrontend = fs.existsSync(path.join(frontendDist, 'index.html'));
+
+function resolveFrontendDist() {
+  const candidates = [
+    path.resolve(__dirname, '../../frontend/dist'),
+    path.resolve(process.cwd(), '../frontend/dist'),
+    path.resolve(process.cwd(), 'frontend/dist'),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'index.html'))) return dir;
+  }
+  return null;
+}
+
+const frontendDist = resolveFrontendDist();
+const canServeFrontend = Boolean(frontendDist);
+if (!canServeFrontend) {
+  console.warn(
+    '[SPA] frontend/dist/index.html not found. Deep links like /room/:id will 404 on this server. Build the frontend during deploy. Tried:',
+    [
+      path.resolve(__dirname, '../../frontend/dist'),
+      path.resolve(process.cwd(), '../frontend/dist'),
+      path.resolve(process.cwd(), 'frontend/dist'),
+    ].join(', '),
+  );
+} else {
+  console.log('[SPA] Serving React app from', frontendDist);
+}
 
 const app = express();
 const httpServer = createServer(app);
@@ -33,6 +59,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));
 

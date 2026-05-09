@@ -2,6 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { getSocket } from '../socket.js';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
 
+function RemoteVideoPlayer({ stream, className }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !stream) return;
+    el.srcObject = stream;
+    el.play?.().catch(() => {});
+    return () => {
+      if (el.srcObject === stream) el.srcObject = null;
+    };
+  }, [stream]);
+  return <video ref={ref} autoPlay playsInline className={className} />;
+}
+
 export default function MeetingRoom({ onLeave, roomId }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
@@ -92,7 +106,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        if (pc.connectionState === 'failed') {
           pc.close();
           delete peerConnections.current[targetSocketId];
           setRemoteStreams((prev) => {
@@ -134,14 +148,18 @@ export default function MeetingRoom({ onLeave, roomId }) {
       setTimeout(() => {
         if (cancelled || !mediaStreamRef.current) return;
         const pc = createPeerConnection(data.socketId);
-        pc.createOffer().then((offer) => {
-          pc.setLocalDescription(offer);
-          socket.emit('webrtc-offer', {
-            targetSocketId: data.socketId,
-            offer,
-            roomId,
-          });
-        });
+        pc.createOffer()
+          .then((offer) => {
+            return pc.setLocalDescription(offer).then(() => offer);
+          })
+          .then((offer) => {
+            socket.emit('webrtc-offer', {
+              targetSocketId: data.socketId,
+              offer,
+              roomId,
+            });
+          })
+          .catch((e) => console.warn('createOffer failed:', e));
       }, 500);
     };
 
@@ -191,22 +209,6 @@ export default function MeetingRoom({ onLeave, roomId }) {
         const videoDevices = devices.filter((d) => d.kind === 'videoinput');
         const audioDevices = devices.filter((d) => d.kind === 'audioinput');
 
-        if (videoDevices.length === 0) {
-          if (!cancelled) {
-            setMediaError('No camera found. Please connect a camera device.');
-            setLocalStream(null);
-          }
-          return;
-        }
-
-        if (audioDevices.length === 0) {
-          if (!cancelled) {
-            setMediaError('No microphone found. Please connect a microphone.');
-            setLocalStream(null);
-          }
-          return;
-        }
-
         const constraintSets = [
           {
             video: { width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -214,17 +216,18 @@ export default function MeetingRoom({ onLeave, roomId }) {
           },
           {
             video: {
-              deviceId: videoDevices[0]?.deviceId,
+              ...(videoDevices[0]?.deviceId ? { deviceId: { exact: videoDevices[0].deviceId } } : {}),
               width: { ideal: 640 },
               height: { ideal: 480 },
             },
             audio: {
-              deviceId: audioDevices[0]?.deviceId,
+              ...(audioDevices[0]?.deviceId ? { deviceId: { exact: audioDevices[0].deviceId } } : {}),
               echoCancellation: true,
               noiseSuppression: true,
             },
           },
           { video: true, audio: true },
+          { video: true, audio: false },
         ];
 
         let stream = null;
@@ -248,13 +251,11 @@ export default function MeetingRoom({ onLeave, roomId }) {
         }
 
         mediaStreamRef.current = stream;
+        const vTracks = stream.getVideoTracks();
+        const aTracks = stream.getAudioTracks();
+        setIsVideoOff(vTracks.length === 0 ? true : !vTracks[0].enabled);
+        setIsMuted(aTracks.length === 0 ? true : !aTracks[0].enabled);
         setLocalStream(stream);
-
-        const el = localVideoRef.current;
-        if (el) {
-          el.srcObject = stream;
-          el.play().catch((e) => console.warn('Local video play:', e));
-        }
 
         socket.emit('join-room', {
           roomId,
@@ -306,6 +307,15 @@ export default function MeetingRoom({ onLeave, roomId }) {
       setRemoteStreams({});
     };
   }, [roomId, retryNonce]);
+
+  // Bind MediaStream to <video> after React mounts the element (ref was null during getUserMedia).
+  useEffect(() => {
+    if (isInitializing || mediaError || !localStream) return;
+    const el = localVideoRef.current;
+    if (!el) return;
+    if (el.srcObject !== localStream) el.srcObject = localStream;
+    el.play?.().catch(() => {});
+  }, [localStream, isInitializing, mediaError, isVideoOff]);
 
   // Scroll chat
   useEffect(() => {
@@ -382,14 +392,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
         <div className="flex-1 p-4 md:p-6 pb-24 md:pb-28 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-7xl max-h-[800px]">
 
-            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center border-2 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group">
-              {isInitializing ? (
-                <div className="flex flex-col items-center justify-center space-y-3">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400" />
-                  <span className="text-indigo-400 text-sm">Initializing camera...</span>
+            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center min-h-[220px] border-2 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group">
+              {isInitializing && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#3c4043]">
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400" />
+                    <span className="text-indigo-400 text-sm">Initializing camera...</span>
+                  </div>
                 </div>
-              ) : mediaError ? (
-                <div className="flex flex-col items-center justify-center space-y-3 p-4">
+              )}
+              {!isInitializing && mediaError && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center space-y-3 p-4 bg-[#3c4043]">
                   <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
                     <VideoOff size={32} className="text-red-400" />
                   </div>
@@ -402,23 +415,30 @@ export default function MeetingRoom({ onLeave, roomId }) {
                     Retry
                   </button>
                 </div>
-              ) : isVideoOff || !localStream ? (
-                <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center">
-                  <User size={40} className="text-indigo-400" />
-                </div>
-              ) : (
-                <video
-                  ref={localVideoRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                  style={{ transform: 'scaleX(-1)' }}
-                  onError={(e) => {
-                    console.error('Local video error:', e);
-                    setMediaError('Camera failed to load. Please check permissions.');
-                  }}
-                />
+              )}
+
+              {localStream && !mediaError && !isInitializing && (
+                <>
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    className={`w-full h-full min-h-[200px] object-cover ${isVideoOff ? 'opacity-0 absolute inset-0 pointer-events-none' : ''}`}
+                    style={{ transform: 'scaleX(-1)' }}
+                    onError={() => {
+                      console.error('Local video element error');
+                      setMediaError('Camera failed to load. Please check permissions.');
+                    }}
+                  />
+                  {isVideoOff && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#3c4043]">
+                      <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                        <User size={40} className="text-indigo-400" />
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
@@ -439,17 +459,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent"
                 >
                   {remoteStream ? (
-                    <video
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-cover"
-                      ref={(videoEl) => {
-                        if (videoEl && videoEl.srcObject !== remoteStream) {
-                          videoEl.srcObject = remoteStream;
-                          videoEl.play().catch((e2) => console.warn('Remote play:', e2));
-                        }
-                      }}
-                    />
+                    <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[200px] object-cover" />
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
                       <span className="text-4xl text-purple-400 font-semibold">

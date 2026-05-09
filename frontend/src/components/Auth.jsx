@@ -63,7 +63,9 @@ export default function Auth({ onNavigate }) {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE_URL}/auth/google`;
+    const pathOnly = window.location.pathname || '/';
+    const suffix = pathOnly.startsWith('/room/') ? `?returnTo=${encodeURIComponent(pathOnly)}` : '';
+    window.location.href = `${API_BASE_URL}/auth/google${suffix}`;
   };
 
   // Check for token in URL (from OAuth callback)
