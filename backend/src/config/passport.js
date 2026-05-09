@@ -23,7 +23,8 @@ passport.use(
     {
       clientID: config.google.clientId,
       clientSecret: config.google.clientSecret,
-      callbackURL: config.google.callbackUrl,
+      callbackURL: config.google.callbackUrl ? config.google.callbackUrl : '/api/auth/google/callback',
+      proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

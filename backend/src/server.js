@@ -44,6 +44,7 @@ if (!canServeFrontend) {
 }
 
 const app = express();
+app.set('trust proxy', 1);
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
