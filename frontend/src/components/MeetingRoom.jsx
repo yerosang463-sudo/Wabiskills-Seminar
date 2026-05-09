@@ -19,6 +19,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [remoteStreams, setRemoteStreams] = useState({});
   const [mediaError, setMediaError] = useState('');
   const [isInitializing, setIsInitializing] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
@@ -42,7 +43,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
         setIsInitializing(true);
         setMediaError('');
         
-        // Request media permissions
+        // Request media permissions with fallback options
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: {
             width: { ideal: 1280 },
@@ -81,8 +82,10 @@ export default function MeetingRoom({ onLeave, roomId }) {
           errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings.';
         } else if (err.name === 'NotFoundError') {
           errorMessage = 'No camera or microphone found. Please connect a device.';
-        } else if (err.name === 'NotReadableError') {
-          errorMessage = 'Camera is already in use by another application.';
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          errorMessage = 'Camera is already in use by another application. Please close other applications using the camera and try again.';
+        } else if (err.name === 'OverconstrainedError') {
+          errorMessage = 'Camera constraints cannot be satisfied. Please try different settings.';
         }
         
         setMediaError(errorMessage);
@@ -277,6 +280,62 @@ export default function MeetingRoom({ onLeave, roomId }) {
     });
   };
 
+  const handleRetryCamera = async () => {
+    setRetryCount(prev => prev + 1);
+    setMediaError('');
+    setIsInitializing(true);
+    
+    try {
+      // Try with different constraints
+      const constraints = [
+        // First attempt: high quality
+        {
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: { echoCancellation: true, noiseSuppression: true }
+        },
+        // Second attempt: medium quality
+        {
+          video: { width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: { echoCancellation: true, noiseSuppression: true }
+        },
+        // Third attempt: basic quality
+        {
+          video: true,
+          audio: true
+        }
+      ];
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints[retryCount % 3]);
+      
+      setLocalStream(stream);
+      setMediaError('');
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+        localVideoRef.current.play().catch(err => {
+          console.error('Local video play error:', err);
+        });
+      }
+      
+      console.log('Camera access successful after retry');
+    } catch (err) {
+      console.error('Camera retry failed:', err);
+      let errorMessage = 'Failed to access camera/microphone';
+      
+      if (err.name === 'NotAllowedError') {
+        errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings and refresh the page.';
+      } else if (err.name === 'NotFoundError') {
+        errorMessage = 'No camera or microphone found. Please connect a device.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = 'Camera is still in use. Please close other applications (Zoom, Teams, etc.) and try again.';
+      }
+      
+      setMediaError(errorMessage);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
   const handleSendMessage = () => {
     if (message.trim()) {
       const msgData = {
@@ -315,10 +374,11 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   </div>
                   <span className="text-red-400 text-sm text-center">{mediaError}</span>
                   <button 
-                    onClick={() => window.location.reload()}
+                    onClick={handleRetryCamera}
                     className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600 transition-colors"
+                    disabled={retryCount >= 3}
                   >
-                    Retry
+                    {retryCount >= 3 ? `Retry (${retryCount}/3)` : 'Retry'}
                   </button>
                 </div>
               ) : isVideoOff || !localStream ? (
