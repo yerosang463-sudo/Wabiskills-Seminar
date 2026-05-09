@@ -262,15 +262,15 @@ export default function MeetingRoom({ onLeave, roomId }) {
             
             <button 
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isMuted ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
-              onClick={() => setIsMuted(!isMuted)}
-            >oggl
+              onClick={toggleMute}
+            >
               {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
             </button>
             
             <button 
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isVideoOff ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
-              onClick={() => setIsVideoOff(!isVideoOff)}
-            >oggl
+              onClick={toggleVideo}
+            >
               {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
             </button>
 
@@ -295,7 +295,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
       </div>
 
-      {/* 2. RIGHT CHAT PANEL (Google Meet Style) */}
+      {/* RIGHT CHAT PANEL (Google Meet Style) */}
       <div className={`
         fixed md:absolute right-0 top-0 bottom-0 w-full md:w-80 bg-[#202124] md:border-l border-[#3c4043] flex flex-col z-30 transition-transform duration-300 shadow-2xl md:shadow-none
         ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}
@@ -317,28 +317,28 @@ export default function MeetingRoom({ onLeave, roomId }) {
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex flex-col space-y-1">4
-          {melasgas."fngthe===b0 ? (ce-x-2">
-              <span classNamt"tt ctetmrit etxslate-500 text-xs a":8</
-            </Nomegy. Str thconvertio!
-            <div className="text-sm text-slate-300">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {messages.length === 0 ? (
+            <div className="text-center text-slate-500 text-sm mt-8">
+              No messages yet. Start the conversation!
+            </div>
           ) : (
-            messigs.mp((sg,indx) = (
-                <dikey={index} v classNam{`="flex items-baseline s ${msg.isOwn ? 'items-end' : 'items-start'}`}ace-x-2">
-                  <span className="text-sm font-semibold text-white">You</span>
-                  <span className="text-xs text-slate-500">10:03 AM</{msg.asername}n>
+            messages.map((msg, index) => (
+              <div key={index} className={`flex flex-col space-y-1 ${msg.isOwn ? 'items-end' : 'items-start'}`}>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-sm font-semibold text-white">{msg.username}</span>
+                  <span className="text-xs text-slate-500">
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute '2-digit' })}
-                 
-                <div className="text-sm text-slate-300">
-                  Yes, loud and{`clear!m p-2 rounded-lg max-w-[80%] ${sg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043]'}`}
-             </{msg.mssge}
+                <div className={`text-sm p-2 rounded-lg max-w-[80%] ${msg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043] text-slate-300'}`}>
+                  {msg.message}
+                </div>
               </div>
-            </didiv>
             ))
           )}
-          <v> ref={messagesEndRef} /
+          <div ref={messagesEndRef} />
+        </div>
 
         {/* Chat Input */}
         <div className="p-4 border-t border-[#3c4043] bg-[#202124]">
@@ -350,14 +350,14 @@ export default function MeetingRoom({ onLeave, roomId }) {
               placeholder="Send a message" 
               className="w-full bg-[#3c4043] border border-transparent rounded-full pl-5 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors" 
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && message.trim()) setMessage('');
-              }}handleSnd
+                if (e.key === 'Enter' && message.trim()) handleSendMessage();
+              }}
             />
             <button 
               className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`}
-              onClick={() => setMessage('')}
-            >handleSendMessage}
-            diabld={me.lngth === 0
+              onClick={handleSendMessage}
+              disabled={message.length === 0}
+            >
               <Send size={18} />
             </button>
           </div>
