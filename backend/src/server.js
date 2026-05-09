@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import passport from './config/passport.js';
@@ -8,6 +11,11 @@ import sequelize from './database/sequelize.js';
 import routes from './routes/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { setupSocketHandlers } from './sockets/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDist = path.resolve(__dirname, '../../frontend/dist');
+const canServeFrontend = fs.existsSync(path.join(frontendDist, 'index.html'));
 
 const app = express();
 const httpServer = createServer(app);
@@ -38,6 +46,21 @@ app.use('/api', routes);
 
 // Socket.IO connection handling
 setupSocketHandlers(io);
+
+// Single-host deploy: SPA from frontend/dist (/room/:id shares one origin with API + WebSocket)
+if (canServeFrontend) {
+  app.use(
+    express.static(frontendDist, {
+      fallthrough: true,
+    }),
+  );
+  app.use((req, res, next) => {
+    if ((req.method !== 'GET' && req.method !== 'HEAD') || req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    return res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use(notFoundHandler);
