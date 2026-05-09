@@ -60,7 +60,7 @@ export default function Auth({ onNavigate }) {
   };
 
   const handleGoogleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://wabiskills-seminar.onrender.com/api';
     window.location.href = `${apiUrl.replace('/api', '')}/auth/google`;
   };
 

@@ -12,7 +12,6 @@ build/
 backend/RENDER_DEPLOYMENT.md
 frontend/VERCEL_DEPLOYMENT.md
 backend/render.yaml
-frontend/vercel.json
 
 # Logs
 *.log
