@@ -1,1 +1,23 @@
-gitignore for untrack file
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Deployment guides (keep local)
+backend/RENDER_DEPLOYMENT.md
+frontend/VERCEL_DEPLOYMENT.md
+backend/render.yaml
+frontend/vercel.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
