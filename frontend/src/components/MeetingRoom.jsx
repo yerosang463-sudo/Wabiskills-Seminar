@@ -157,7 +157,13 @@ export default function MeetingRoom({ onLeave, roomId }) {
   // WebRTC functions
   const createPeerConnection = (targetSocketId) => {
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' }
+      ]
     });
 
     if (localStream) {
@@ -183,6 +189,20 @@ export default function MeetingRoom({ onLeave, roomId }) {
         ...prev,
         [targetSocketId]: remoteStream
       }));
+    };
+
+    pc.onconnectionstatechange = () => {
+      console.log('Connection state for', targetSocketId, ':', pc.connectionState);
+      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        console.log('Connection failed/disconnected, cleaning up...');
+        pc.close();
+        delete peerConnections.current[targetSocketId];
+        setRemoteStreams(prev => {
+          const newStreams = { ...prev };
+          delete newStreams[targetSocketId];
+          return newStreams;
+        });
+      }
     };
 
     peerConnections.current[targetSocketId] = pc;
@@ -305,6 +325,13 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   playsInline
                   className="w-full h-full object-cover"
                   style={{ transform: 'scaleX(-1)' }} // Mirror effect for local video
+                  onError={(e) => {
+                    console.error('Local video error:', e);
+                    setMediaError('Camera failed to load. Please check permissions.');
+                  }}
+                  onLoad={() => {
+                    console.log('Local video loaded successfully');
+                  }}
                 />
               )}
               
@@ -331,7 +358,16 @@ export default function MeetingRoom({ onLeave, roomId }) {
                       ref={(videoEl) => {
                         if (videoEl && videoEl.srcObject !== remoteStream) {
                           videoEl.srcObject = remoteStream;
+                          videoEl.play().catch(err => {
+                            console.error('Remote video play error:', err);
+                          });
                         }
+                      }}
+                      onError={(e) => {
+                        console.error('Remote video error:', e);
+                      }}
+                      onLoad={() => {
+                        console.log('Remote video loaded successfully');
                       }}
                     />
                   ) : (

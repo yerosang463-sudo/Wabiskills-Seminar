@@ -4,6 +4,16 @@ services:
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /room/*
+        destination: /index.html
+      - type: rewrite
+        source: /meeting/*
+        destination: /index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_URL
         value: https://wabiskills-seminar.onrender.com/api
