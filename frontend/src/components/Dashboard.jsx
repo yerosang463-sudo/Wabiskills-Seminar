@@ -3,12 +3,42 @@ import { Video, LogOut, Plus, Users, LayoutDashboard } from 'lucide-react';
 
 export default function Dashboard({ onNavigate, onJoinRoom }) {
   const [joinId, setJoinId] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreateRoom = () => {
-    // Generate a Google Meet style random ID: xxx-xxxx-xxx
-    const generateSegment = (length) => Math.random().toString(36).substring(2, 2 + length);
-    const newRoomId = `${generateSegment(3)}-${generateSegment(4)}-${generateSegment(3)}`;
-    onJoinRoom(newRoomId);
+  const handleCreateRoom = async () => {
+    setIsCreating(true);
+    try {
+      // Generate a Google Meet style random ID: xxx-xxxx-xxx
+      const generateSegment = (length) => Math.random().toString(36).substring(2, 2 + length);
+      const newRoomId = `${generateSegment(3)}-${generateSegment(4)}-${generateSegment(3)}`;
+      
+      // Save room to database
+      const token = localStorage.getItem('token');
+      if (token) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ roomId: newRoomId })
+        });
+        
+        if (response.ok) {
+          console.log('Room saved to database:', newRoomId);
+        } else {
+          console.error('Failed to save room to database');
+        }
+      }
+      
+      onJoinRoom(newRoomId);
+    } catch (error) {
+      console.error('Error creating room:', error);
+      // Still navigate to room even if database save fails
+      onJoinRoom(newRoomId);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const handleJoinRoom = () => {
@@ -79,10 +109,11 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
                 <Plus className="mr-2 text-indigo-400" size={20} /> New Meeting
               </h2>
               <button 
-                className="premium-btn premium-btn-primary w-full py-4 text-base shadow-indigo-500/25"
+                className={`premium-btn premium-btn-primary w-full py-4 text-base shadow-indigo-500/25 ${isCreating ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={handleCreateRoom}
+                disabled={isCreating}
               >
-                Create Instant Room
+                {isCreating ? 'Creating Room...' : 'Create Instant Room'}
               </button>
             </div>
             
