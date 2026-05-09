@@ -43,18 +43,74 @@ export default function MeetingRoom({ onLeave, roomId }) {
         setIsInitializing(true);
         setMediaError('');
         
-        // Request media permissions with fallback options
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }, 
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
+        // Get available devices first
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        const audioDevices = devices.filter(device => device.kind === 'audioinput');
+        
+        console.log('Available video devices:', videoDevices);
+        console.log('Available audio devices:', audioDevices);
+        
+        if (videoDevices.length === 0) {
+          setMediaError('No camera found. Please connect a camera device.');
+          setIsInitializing(false);
+          return;
+        }
+        
+        if (audioDevices.length === 0) {
+          setMediaError('No microphone found. Please connect a microphone device.');
+          setIsInitializing(false);
+          return;
+        }
+        
+        // Try with different constraints and device IDs
+        const constraints = [
+          // First attempt: default camera
+          {
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }, 
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          },
+          // Second attempt: specific device ID
+          {
+            video: {
+              deviceId: videoDevices[0]?.deviceId,
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            }, 
+            audio: {
+              deviceId: audioDevices[0]?.deviceId,
+              echoCancellation: true,
+              noiseSuppression: true
+            }
+          },
+          // Third attempt: basic constraints
+          {
+            video: true,
+            audio: true
           }
-        });
+        ];
+        
+        let stream = null;
+        for (let i = 0; i < constraints.length; i++) {
+          try {
+            console.log(`Attempting camera access with constraints ${i + 1}:`, constraints[i]);
+            stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
+            console.log(`Success with constraints ${i + 1}`);
+            break;
+          } catch (err) {
+            console.log(`Constraints ${i + 1} failed:`, err);
+            if (i === constraints.length - 1) {
+              throw err;
+            }
+          }
+        }
         
         setLocalStream(stream);
         
@@ -79,11 +135,11 @@ export default function MeetingRoom({ onLeave, roomId }) {
         let errorMessage = 'Failed to access camera/microphone';
         
         if (err.name === 'NotAllowedError') {
-          errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings.';
+          errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings and refresh the page.';
         } else if (err.name === 'NotFoundError') {
           errorMessage = 'No camera or microphone found. Please connect a device.';
         } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-          errorMessage = 'Camera is already in use by another application. Please close other applications using the camera and try again.';
+          errorMessage = 'Camera is already in use. Please close other applications (Zoom, Teams, etc.) and try again.';
         } else if (err.name === 'OverconstrainedError') {
           errorMessage = 'Camera constraints cannot be satisfied. Please try different settings.';
         }
@@ -244,20 +300,42 @@ export default function MeetingRoom({ onLeave, roomId }) {
   };
 
   const toggleMute = () => {
+    console.log('Toggle mute called, current state:', isMuted);
+    console.log('Local stream available:', !!localStream);
+    
     if (localStream) {
-      localStream.getAudioTracks().forEach((track) => {
-        track.enabled = !track.enabled;
-      });
-      setIsMuted(!isMuted);
+      const audioTracks = localStream.getAudioTracks();
+      if (audioTracks.length > 0) {
+        const newMutedState = !isMuted;
+        audioTracks.forEach((track) => {
+          track.enabled = newMutedState;
+        });
+        setIsMuted(newMutedState);
+        console.log('Audio track enabled:', newMutedState);
+      }
+    } else {
+      console.log('No local stream available for mute toggle');
     }
   };
 
   const toggleVideo = () => {
+    console.log('Toggle video called, current state:', isVideoOff);
+    console.log('Local stream available:', !!localStream);
+    
     if (localStream) {
-      localStream.getVideoTracks().forEach((track) => {
-        track.enabled = !track.enabled;
-      });
-      setIsVideoOff(!isVideoOff);
+      const videoTracks = localStream.getVideoTracks();
+      if (videoTracks.length > 0) {
+        const newEnabledState = !isVideoOff;
+        videoTracks.forEach((track) => {
+          track.enabled = newEnabledState;
+        });
+        setIsVideoOff(newEnabledState);
+        console.log('Video track enabled:', newEnabledState);
+      }
+    } else {
+      console.log('No local stream available for video toggle');
+      // Try to reinitialize media if stream is not available
+      handleRetryCamera();
     }
   };
 
