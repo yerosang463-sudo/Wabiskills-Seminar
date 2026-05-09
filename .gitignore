@@ -11,7 +11,6 @@ build/
 # Deployment guides (keep local)
 backend/RENDER_DEPLOYMENT.md
 frontend/VERCEL_DEPLOYMENT.md
-backend/render.yaml
 
 # Logs
 *.log
