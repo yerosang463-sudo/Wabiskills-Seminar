@@ -12,7 +12,8 @@
     "test:ui": "vitest --ui",
     "db:init": "node scripts/init-database.js",
     "db:create-tables": "node -e \"import('./scripts/init-database.js').then(m => m.default())\"",
-    "db:reset": "node scripts/reset-database.js"
+    "db:reset": "node scripts/reset-database.js",
+    "db:check": "node scripts/check-database.js"
   },
   "keywords": [
     "webrtc",

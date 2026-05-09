@@ -115,8 +115,27 @@ export const setupSocketHandlers = (io) => {
     // Chat: Send message
     socket.on('chat-message', async ({ roomId, message, username, timestamp }) => {
       try {
+        // Find the room to get its database ID
+        const { Room, User, Message } = models;
+        const room = await Room.findOne({ where: { roomId } });
+        
+        if (!room) {
+          console.log(`Room ${roomId} not found in database`);
+          return;
+        }
+
+        // Find user by username
+        const user = await User.findOne({ where: { username } });
+        
+        // Create message in database
+        const dbMessage = await Message.create({
+          roomId: room.id,
+          sender: user?.id || null,
+          message: message.trim()
+        });
+
         const msgData = {
-          id: Date.now().toString(),
+          id: dbMessage.id,
           message,
           username: username || 'Guest',
           timestamp: timestamp || new Date().toISOString(),
@@ -126,7 +145,7 @@ export const setupSocketHandlers = (io) => {
         // Broadcast to room
         io.to(roomId).emit('chat-message', msgData);
 
-        console.log(`Message sent in room ${roomId} by ${username}`);
+        console.log(`Message saved and sent in room ${roomId} by ${username}`);
       } catch (error) {
         console.error('Error sending message:', error);
         socket.emit('error', { message: 'Failed to send message' });
