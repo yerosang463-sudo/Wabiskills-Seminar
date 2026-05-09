@@ -25,8 +25,9 @@ router.get(
       { expiresIn: config.jwt.expiry }
     );
 
-    // Redirect to frontend with token
-    res.redirect(`${config.cors.origin}?token=${token}`);
+    // Redirect to frontend with token and user data
+    const redirectUrl = `${config.cors.origin}?token=${token}&username=${encodeURIComponent(req.user.username)}`;
+    res.redirect(redirectUrl);
   }
 );
 
