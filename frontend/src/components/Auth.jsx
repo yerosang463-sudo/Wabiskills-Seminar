@@ -42,11 +42,14 @@ export default function Auth({ onNavigate }) {
       }
 
       if (response.success) {
-        // Store token
+        // Store token and username
         if (response.data.token) {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.user || response.data));
         }
+        // Store username for meeting room
+        const userUsername = response.data.user?.username || response.data.username || username;
+        localStorage.setItem('username', userUsername);
         setIsLoading(false);
         onNavigate('dashboard');
       } else {
@@ -65,8 +68,12 @@ export default function Auth({ onNavigate }) {
   };
 
   // Check for token in URL (from OAuth callback)
-  useState(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+  usconst username = urlParams.get('username');
+    eState(() => {
+    const urlParams = new URLSearchParaen);
+      if (usmrsame( {
+        localStorage.setItem('username', username)w
+      }indow.location.search);
     const token = urlParams.get('token');
     if (token) {
       localStorage.setItem('token', token);

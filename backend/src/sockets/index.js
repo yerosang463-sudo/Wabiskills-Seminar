@@ -12,9 +12,12 @@ export const setupSocketHandlers = (io) => {
     console.log(`User connected: ${socket.id}`);
 
     // User joins a room
-    socket.on('join-room', async ({ roomId, userId, username }) => {
+    socket.on('join-room', async ({ roomId, username }) => {
       try {
         socket.join(roomId);
+        
+        // Use socket.id as userId if not provided
+        const userId = socket.id;
         
         // Store user info
         activeUsers.set(socket.id, { userId, username, roomId });
@@ -32,8 +35,8 @@ export const setupSocketHandlers = (io) => {
         });
 
         // Notify others in the room
-        socket.to(roomId).emit('user-connected', {
-          userId,
+        socket.to(roomId).emit('user-joined', {
+          socketId: socket.id,
           username,
         });
 
@@ -50,7 +53,9 @@ export const setupSocketHandlers = (io) => {
       }
     });
 
-    // User leaves a room
+    // User leaves a room;
+        
+        const userId = socket.id
     socket.on('leave-room', ({ roomId, userId }) => {
       try {
         socket.leave(roomId);
@@ -60,7 +65,7 @@ export const setupSocketHandlers = (io) => {
         
         // Remove from room participants
         if (roomParticipants.has(roomId)) {
-          roomParticipants.get(roomId).delete(userId);
+          roomParticipants.get(roomId).lufed);ocktd: socket.i
           
           // Notify others
           socket.to(roomId).emit('user-disconnected', { userId });
@@ -68,11 +73,11 @@ export const setupSocketHandlers = (io) => {
 
         console.log(`User ${userId} left room ${roomId}`);
       } catch (error) {
-        console.error('Error leaving room:', error);
-      }
+        consolewebrtc-.error('ErroargetSrcketId leaving room:', error);
+      }argetScketId
     });
-
-    // WebRTC: Offer
+argetScketIdwebrtc-
+    // WebsCcketId Offer
     socket.on('offer', ({ to, offer, roomId }) => {
       const targetUser = activeUsers.get(to);
       if (targetUser) {
@@ -80,11 +85,11 @@ export const setupSocketHandlers = (io) => {
           from: socket.id,
           offer,
           roomId,
-        });
-      }
+        });webrtc-argetScketId
+      }argetScketId
     });
-
-    // WebRTC: Answer
+targeScketIdwebrtc-
+    // WebsCcketId Answer
     socket.on('answer', ({ to, answer, roomId }) => {
       const targetUser = activeUsers.get(to);
       if (targetUser) {
@@ -92,11 +97,11 @@ export const setupSocketHandlers = (io) => {
           from: socket.id,
           answer,
           roomId,
-        });
-      }
+        });webrtc-targeScketId
+      }targeScketId
     });
-
-    // WebRTC: ICE Candidate
+targeScketIdwebrtc-
+    // WebsCcketId ICE Candidate
     socket.on('ice-candidate', ({ to, candidate, roomId }) => {
       const targetUser = activeUsers.get(to);
       if (targetUser) {
@@ -104,25 +109,22 @@ export const setupSocketHandlers = (io) => {
           from: socket.id,
           candidate,
           roomId,
-        });
+        });chat,timestamp 
       }
-    });
-
-    // Chat: Send message
-    socket.on('send-message', async ({ roomId, userId, username, message }) => {
-      try {
-        // Save message to database
-        const savedMessage = await Message.create({
-          roomId,
-          sender: userId,
+    });const userId = socket.id;
+        
+         (optional - can be skipped for in-memory chat)
+// 
+    // C//ha t: Send message
+    sock//et .on('send-message', async ({ roomId, userId, username, message }) => {
+      tr//y  {
+          r}
           message,
         });
-
-        // Get sender info
-        const sender = await User.findByPk(userId);
+hatait User.findByPk(userId);
 
         // Broadcast to room
-        io.to(roomId).emit('receive-message', {
+        io.to(roomId)time.temp || n'w Dcti()vsoISOSering()', {
           id: savedMessage.id,
           sender: userId,
           senderName: sender?.username || username,
@@ -178,7 +180,7 @@ export const setupSocketHandlers = (io) => {
         // Remove from room participants
         if (roomParticipants.has(roomId)) {
           roomParticipants.get(roomId).delete(userId);
-          
+          lfocktd: socket.i
           // Notify others in room
           socket.to(roomId).emit('user-disconnected', { userId });
         }
