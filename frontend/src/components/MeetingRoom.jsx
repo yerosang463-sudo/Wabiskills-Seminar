@@ -17,6 +17,8 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [localStream, setLocalStream] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [remoteStreams, setRemoteStreams] = useState({});
+  const [mediaError, setMediaError] = useState('');
+  const [isInitializing, setIsInitializing] = useState(true);
   
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
@@ -37,13 +39,47 @@ export default function MeetingRoom({ onLeave, roomId }) {
   useEffect(() => {
     const initMedia = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setIsInitializing(true);
+        setMediaError('');
+        
+        // Request media permissions
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: {
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }, 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        
         setLocalStream(stream);
+        
+        // Set video element source
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
+          // Wait for video to be ready
+          await localVideoRef.current.play();
         }
+        
+        console.log('Media initialized successfully');
       } catch (err) {
         console.error('Error accessing media devices:', err);
+        let errorMessage = 'Failed to access camera/microphone';
+        
+        if (err.name === 'NotAllowedError') {
+          errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings.';
+        } else if (err.name === 'NotFoundError') {
+          errorMessage = 'No camera or microphone found. Please connect a device.';
+        } else if (err.name === 'NotReadableError') {
+          errorMessage = 'Camera is already in use by another application.';
+        }
+        
+        setMediaError(errorMessage);
+      } finally {
+        setIsInitializing(false);
       }
     };
 
@@ -239,7 +275,25 @@ export default function MeetingRoom({ onLeave, roomId }) {
             
             {/* You (Local Video) */}
             <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center border-2 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group">
-              {isVideoOff || !localStream ? (
+              {isInitializing ? (
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400"></div>
+                  <span className="text-indigo-400 text-sm">Initializing camera...</span>
+                </div>
+              ) : mediaError ? (
+                <div className="flex flex-col items-center justify-center space-y-3 p-4">
+                  <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <VideoOff size={32} className="text-red-400" />
+                  </div>
+                  <span className="text-red-400 text-sm text-center">{mediaError}</span>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600 transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : isVideoOff || !localStream ? (
                 <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center">
                   <User size={40} className="text-indigo-400" />
                 </div>
@@ -250,6 +304,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   muted
                   playsInline
                   className="w-full h-full object-cover"
+                  style={{ transform: 'scaleX(-1)' }} // Mirror effect for local video
                 />
               )}
               
