@@ -64,7 +64,7 @@ export default function Auth({ onNavigate }) {
 
   const handleGoogleLogin = () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'https://wabiskills-seminar.onrender.com/api';
-    window.location.href = `${apiUrl.replace('/api', '')}/auth/google`;
+    window.location.href = `${apiUrl}/auth/google`;
   };
 
   // Check for token in URL (from OAuth callback)
