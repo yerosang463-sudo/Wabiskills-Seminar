@@ -3,5 +3,8 @@
   "outputDirectory": "dist",
   "env": {
     "VITE_API_URL": "https://wabiskills-seminar.onrender.com/api"
-  }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
