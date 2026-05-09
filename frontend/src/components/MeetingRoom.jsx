@@ -1,5 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
+
+const socket = io(import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://wabiskills-seminar.onrender.com', {
+  transports: ['websocket', 'polling']
+});
 
 export default function MeetingRoom({ onLeave, roomId }) {
   const [isMuted, setIsMuted] = useState(false);
@@ -8,6 +13,13 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [localStream, setLocalStream] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  
+  const localVideoRef = useRef(null);
+  const peerConnections = useRef({});
+  const messagesEndRef = useRef(null);
 
   // Update time every minute
   useEffect(() => {
@@ -20,10 +32,156 @@ export default function MeetingRoom({ onLeave, roomId }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize media and socket
+  useEffect(() => {
+    const initMedia = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        console.error('Error accessing media devices:', err);
+      }
+    };
+
+    initMedia();
+
+    // Connect to room
+    if (roomId) {
+      socket.emit('join-room', { roomId, username: localStorage.getItem('username') || 'Guest' });
+    }
+
+    // Socket event listeners
+    socket.on('user-joined', (data) => {
+      console.log('User joined:', data);
+      setParticipants((prev) => [...prev, data]);
+    });
+
+    socket.on('user-left', (data) => {
+      console.log('User left:', data);
+      setParticipants((prev) => prev.filter((p) => p.socketId !== data.socketId));
+    });
+
+    socket.on('chat-message', (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+
+    socket.on('webrtc-offer', async (data) => {
+      handleOffer(data);
+    });
+
+    socket.on('webrtc-answer', async (data) => {
+      handleAnswer(data);
+    });
+
+    socket.on('webrtc-ice-candidate', async (data) => {
+      handleIceCandidate(data);
+    });
+
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
+      }
+      socket.disconnect();
+    };
+  }, [roomId]);
+
+  // Scroll to bottom of chat
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // WebRTC functions
+  const createPeerConnection = (targetSocketId) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    });
+
+    if (localStream) {
+      localStream.getTracks().forEach((track) => {
+        pc.addTrack(track, localStream);
+      });
+    }
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('webrtc-ice-candidate', {
+          targetSocketId,
+          candidate: event.candidate,
+          roomId
+        });
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log('Received remote track');
+    };
+
+    peerConnections.current[targetSocketId] = pc;
+    return pc;
+  };
+
+  const handleOffer = async (data) => {
+    const pc = createPeerConnection(data.socketId);
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    socket.emit('webrtc-answer', { targetSocketId: data.socketId, answer, roomId });
+  };
+
+  const handleAnswer = async (data) => {
+    const pc = peerConnections.current[data.socketId];
+    if (pc) {
+      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+    }
+  };
+
+  const handleIceCandidate = async (data) => {
+    const pc = peerConnections.current[data.socketId];
+    if (pc) {
+      await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+    }
+  };
+
+  const toggleMute = () => {
+    if (localStream) {
+      localStream.getAudioTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const toggleVideo = () => {
+    if (localStream) {
+      localStream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsVideoOff(!isVideoOff);
+    }
+  };
+
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(roomId || 'xyz-abcd-efg');
+    const fullUrl = `${window.location.origin}/room/${roomId}`;
+    navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      const msgData = {
+        message: message.trim(),
+        username: localStorage.getItem('username') || 'Guest',
+        roomId,
+        timestamp: new Date().toISOString()
+      };
+      socket.emit('chat-message', msgData);
+      setMessages((prev) => [...prev, { ...msgData, isOwn: true }]);
+      setMessage('');
+    }
   };
 
   return (
@@ -36,14 +194,20 @@ export default function MeetingRoom({ onLeave, roomId }) {
         <div className="flex-1 p-4 md:p-6 pb-24 md:pb-28 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-7xl max-h-[800px]">
             
-            {/* You (Active Speaker) */}
+            {/* You (Local Video) */}
             <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center border-2 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group">
-              {isVideoOff ? (
+              {isVideoOff || !localStream ? (
                 <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center">
                   <User size={40} className="text-indigo-400" />
                 </div>
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-800"></div>
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
               )}
               
               <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
@@ -56,38 +220,19 @@ export default function MeetingRoom({ onLeave, roomId }) {
               </div>
             </div>
 
-            {/* User 2 */}
-            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
-              <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <span className="text-4xl text-purple-400 font-semibold">S</span>
+            {/* Remote Participants */}
+            {participants.map((participant, index) => (
+              <div key={participant.socketId} className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
+                <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-4xl text-purple-400 font-semibold">
+                    {participant.username?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+                  <span>{participant.username || 'User'}</span>
+                </div>
               </div>
-              <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
-                <MicOff size={14} className="text-red-400" />
-                <span>Sarah Jenkins</span>
-              </div>
-            </div>
-
-            {/* User 3 */}
-            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
-              <div className="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                <span className="text-4xl text-emerald-400 font-semibold">M</span>
-              </div>
-              <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
-                <MicOff size={14} className="text-red-400" />
-                <span>Mike T.</span>
-              </div>
-            </div>
-
-            {/* User 4 */}
-            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent">
-               <div className="w-24 h-24 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <span className="text-4xl text-amber-400 font-semibold">A</span>
-              </div>
-              <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
-                <MicOff size={14} className="text-red-400" />
-                <span>Alex R.</span>
-              </div>
-            </div>
+            ))}
 
           </div>
         </div>
@@ -96,18 +241,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
         <div className="absolute bottom-6 left-6 z-20 flex items-center text-white pointer-events-auto">
           <span className="text-[15px] font-medium mr-4">{currentTime}</span>
           <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block"></div>
-          <span className="text-[15px] font-medium hidden sm:block mr-4">WabiSeminar Design Review</span>
+          <span className="text-[15px] font-medium hidden sm:block mr-4">WabiSeminar Meeting</span>
           <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block"></div>
           <span className="text-[15px] font-mono mr-2">{roomId || 'xyz-abcd-efg'}</span>
           <button 
             onClick={handleCopyLink}
             className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white relative group"
-            title="Copy Room ID"
+            title="Copy Room Link"
           >
             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
-            {/* Tooltip */}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              {copied ? 'Copied!' : 'Copy join info'}
+              {copied ? 'Link copied!' : 'Copy meeting link'}
             </div>
           </button>
         </div>
@@ -119,14 +263,14 @@ export default function MeetingRoom({ onLeave, roomId }) {
             <button 
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isMuted ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
               onClick={() => setIsMuted(!isMuted)}
-            >
+            >oggl
               {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
             </button>
             
             <button 
               className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isVideoOff ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
               onClick={() => setIsVideoOff(!isVideoOff)}
-            >
+            >oggl
               {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
             </button>
 
@@ -174,26 +318,27 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
         {/* Chat Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex flex-col space-y-1">
-            <div className="flex items-baseline space-x-2">
-              <span className="text-sm font-semibold text-white">Sarah Jenkins</span>
-              <span className="text-xs text-slate-500">10:02 AM</span>
-            </div>
+          <div className="flex flex-col space-y-1">4
+          {melasgas."fngthe===b0 ? (ce-x-2">
+              <span classNamt"tt ctetmrit etxslate-500 text-xs a":8</
+            </Nomegy. Str thconvertio!
             <div className="text-sm text-slate-300">
-              Can everyone hear me clearly?
-            </div>
-          </div>
-          
-          <div className="flex flex-col space-y-1">
-            <div className="flex items-baseline space-x-2">
-              <span className="text-sm font-semibold text-white">You</span>
-              <span className="text-xs text-slate-500">10:03 AM</span>
-            </div>
-            <div className="text-sm text-slate-300">
-              Yes, loud and clear!
-            </div>
-          </div>
-        </div>
+          ) : (
+            messigs.mp((sg,indx) = (
+                <dikey={index} v classNam{`="flex items-baseline s ${msg.isOwn ? 'items-end' : 'items-start'}`}ace-x-2">
+                  <span className="text-sm font-semibold text-white">You</span>
+                  <span className="text-xs text-slate-500">10:03 AM</{msg.asername}n>
+                </div>
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute '2-digit' })}
+                 
+                <div className="text-sm text-slate-300">
+                  Yes, loud and{`clear!m p-2 rounded-lg max-w-[80%] ${sg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043]'}`}
+             </{msg.mssge}
+              </div>
+            </didiv>
+            ))
+          )}
+          <v> ref={messagesEndRef} /
 
         {/* Chat Input */}
         <div className="p-4 border-t border-[#3c4043] bg-[#202124]">
@@ -206,12 +351,13 @@ export default function MeetingRoom({ onLeave, roomId }) {
               className="w-full bg-[#3c4043] border border-transparent rounded-full pl-5 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors" 
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && message.trim()) setMessage('');
-              }}
+              }}handleSnd
             />
             <button 
               className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`}
               onClick={() => setMessage('')}
-            >
+            >handleSendMessage}
+            diabld={me.lngth === 0
               <Send size={18} />
             </button>
           </div>
