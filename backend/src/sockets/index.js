@@ -239,34 +239,34 @@ export const setupSocketHandlers = (io) => {
     // Chat: Send message
     socket.on('chat-message', async ({ roomId, message, username, timestamp }) => {
       try {
-        const room = await Room.findOne({ where: { roomId } });
-        
-        if (!room) {
-          console.log(`Room ${roomId} not found in database`);
-          return;
-        }
-
-        const user = await User.findOne({ where: { username } });
-        
-        const dbMessage = await Message.create({
-          roomId: room.id,
-          sender: user?.id || null,
-          message: message.trim()
-        });
-
         const msgData = {
-          id: dbMessage.id,
-          message,
+          message: message.trim(),
           username: username || 'Guest',
           timestamp: timestamp || new Date().toISOString(),
           socketId: socket.id
         };
 
+        // Broadcast immediately to everyone in the room (including sender)
         io.to(roomId).emit('chat-message', msgData);
-        console.log(`Message saved and sent in room ${roomId} by ${username}`);
+        console.log(`Chat message broadcast in room ${roomId} by ${username}`);
+
+        // Try to save to database as well
+        try {
+          const room = await Room.findOne({ where: { roomId } });
+          if (room) {
+            const user = await User.findOne({ where: { username } });
+            await Message.create({
+              roomId: room.id,
+              sender: user?.id || null,
+              message: message.trim()
+            });
+            console.log(`Message saved to database for room ${roomId}`);
+          }
+        } catch (dbError) {
+          console.warn('Could not save message to database:', dbError.message);
+        }
       } catch (error) {
-        console.error('Error sending message:', error);
-        socket.emit('error', { message: 'Failed to send message' });
+        console.error('Error in chat-message handler:', error);
       }
     });
 

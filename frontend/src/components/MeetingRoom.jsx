@@ -253,7 +253,11 @@ export default function MeetingRoom({ onLeave, roomId }) {
     };
 
     const onChatMessage = (data) => {
-      setMessages((prev) => [...prev, data]);
+      const socket = getSocket();
+      setMessages((prev) => [...prev, { 
+        ...data, 
+        isOwn: data.socketId === socket.id 
+      }]);
     };
 
     socket.on('user-joined', onUserJoined);
@@ -500,7 +504,6 @@ export default function MeetingRoom({ onLeave, roomId }) {
       timestamp: new Date().toISOString(),
     };
     socket.emit('chat-message', msgData);
-    setMessages((prev) => [...prev, { ...msgData, isOwn: true }]);
     setMessage('');
   };
 
