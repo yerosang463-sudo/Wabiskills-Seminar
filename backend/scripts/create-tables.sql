@@ -45,11 +45,5 @@ CREATE TABLE IF NOT EXISTS Messages (
   INDEX idx_timestamp (timestamp)
 );
 
--- Insert sample data (optional)
--- INSERT IGNORE INTO Users (username, email, password) VALUES 
--- ('admin', 'admin@wabiseminar.com', '$2b$10$example_hash'),
--- ('testuser', 'test@example.com', '$2b$10$example_hash');
 
--- INSERT IGNORE INTO Rooms (roomId, title, createdBy) VALUES 
--- ('test-room-123', 'Test Meeting Room', 1),
--- ('demo-room-456', 'Demo Room', 1);
+-- Sample data insertion has been removed for security
