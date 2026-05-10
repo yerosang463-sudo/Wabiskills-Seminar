@@ -33,11 +33,21 @@ passport.use(
         const googleId = profile.id;
 
         let user = await User.findOne({ where: { email } });
+        const avatar = profile.photos && profile.photos[0] ? profile.photos[0].value : null;
 
         if (user) {
-          // Update existing user with Google ID if they don't have one
-          if (!user.googleId) {
-            await user.update({ googleId });
+          // Sync username and googleId for existing users
+          const updates = {};
+          if (!user.googleId) updates.googleId = googleId;
+          if (avatar && user.avatar !== avatar) updates.avatar = avatar;
+          
+          // Always update username to Google name if it's different or if it was previously 'admin'
+          if (username && (user.username !== username || user.username.toLowerCase() === 'admin')) {
+            updates.username = username;
+          }
+
+          if (Object.keys(updates).length > 0) {
+            await user.update(updates);
           }
           return done(null, user);
         }
@@ -45,7 +55,8 @@ passport.use(
         user = await User.create({
           username,
           email,
-          googleId, // Save Google ID
+          googleId,
+          avatar,
           password: Math.random().toString(36).slice(-8), // Random password for OAuth users
         });
 
