@@ -126,12 +126,19 @@ const startServer = async () => {
 
       if (tableName && columns) {
         // TiDB instance may have googleIdd typo; accept either
-        const hasGoogleId = Boolean(
-          columns.googleId || columns.googleid || columns.googleIdd || columns.googleidd,
-        );
+        const hasGoogleId = Boolean(columns.googleId || columns.googleid);
+        const hasGoogleIdd = Boolean(columns.googleIdd || columns.googleidd);
 
         if (!hasGoogleId) {
           await queryInterface.addColumn(tableName, 'googleId', {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true,
+          });
+        }
+
+        if (!hasGoogleIdd) {
+          await queryInterface.addColumn(tableName, 'googleIdd', {
             type: DataTypes.STRING,
             allowNull: true,
             unique: true,
