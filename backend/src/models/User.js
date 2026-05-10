@@ -6,8 +6,8 @@ const User = sequelize.define(
   'User',
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     username: {
@@ -36,7 +36,6 @@ const User = sequelize.define(
     },
     googleId: {
       type: DataTypes.STRING,
-      field: 'googleIdd',
       unique: true,
       allowNull: true,
     },
@@ -46,7 +45,7 @@ const User = sequelize.define(
     },
   },
   {
-    tableName: 'users',
+    tableName: 'Users',
     freezeTableName: true,
     timestamps: true,
     hooks: {

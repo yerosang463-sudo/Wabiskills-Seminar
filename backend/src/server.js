@@ -127,7 +127,7 @@ const startServer = async () => {
 
       if (tableName && columns) {
         // Check for googleId
-        if (!columns.googleId && !columns.googleid && !columns.googleIdd && !columns.googleidd) {
+        if (!columns.googleId && !columns.googleid) {
           await queryInterface.addColumn(tableName, 'googleId', {
             type: DataTypes.STRING,
             allowNull: true,
