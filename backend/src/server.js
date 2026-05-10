@@ -109,7 +109,7 @@ const startServer = async () => {
     // Ensure legacy production databases have the expected columns (additive only)
     try {
       const queryInterface = sequelize.getQueryInterface();
-      const tableCandidates = ['users', 'Users'];
+      const tableCandidates = ['Users', 'users'];
       let tableName = null;
       let columns = null;
 
