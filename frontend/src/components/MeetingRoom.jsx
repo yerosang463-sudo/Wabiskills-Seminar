@@ -103,6 +103,16 @@ export default function MeetingRoom({ onLeave, roomId }) {
         }
       };
 
+      pc.onnegotiationneeded = async () => {
+        try {
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          socket.emit('webrtc-offer', { targetSocketId, offer, roomId });
+        } catch (err) {
+          console.warn('Negotiation needed failed:', err);
+        }
+      };
+
       pc.ontrack = (event) => {
         const [remoteStream] = event.streams;
         setRemoteStreams((prev) => ({
@@ -172,24 +182,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
     const onUserJoined = (data) => {
       setParticipants((prev) => {
         if (prev.some((p) => p.socketId === data.socketId)) return prev;
-        return [...prev, data];
+        return [...prev, {
+          socketId: data.socketId,
+          username: data.username,
+          audioEnabled: data.audioEnabled !== false,
+          videoEnabled: data.videoEnabled !== false
+        }];
       });
 
       setTimeout(() => {
         if (cancelled || !mediaStreamRef.current) return;
-        const pc = createPeerConnection(data.socketId);
-        pc.createOffer()
-          .then((offer) => {
-            return pc.setLocalDescription(offer).then(() => offer);
-          })
-          .then((offer) => {
-            socket.emit('webrtc-offer', {
-              targetSocketId: data.socketId,
-              offer,
-              roomId,
-            });
-          })
-          .catch((e) => console.warn('createOffer failed:', e));
+        createPeerConnection(data.socketId);
       }, 500);
     };
 
@@ -209,9 +212,26 @@ export default function MeetingRoom({ onLeave, roomId }) {
     const onParticipantsList = (list) => {
       const mapped =
         Array.isArray(list) && list.length > 0
-          ? list.map((p) => ({ socketId: p.socketId, username: p.username }))
+          ? list.map((p) => ({ 
+              socketId: p.socketId, 
+              username: p.username,
+              audioEnabled: p.audioEnabled !== false,
+              videoEnabled: p.videoEnabled !== false
+            }))
           : [];
       setParticipants(mapped);
+    };
+
+    const onUserAudioToggled = ({ socketId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.socketId === socketId ? { ...p, audioEnabled: enabled } : p))
+      );
+    };
+
+    const onUserVideoToggled = ({ socketId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.socketId === socketId ? { ...p, videoEnabled: enabled } : p))
+      );
     };
 
     const onChatMessage = (data) => {
@@ -225,6 +245,8 @@ export default function MeetingRoom({ onLeave, roomId }) {
     socket.on('webrtc-offer', handleOffer);
     socket.on('webrtc-answer', handleAnswer);
     socket.on('webrtc-ice-candidate', handleIceCandidate);
+    socket.on('user-audio-toggled', onUserAudioToggled);
+    socket.on('user-video-toggled', onUserVideoToggled);
 
     // Waiting room events
     socket.on('room-joined', onRoomJoined);
@@ -336,6 +358,8 @@ export default function MeetingRoom({ onLeave, roomId }) {
       socket.off('webrtc-offer', handleOffer);
       socket.off('webrtc-answer', handleAnswer);
       socket.off('webrtc-ice-candidate', handleIceCandidate);
+      socket.off('user-audio-toggled', onUserAudioToggled);
+      socket.off('user-video-toggled', onUserVideoToggled);
       socket.off('room-joined', onRoomJoined);
       socket.off('waiting-for-host', onWaitingForHost);
       socket.off('join-denied', onJoinDenied);
@@ -375,21 +399,56 @@ export default function MeetingRoom({ onLeave, roomId }) {
       track.enabled = !nextMuted;
     });
     setIsMuted(nextMuted);
+    
+    getSocket().emit('toggle-audio', { 
+      roomId, 
+      userId: getSocket().id, 
+      enabled: !nextMuted 
+    });
   };
 
-  const toggleVideo = () => {
+  const toggleVideo = async () => {
     const stream = localStream ?? mediaStreamRef.current;
-    if (!stream) {
-      setRetryNonce((n) => n + 1);
+    
+    // If no stream or no video tracks, we need to request them
+    if (!stream || stream.getVideoTracks().length === 0) {
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } } 
+        });
+        const videoTrack = newStream.getVideoTracks()[0];
+        
+        if (stream) {
+          stream.addTrack(videoTrack);
+          // Add to all existing peer connections
+          Object.values(peerConnections.current).forEach(pc => {
+            pc.addTrack(videoTrack, stream);
+          });
+        } else {
+          mediaStreamRef.current = newStream;
+          setLocalStream(newStream);
+        }
+        setIsVideoOff(false);
+        getSocket().emit('toggle-video', { roomId, userId: getSocket().id, enabled: true });
+      } catch (err) {
+        console.error('Failed to get video track:', err);
+        setRetryNonce(n => n + 1);
+      }
       return;
     }
+
     const videoTracks = stream.getVideoTracks();
-    if (videoTracks.length === 0) return;
     const nextVideoOff = !isVideoOff;
     videoTracks.forEach((track) => {
       track.enabled = !nextVideoOff;
     });
     setIsVideoOff(nextVideoOff);
+    
+    getSocket().emit('toggle-video', { 
+      roomId, 
+      userId: getSocket().id, 
+      enabled: !nextVideoOff 
+    });
   };
 
   const handleCopyLink = () => {
@@ -543,16 +602,19 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   key={participant.socketId}
                   className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent"
                 >
-                  {remoteStream ? (
+                  {remoteStream && participant.videoEnabled !== false ? (
                     <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[200px] object-cover" />
                   ) : (
-                    <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
-                      <span className="text-4xl text-purple-400 font-semibold">
-                        {participant.username?.[0]?.toUpperCase() || 'U'}
-                      </span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#3c4043]">
+                      <div className="w-24 h-24 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <span className="text-4xl text-purple-400 font-semibold">
+                          {participant.username?.[0]?.toUpperCase() || 'U'}
+                        </span>
+                      </div>
                     </div>
                   )}
-                  <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg">
+                  <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
+                    {participant.audioEnabled === false && <MicOff size={14} className="text-red-400" />}
                     <span>{participant.username || 'User'}</span>
                   </div>
                 </div>

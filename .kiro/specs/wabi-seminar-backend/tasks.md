@@ -25,7 +25,7 @@ This implementation plan breaks down the WabiSeminar Live MVP backend into discr
     - Create database/index.js to export models
     - _Requirements: 16.0_
 
-- [-] 2. Database Models & Associations
+- [ ] 2. Database Models & Associations
   - [ ] 2.1 Create User model with validation
     - Define User model with id, username, email, password, createdAt, updatedAt
     - Add unique constraints on username and email

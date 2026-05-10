@@ -40,6 +40,8 @@ export const setupSocketHandlers = (io) => {
       socket.to(roomId).emit('user-joined', {
         socketId: socket.id,
         username,
+        audioEnabled: true,
+        videoEnabled: true
       });
 
       // Send current participants to the new user
@@ -148,6 +150,8 @@ export const setupSocketHandlers = (io) => {
             targetSocket.to(roomId).emit('user-joined', {
               socketId: targetSocket.id,
               username: waitingUser.username,
+              audioEnabled: true,
+              videoEnabled: true
             });
 
             const participants = Array.from(roomParticipants.get(roomId).values()).filter(
@@ -267,23 +271,31 @@ export const setupSocketHandlers = (io) => {
     });
 
     // Meeting controls: Toggle audio
-    socket.on('toggle-audio', ({ roomId, userId, enabled }) => {
+    socket.on('toggle-audio', ({ roomId, enabled }) => {
+      const user = activeUsers.get(socket.id);
+      if (!user) return;
+      
+      const userId = user.userId;
       if (roomParticipants.has(roomId)) {
         const participant = roomParticipants.get(roomId).get(userId);
         if (participant) {
           participant.audioEnabled = enabled;
-          socket.to(roomId).emit('user-audio-toggled', { userId, enabled });
+          socket.to(roomId).emit('user-audio-toggled', { socketId: socket.id, enabled });
         }
       }
     });
 
     // Meeting controls: Toggle video
-    socket.on('toggle-video', ({ roomId, userId, enabled }) => {
+    socket.on('toggle-video', ({ roomId, enabled }) => {
+      const user = activeUsers.get(socket.id);
+      if (!user) return;
+
+      const userId = user.userId;
       if (roomParticipants.has(roomId)) {
         const participant = roomParticipants.get(roomId).get(userId);
         if (participant) {
           participant.videoEnabled = enabled;
-          socket.to(roomId).emit('user-video-toggled', { userId, enabled });
+          socket.to(roomId).emit('user-video-toggled', { socketId: socket.id, enabled });
         }
       }
     });
