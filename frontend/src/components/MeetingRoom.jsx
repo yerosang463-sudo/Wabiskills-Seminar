@@ -76,6 +76,10 @@ export default function MeetingRoom({ onLeave, roomId }) {
     };
 
     const createPeerConnection = (targetSocketId) => {
+      if (peerConnections.current[targetSocketId]) {
+        return peerConnections.current[targetSocketId];
+      }
+
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
@@ -85,13 +89,6 @@ export default function MeetingRoom({ onLeave, roomId }) {
           { urls: 'stun:stun4.l.google.com:19302' },
         ],
       });
-
-      const stream = mediaStreamRef.current;
-      if (stream) {
-        stream.getTracks().forEach((track) => {
-          pc.addTrack(track, stream);
-        });
-      }
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -133,16 +130,35 @@ export default function MeetingRoom({ onLeave, roomId }) {
         }
       };
 
+      const stream = mediaStreamRef.current;
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          // Check if track is already added to avoid duplicates
+          const alreadyAdded = pc.getSenders().some(s => s.track === track);
+          if (!alreadyAdded) {
+            pc.addTrack(track, stream);
+          }
+        });
+      }
+
       peerConnections.current[targetSocketId] = pc;
       return pc;
     };
 
     const handleOffer = async (data) => {
-      const pc = createPeerConnection(data.socketId);
-      await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit('webrtc-answer', { targetSocketId: data.socketId, answer, roomId });
+      let pc = peerConnections.current[data.socketId];
+      if (!pc) {
+        pc = createPeerConnection(data.socketId);
+      }
+      
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit('webrtc-answer', { targetSocketId: data.socketId, answer, roomId });
+      } catch (err) {
+        console.warn('handleOffer error:', err);
+      }
     };
 
     const handleAnswer = async (data) => {
@@ -191,7 +207,9 @@ export default function MeetingRoom({ onLeave, roomId }) {
       });
 
       setTimeout(() => {
-        if (cancelled || !mediaStreamRef.current) return;
+        if (cancelled) return;
+        // Create peer connection even if we don't have local media yet
+        // so we can at least see/hear others.
         createPeerConnection(data.socketId);
       }, 500);
     };
@@ -528,15 +546,24 @@ export default function MeetingRoom({ onLeave, roomId }) {
     );
   }
 
+  const allParticipantsCount = participants.length + 1;
+  const getGridClass = () => {
+    if (allParticipantsCount === 1) return 'flex items-center justify-center';
+    if (allParticipantsCount === 2) return 'grid grid-cols-1 md:grid-cols-2';
+    if (allParticipantsCount <= 4) return 'grid grid-cols-1 md:grid-cols-2';
+    if (allParticipantsCount <= 6) return 'grid grid-cols-1 md:grid-cols-3';
+    return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+  };
+
   return (
     <div className="flex-1 flex h-screen overflow-hidden bg-[#202124] text-white font-sans">
 
       <div className={`flex-1 flex flex-col transition-all duration-300 relative ${isChatOpen ? 'pr-0 md:pr-80' : 'pr-0'}`}>
 
         <div className="flex-1 p-4 md:p-6 pb-24 md:pb-28 overflow-y-auto w-full h-full flex items-center justify-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-7xl max-h-[800px]">
+          <div className={`${getGridClass()} gap-4 w-full h-full max-w-7xl mx-auto`}>
 
-            <div className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center min-h-[220px] border-2 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group">
+            <div className={`bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center min-h-[220px] border-2 border-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.3)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video' : ''}`}>
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#3c4043]">
                   <div className="flex flex-col items-center justify-center space-y-3">
@@ -585,7 +612,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
                 </>
               )}
 
-              <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
+              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2 border border-white/10">
                 {isMuted && <MicOff size={14} className="text-red-400" />}
                 <span>You</span>
               </div>
@@ -600,7 +627,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
               return (
                 <div
                   key={participant.socketId}
-                  className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-transparent"
+                  className="bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center group border border-white/5 shadow-xl aspect-video"
                 >
                   {remoteStream && participant.videoEnabled !== false ? (
                     <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[200px] object-cover" />
@@ -613,7 +640,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
                       </div>
                     </div>
                   )}
-                  <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2">
+                  <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2 border border-white/10">
                     {participant.audioEnabled === false && <MicOff size={14} className="text-red-400" />}
                     <span>{participant.username || 'User'}</span>
                   </div>
