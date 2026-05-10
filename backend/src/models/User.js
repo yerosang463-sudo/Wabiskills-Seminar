@@ -36,6 +36,7 @@ const User = sequelize.define(
     },
     googleId: {
       type: DataTypes.STRING,
+      field: 'googleIdd',
       unique: true,
       allowNull: true,
     },
@@ -45,7 +46,7 @@ const User = sequelize.define(
     },
   },
   {
-    tableName: 'Users',
+    tableName: 'users',
     freezeTableName: true,
     timestamps: true,
     hooks: {

@@ -5,25 +5,26 @@ const Message = sequelize.define(
   'Message',
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     roomId: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING(50),
       allowNull: false,
-      references: {
-        model: 'Rooms',
-        key: 'id',
-      },
+      // Note: This refers to Room.roomId, not Room.id
     },
     sender: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Users',
         key: 'id',
       },
+    },
+    messageType: {
+      type: DataTypes.ENUM('text', 'system', 'file'),
+      defaultValue: 'text',
     },
     message: {
       type: DataTypes.TEXT,

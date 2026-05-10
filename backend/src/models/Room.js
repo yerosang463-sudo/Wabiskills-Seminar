@@ -6,26 +6,38 @@ const Room = sequelize.define(
   'Room',
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     roomId: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
-      defaultValue: () => uuidv4(),
+      defaultValue: () => uuidv4().slice(0, 8), // Shorter roomId for better UX
       validate: {
         notEmpty: true,
       },
     },
+    title: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
     createdBy: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Users',
         key: 'id',
       },
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    maxParticipants: {
+      type: DataTypes.INTEGER,
+      defaultValue: 50,
     },
   },
   {

@@ -118,21 +118,37 @@ const startServer = async () => {
           // eslint-disable-next-line no-await-in-loop
           columns = await queryInterface.describeTable(candidate);
           tableName = candidate;
+          console.log(`Found table: ${tableName}`);
           break;
         } catch {
           // try next candidate
         }
       }
 
-      if (tableName && columns && !columns.avatar) {
-        await queryInterface.addColumn(tableName, 'avatar', {
-          type: DataTypes.STRING,
-          allowNull: true,
-        });
-        console.log(`Database migration applied: added 'avatar' column to ${tableName} table.`);
+      if (tableName && columns) {
+        // Check for googleId
+        if (!columns.googleId && !columns.googleid && !columns.googleIdd && !columns.googleidd) {
+          await queryInterface.addColumn(tableName, 'googleId', {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true,
+          });
+          console.log(`Database migration applied: added 'googleId' column to ${tableName} table.`);
+        }
+        
+        // Check for avatar
+        if (!columns.avatar && !columns.Avatar) {
+          await queryInterface.addColumn(tableName, 'avatar', {
+            type: DataTypes.STRING,
+            allowNull: true,
+          });
+          console.log(`Database migration applied: added 'avatar' column to ${tableName} table.`);
+        }
+      } else {
+        console.warn('Could not find Users table to apply migrations.');
       }
     } catch (error) {
-      console.warn('Skipping Users.avatar migration:', error?.message || error);
+      console.warn('Database migration failed:', error?.message || error);
     }
 
     // Start HTTP server
