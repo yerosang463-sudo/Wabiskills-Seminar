@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
+import { DataTypes } from 'sequelize';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
@@ -104,6 +105,35 @@ const startServer = async () => {
     // Sync database models
     await sequelize.sync({ alter: config.nodeEnv === 'development' });
     console.log('Database models synchronized.');
+
+    // Ensure legacy production databases have the expected columns
+    try {
+      const queryInterface = sequelize.getQueryInterface();
+      const tableCandidates = ['Users', 'users'];
+      let tableName = null;
+      let columns = null;
+
+      for (const candidate of tableCandidates) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          columns = await queryInterface.describeTable(candidate);
+          tableName = candidate;
+          break;
+        } catch {
+          // try next candidate
+        }
+      }
+
+      if (tableName && columns && !columns.avatar) {
+        await queryInterface.addColumn(tableName, 'avatar', {
+          type: DataTypes.STRING,
+          allowNull: true,
+        });
+        console.log(`Database migration applied: added 'avatar' column to ${tableName} table.`);
+      }
+    } catch (error) {
+      console.warn('Skipping Users.avatar migration:', error?.message || error);
+    }
 
     // Start HTTP server
     httpServer.listen(config.port, () => {
