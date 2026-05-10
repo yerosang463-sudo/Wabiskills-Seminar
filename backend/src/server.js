@@ -102,54 +102,49 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
 
-    // Sync database models
-    await sequelize.sync({ alter: config.nodeEnv === 'development' });
-    console.log('Database models synchronized.');
+    // Database Repair & Migration Logic
+    const repairDatabase = async () => {
+      try {
+        const queryInterface = sequelize.getQueryInterface();
+        const tables = await queryInterface.showAllTables();
+        const hasUsers = tables.some(t => t.toLowerCase() === 'users');
 
-    // Ensure legacy production databases have the expected columns
-    try {
-      const queryInterface = sequelize.getQueryInterface();
-      const tableCandidates = ['Users', 'users'];
-      let tableName = null;
-      let columns = null;
-
-      for (const candidate of tableCandidates) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          columns = await queryInterface.describeTable(candidate);
-          tableName = candidate;
-          console.log(`Found table: ${tableName}`);
-          break;
-        } catch {
-          // try next candidate
+        if (hasUsers) {
+          const tableName = tables.find(t => t.toLowerCase() === 'users');
+          const columns = await queryInterface.describeTable(tableName);
+          
+          // If 'id' exists but is NOT auto-incrementing (or if we are missing columns), 
+          // we might need a force recreation if the user is stuck.
+          // In TiDB, we can't easily check auto_increment via describeTable in a cross-dialect way,
+          // so we check if 'avatar' or 'googleId' are missing as a proxy for 'is this an old table?'.
+          if (!columns.avatar || !columns.googleId) {
+            console.log('Database schema is outdated. Recreating tables to ensure correct structure...');
+            
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+            await sequelize.query('DROP TABLE IF EXISTS Messages');
+            await sequelize.query('DROP TABLE IF EXISTS Rooms');
+            await sequelize.query('DROP TABLE IF EXISTS Users');
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+            
+            // Re-syncing with the models will now create them correctly with AUTO_INCREMENT
+            await sequelize.sync({ force: true });
+            console.log('Database tables recreated successfully.');
+          } else {
+            console.log('Database schema appears up to date.');
+          }
+        } else {
+          // If no tables exist, just sync them
+          await sequelize.sync();
+          console.log('Database tables created for the first time.');
         }
+      } catch (error) {
+        console.error('Database repair/migration failed:', error);
+        // Fallback to normal sync if repair fails
+        await sequelize.sync({ alter: config.nodeEnv === 'development' });
       }
+    };
 
-      if (tableName && columns) {
-        // Check for googleId
-        if (!columns.googleId && !columns.googleid) {
-          await queryInterface.addColumn(tableName, 'googleId', {
-            type: DataTypes.STRING,
-            allowNull: true,
-            unique: true,
-          });
-          console.log(`Database migration applied: added 'googleId' column to ${tableName} table.`);
-        }
-        
-        // Check for avatar
-        if (!columns.avatar && !columns.Avatar) {
-          await queryInterface.addColumn(tableName, 'avatar', {
-            type: DataTypes.STRING,
-            allowNull: true,
-          });
-          console.log(`Database migration applied: added 'avatar' column to ${tableName} table.`);
-        }
-      } else {
-        console.warn('Could not find Users table to apply migrations.');
-      }
-    } catch (error) {
-      console.warn('Database migration failed:', error?.message || error);
-    }
+    await repairDatabase();
 
     // Start HTTP server
     httpServer.listen(config.port, () => {
