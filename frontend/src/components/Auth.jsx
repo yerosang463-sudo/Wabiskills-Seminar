@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export default function Auth({ onNavigate }) {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true);// add coments
 
   return (
     <div className="flex-1 flex items-center justify-center p-4">
