@@ -36,6 +36,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [isHost, setIsHost] = useState(false);
   const [waitingUsers, setWaitingUsers] = useState([]);
   const [joinDenied, setJoinDenied] = useState(false);
+  const [roomNotFound, setRoomNotFound] = useState(false);
 
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
@@ -184,6 +185,10 @@ export default function MeetingRoom({ onLeave, roomId }) {
       setJoinDenied(true);
     };
 
+    const onRoomNotFound = () => {
+      setRoomNotFound(true);
+    };
+
     const onUserWaiting = (data) => {
       setWaitingUsers((prev) => {
         if (prev.some(u => u.socketId === data.socketId)) return prev;
@@ -274,6 +279,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
     socket.on('room-joined', onRoomJoined);
     socket.on('waiting-for-host', onWaitingForHost);
     socket.on('join-denied', onJoinDenied);
+    socket.on('room-not-found', onRoomNotFound);
     socket.on('user-waiting', onUserWaiting);
     socket.on('waiting-users-list', onWaitingUsersList);
 
@@ -385,6 +391,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
       socket.off('room-joined', onRoomJoined);
       socket.off('waiting-for-host', onWaitingForHost);
       socket.off('join-denied', onJoinDenied);
+      socket.off('room-not-found', onRoomNotFound);
       socket.off('user-waiting', onUserWaiting);
       socket.off('waiting-users-list', onWaitingUsersList);
 
@@ -474,7 +481,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
   };
 
   const handleCopyLink = () => {
-    const fullUrl = `${window.location.origin}/room/${roomId}`;
+    const fullUrl = `${window.location.origin}/meeting/${roomId}`;
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -526,6 +533,23 @@ export default function MeetingRoom({ onLeave, roomId }) {
           </div>
           <h2 className="text-2xl font-bold">Entry Denied</h2>
           <p className="text-slate-400">The host declined your request to join.</p>
+          <button onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (roomNotFound) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-screen bg-[#202124] text-white">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+            <X size={32} className="text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold">Room Not Found</h2>
+          <p className="text-slate-400">This meeting link is invalid or the meeting was not created.</p>
           <button onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
             Return to Dashboard
           </button>

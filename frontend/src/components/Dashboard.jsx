@@ -16,34 +16,34 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       
       // Save room to database
       const token = localStorage.getItem('token');
-      if (token) {
-        const response = await fetch(`${resolveApiBase()}/rooms`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ roomId: newRoomId })
-        });
-        
-        if (response.ok) {
-          console.log('Room saved to database:', newRoomId);
-        } else {
-          console.error('Failed to save room to database');
-        }
+      if (!token) {
+        console.error('No auth token found. Please log in again.');
+        return;
       }
-      
+
+      const response = await fetch(`${resolveApiBase()}/rooms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ roomId: newRoomId })
+      });
+
+      if (!response.ok) {
+        console.error('Failed to create room on server');
+        return;
+      }
+
       onJoinRoom(newRoomId);
     } catch (error) {
       console.error('Error creating room:', error);
-      // Still navigate to room even if database save fails
-      onJoinRoom(newRoomId);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
     let id = joinId.trim();
     if (!id) return;
     
@@ -58,7 +58,26 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       id = id.split('?')[0];
     }
 
-    onJoinRoom(id);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No auth token found. Please log in again.');
+        return;
+      }
+      const response = await fetch(`${resolveApiBase()}/rooms/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        console.error('Room not found');
+        return;
+      }
+      onJoinRoom(id);
+    } catch (error) {
+      console.error('Error joining room:', error);
+    }
   };
 
   return (

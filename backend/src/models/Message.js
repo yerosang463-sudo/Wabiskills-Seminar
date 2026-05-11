@@ -15,7 +15,7 @@ const Message = sequelize.define(
       // Note: This refers to Room.roomId, not Room.id
     },
     sender: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'Users',

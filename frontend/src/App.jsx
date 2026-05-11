@@ -37,7 +37,7 @@ function App() {
   const navigateToRoom = (roomId) => {
     setCurrentRoomId(roomId);
     setCurrentView('meeting');
-    window.history.pushState({}, '', `/room/${roomId}`);
+    window.history.pushState({}, '', `/meeting/${roomId}`);
   };
 
   const leaveRoom = () => {
@@ -51,7 +51,7 @@ function App() {
     if (roomId) {
       setCurrentRoomId(roomId);
       setCurrentView('meeting');
-      window.history.pushState({}, '', `/room/${roomId}`);
+      window.history.pushState({}, '', `/meeting/${roomId}`);
     } else {
       setCurrentView('dashboard');
     }

@@ -67,6 +67,11 @@ export const setupSocketHandlers = (io) => {
         }
 
         const room = await Room.findOne({ where: { roomId } });
+        if (!room) {
+          socket.emit('room-not-found', { roomId });
+          console.log(`Join rejected: room not found ${roomId} for socket ${socket.id}`);
+          return;
+        }
         const userId = dbUserId || socket.id;
         const isHost = Boolean(room && dbUserId && room.createdBy === dbUserId);
 

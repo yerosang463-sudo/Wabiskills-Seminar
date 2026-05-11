@@ -9,12 +9,15 @@ export const createRoom = async (req, res, next) => {
     const { roomId } = req.body;
     const finalRoomId = roomId || uuidv4();
 
-    const room = await Room.create({
-      roomId: finalRoomId,
-      createdBy: req.user.id,
+    const [room, created] = await Room.findOrCreate({
+      where: { roomId: finalRoomId },
+      defaults: {
+        roomId: finalRoomId,
+        createdBy: req.user.id,
+      },
     });
 
-    res.status(201).json({
+    res.status(created ? 201 : 200).json({
       success: true,
       data: {
         id: room.id,
@@ -83,7 +86,7 @@ export const joinRoom = async (req, res, next) => {
 
     // Get recent messages for the room
     const messages = await Message.findAll({
-      where: { roomId: room.id },
+      where: { roomId: room.roomId },
       include: [
         {
           model: User,

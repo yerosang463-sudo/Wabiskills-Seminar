@@ -24,7 +24,7 @@ const Room = sequelize.define(
       allowNull: true,
     },
     createdBy: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'Users',
