@@ -1,22 +1,57 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getSocket } from '../socket.js';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
 
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun3.l.google.com:19302' },
+  { urls: 'stun:stun4.l.google.com:19302' },
+];
+
 function RemoteVideoPlayer({ stream, className }) {
   const ref = useRef(null);
+
   useEffect(() => {
     const el = ref.current;
-    if (!el || !stream) return;
+    if (!el || !stream) return undefined;
+
     el.srcObject = stream;
     el.play?.().catch(() => {});
+
     return () => {
       if (el.srcObject === stream) el.srcObject = null;
     };
   }, [stream]);
+
   return <video ref={ref} autoPlay playsInline className={className} />;
 }
 
-export default function MeetingRoom({ onLeave, roomId }) {
+function addStreamTracksToPeer(pc, stream) {
+  stream.getTracks().forEach((track) => {
+    const alreadyAdded = pc.getSenders().some((sender) => sender.track?.id === track.id);
+    if (!alreadyAdded) {
+      pc.addTrack(track, stream);
+    }
+  });
+}
+
+function normalizeParticipants(list, selfSocketId) {
+  if (!Array.isArray(list)) return [];
+
+  return list
+    .filter((participant) => participant.socketId && participant.socketId !== selfSocketId)
+    .map((participant) => ({
+      socketId: participant.socketId,
+      username: participant.username || 'User',
+      audioEnabled: participant.audioEnabled !== false,
+      videoEnabled: participant.videoEnabled !== false,
+      isHost: Boolean(participant.isHost),
+    }));
+}
+
+export default function MeetingRoom({ onLeave, roomId, notify }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -28,10 +63,9 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const [participants, setParticipants] = useState([]);
   const [remoteStreams, setRemoteStreams] = useState({});
   const [mediaError, setMediaError] = useState('');
-  const [isInitializing, setIsInitializing] = useState(true);
-  const [retryNonce, setRetryNonce] = useState(0);
-  
-  // Waiting Room States
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [isJoining, setIsJoining] = useState(true);
+
   const [isWaiting, setIsWaiting] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [waitingUsers, setWaitingUsers] = useState([]);
@@ -40,15 +74,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
   const localVideoRef = useRef(null);
   const peerConnections = useRef({});
+  const pendingCandidates = useRef({});
   const messagesEndRef = useRef(null);
   const mediaStreamRef = useRef(null);
+  const acquireMediaRef = useRef(null);
 
-  // Update time every minute
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     };
+
     updateTime();
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
@@ -60,36 +96,67 @@ export default function MeetingRoom({ onLeave, roomId }) {
     const socket = getSocket();
     let cancelled = false;
 
-    const closeAllPeers = () => {
-      Object.values(peerConnections.current).forEach((pc) => {
+    const closePeer = (socketId) => {
+      const state = peerConnections.current[socketId];
+      if (state?.pc) {
         try {
-          pc.close();
-        } catch (_) {
-          /* noop */
+          state.pc.close();
+        } catch {
+          // noop
         }
+      }
+
+      delete peerConnections.current[socketId];
+      delete pendingCandidates.current[socketId];
+      setRemoteStreams((prev) => {
+        const next = { ...prev };
+        delete next[socketId];
+        return next;
       });
+    };
+
+    const closeAllPeers = () => {
+      Object.keys(peerConnections.current).forEach(closePeer);
       peerConnections.current = {};
+      pendingCandidates.current = {};
     };
 
     const stopLocalMedia = () => {
-      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
+      setLocalStream(null);
+    };
+
+    const addLocalTracksToAllPeers = (stream) => {
+      Object.values(peerConnections.current).forEach(({ pc }) => addStreamTracksToPeer(pc, stream));
+    };
+
+    const flushPendingCandidates = async (socketId) => {
+      const state = peerConnections.current[socketId];
+      const queued = pendingCandidates.current[socketId] || [];
+      if (!state?.pc?.remoteDescription || queued.length === 0) return;
+
+      pendingCandidates.current[socketId] = [];
+      for (const candidate of queued) {
+        try {
+          await state.pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+          if (!state.ignoreOffer) console.warn('Failed to add queued ICE candidate:', err);
+        }
+      }
     };
 
     const createPeerConnection = (targetSocketId) => {
-      if (peerConnections.current[targetSocketId]) {
-        return peerConnections.current[targetSocketId];
-      }
+      if (!targetSocketId || targetSocketId === socket.id) return null;
+      if (peerConnections.current[targetSocketId]) return peerConnections.current[targetSocketId];
 
-      const pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' },
-        ],
-      });
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const state = {
+        pc,
+        makingOffer: false,
+        ignoreOffer: false,
+        polite: String(socket.id || '') > String(targetSocketId),
+      };
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -103,16 +170,25 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
       pc.onnegotiationneeded = async () => {
         try {
+          state.makingOffer = true;
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
-          socket.emit('webrtc-offer', { targetSocketId, offer, roomId });
+          socket.emit('webrtc-offer', {
+            targetSocketId,
+            offer: pc.localDescription,
+            roomId,
+          });
         } catch (err) {
-          console.warn('Negotiation needed failed:', err);
+          console.warn('WebRTC negotiation failed:', err);
+        } finally {
+          state.makingOffer = false;
         }
       };
 
       pc.ontrack = (event) => {
         const [remoteStream] = event.streams;
+        if (!remoteStream) return;
+
         setRemoteStreams((prev) => ({
           ...prev,
           [targetSocketId]: remoteStream,
@@ -120,181 +196,28 @@ export default function MeetingRoom({ onLeave, roomId }) {
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === 'failed') {
-          pc.close();
-          delete peerConnections.current[targetSocketId];
-          setRemoteStreams((prev) => {
-            const next = { ...prev };
-            delete next[targetSocketId];
-            return next;
-          });
+        if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+          closePeer(targetSocketId);
         }
       };
 
       const stream = mediaStreamRef.current;
-      if (stream) {
-        stream.getTracks().forEach((track) => {
-          // Check if track is already added to avoid duplicates
-          const alreadyAdded = pc.getSenders().some(s => s.track === track);
-          if (!alreadyAdded) {
-            pc.addTrack(track, stream);
-          }
-        });
-      }
+      if (stream) addStreamTracksToPeer(pc, stream);
 
-      peerConnections.current[targetSocketId] = pc;
-      return pc;
+      peerConnections.current[targetSocketId] = state;
+      return state;
     };
 
-    const handleOffer = async (data) => {
-      let pc = peerConnections.current[data.socketId];
-      if (!pc) {
-        pc = createPeerConnection(data.socketId);
-      }
-      
-      try {
-        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        socket.emit('webrtc-answer', { targetSocketId: data.socketId, answer, roomId });
-      } catch (err) {
-        console.warn('handleOffer error:', err);
-      }
-    };
+    const acquireLocalMedia = async () => {
+      if (mediaStreamRef.current) return mediaStreamRef.current;
 
-    const handleAnswer = async (data) => {
-      const pc = peerConnections.current[data.socketId];
-      if (pc) await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-    };
-
-    const handleIceCandidate = async (data) => {
-      const pc = peerConnections.current[data.socketId];
-      if (pc) await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-    };
-
-    const onRoomJoined = (data) => {
-      setIsWaiting(false);
-      setIsHost(data.isHost);
-    };
-
-    const onWaitingForHost = () => {
-      setIsWaiting(true);
-    };
-
-    const onJoinDenied = () => {
-      setJoinDenied(true);
-    };
-
-    const onRoomNotFound = () => {
-      setRoomNotFound(true);
-    };
-
-    const onUserWaiting = (data) => {
-      setWaitingUsers((prev) => {
-        if (prev.some(u => u.socketId === data.socketId)) return prev;
-        return [...prev, data];
-      });
-    };
-
-    const onWaitingUsersList = (list) => {
-      setWaitingUsers(list);
-    };
-
-    const onUserJoined = (data) => {
-      setParticipants((prev) => {
-        if (prev.some((p) => p.socketId === data.socketId)) return prev;
-        return [...prev, {
-          socketId: data.socketId,
-          username: data.username,
-          audioEnabled: data.audioEnabled !== false,
-          videoEnabled: data.videoEnabled !== false
-        }];
-      });
-
-      setTimeout(() => {
-        if (cancelled) return;
-        // Create peer connection even if we don't have local media yet
-        // so we can at least see/hear others.
-        createPeerConnection(data.socketId);
-      }, 500);
-    };
-
-    const onUserLeft = (data) => {
-      setParticipants((prev) => prev.filter((p) => p.socketId !== data.socketId));
-      if (peerConnections.current[data.socketId]) {
-        peerConnections.current[data.socketId].close();
-        delete peerConnections.current[data.socketId];
-      }
-      setRemoteStreams((prev) => {
-        const next = { ...prev };
-        delete next[data.socketId];
-        return next;
-      });
-    };
-
-    const onParticipantsList = (list) => {
-      const mapped =
-        Array.isArray(list) && list.length > 0
-          ? list.map((p) => ({ 
-              socketId: p.socketId, 
-              username: p.username,
-              audioEnabled: p.audioEnabled !== false,
-              videoEnabled: p.videoEnabled !== false
-            }))
-          : [];
-      setParticipants(mapped);
-    };
-
-    const onUserAudioToggled = ({ socketId, enabled }) => {
-      setParticipants((prev) =>
-        prev.map((p) => (p.socketId === socketId ? { ...p, audioEnabled: enabled } : p))
-      );
-    };
-
-    const onUserVideoToggled = ({ socketId, enabled }) => {
-      setParticipants((prev) =>
-        prev.map((p) => (p.socketId === socketId ? { ...p, videoEnabled: enabled } : p))
-      );
-    };
-
-    const onChatMessage = (data) => {
-      const socket = getSocket();
-      setMessages((prev) => [...prev, { 
-        ...data, 
-        isOwn: data.socketId === socket.id 
-      }]);
-    };
-
-    socket.on('user-joined', onUserJoined);
-    socket.on('user-left', onUserLeft);
-    socket.on('participants-list', onParticipantsList);
-    socket.on('chat-message', onChatMessage);
-    socket.on('webrtc-offer', handleOffer);
-    socket.on('webrtc-answer', handleAnswer);
-    socket.on('webrtc-ice-candidate', handleIceCandidate);
-    socket.on('user-audio-toggled', onUserAudioToggled);
-    socket.on('user-video-toggled', onUserVideoToggled);
-
-    // Waiting room events
-    socket.on('room-joined', onRoomJoined);
-    socket.on('waiting-for-host', onWaitingForHost);
-    socket.on('join-denied', onJoinDenied);
-    socket.on('room-not-found', onRoomNotFound);
-    socket.on('user-waiting', onUserWaiting);
-    socket.on('waiting-users-list', onWaitingUsersList);
-
-    async function acquireMediaThenJoin() {
       try {
         setIsInitializing(true);
         setMediaError('');
 
-        stopLocalMedia();
-        closeAllPeers();
-        setRemoteStreams({});
-
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter((d) => d.kind === 'videoinput');
-        const audioDevices = devices.filter((d) => d.kind === 'audioinput');
+        const videoDevices = devices.filter((device) => device.kind === 'videoinput');
+        const audioDevices = devices.filter((device) => device.kind === 'audioinput');
 
         const constraintSets = [
           {
@@ -319,9 +242,9 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
         let stream = null;
         let lastMediaErr = null;
-        for (const c of constraintSets) {
+        for (const constraints of constraintSets) {
           try {
-            stream = await navigator.mediaDevices.getUserMedia(c);
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
             break;
           } catch (err) {
             lastMediaErr = err;
@@ -333,52 +256,260 @@ export default function MeetingRoom({ onLeave, roomId }) {
         if (!stream) throw new Error('getUserMedia failed');
 
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
+          stream.getTracks().forEach((track) => track.stop());
+          return null;
         }
 
         mediaStreamRef.current = stream;
-        const vTracks = stream.getVideoTracks();
-        const aTracks = stream.getAudioTracks();
-        setIsVideoOff(vTracks.length === 0 ? true : !vTracks[0].enabled);
-        setIsMuted(aTracks.length === 0 ? true : !aTracks[0].enabled);
         setLocalStream(stream);
-
-        socket.emit('join-room', {
-          roomId,
-          username: localStorage.getItem('username') || 'Guest',
-          token: localStorage.getItem('token'),
-        });
+        setIsVideoOff(stream.getVideoTracks().length === 0 || !stream.getVideoTracks()[0].enabled);
+        setIsMuted(stream.getAudioTracks().length === 0 || !stream.getAudioTracks()[0].enabled);
+        addLocalTracksToAllPeers(stream);
+        return stream;
       } catch (err) {
         console.error('Error accessing media devices:', err);
-        let errorMessage = 'Failed to access camera/microphone';
+        let errorMessage = 'Failed to access camera/microphone.';
         if (err?.name === 'NotAllowedError') {
-          errorMessage =
-            'Camera/microphone permission denied. Please allow access in your browser settings and refresh the page.';
+          errorMessage = 'Camera/microphone permission denied. Please allow access in your browser settings and retry.';
         } else if (err?.name === 'NotFoundError') {
-          errorMessage = 'No camera or microphone found. Please connect a device.';
+          errorMessage = 'No camera or microphone found. You can still stay in the meeting.';
         } else if (err?.name === 'NotReadableError' || err?.name === 'TrackStartError') {
-          errorMessage =
-            'Camera is already in use. Close other tabs using it (or apps like Zoom), then Retry.';
+          errorMessage = 'Camera is already in use. Close other apps or tabs using it, then retry.';
         } else if (err?.name === 'OverconstrainedError') {
           errorMessage = 'Camera constraints cannot be satisfied. Try again with default settings.';
         }
+
         if (!cancelled) {
           setMediaError(errorMessage);
           setLocalStream(null);
+          notify?.('error', errorMessage);
         }
+
+        return null;
       } finally {
         if (!cancelled) setIsInitializing(false);
       }
-    }
+    };
+    acquireMediaRef.current = acquireLocalMedia;
 
-    acquireMediaThenJoin();
+    const syncParticipants = (list) => {
+      const mapped = normalizeParticipants(list, socket.id);
+      setParticipants(mapped);
+
+      const liveSocketIds = new Set(mapped.map((participant) => participant.socketId));
+      mapped.forEach((participant) => createPeerConnection(participant.socketId));
+
+      Object.keys(peerConnections.current).forEach((socketId) => {
+        if (!liveSocketIds.has(socketId)) closePeer(socketId);
+      });
+    };
+
+    const requestJoin = () => {
+      setIsJoining(true);
+      socket.emit('join-room', {
+        roomId,
+        username: localStorage.getItem('username') || 'Guest',
+        token: localStorage.getItem('token'),
+      });
+    };
+
+    const handleOffer = async (data) => {
+      const state = createPeerConnection(data.socketId);
+      if (!state) return;
+
+      const { pc } = state;
+      const offerCollision = state.makingOffer || pc.signalingState !== 'stable';
+      state.ignoreOffer = !state.polite && offerCollision;
+
+      if (state.ignoreOffer) return;
+
+      try {
+        if (offerCollision) {
+          await pc.setLocalDescription({ type: 'rollback' });
+        }
+
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        if (mediaStreamRef.current) addStreamTracksToPeer(pc, mediaStreamRef.current);
+        await flushPendingCandidates(data.socketId);
+
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit('webrtc-answer', {
+          targetSocketId: data.socketId,
+          answer: pc.localDescription,
+          roomId,
+        });
+      } catch (err) {
+        console.warn('Failed to handle WebRTC offer:', err);
+      }
+    };
+
+    const handleAnswer = async (data) => {
+      const state = peerConnections.current[data.socketId];
+      if (!state?.pc) return;
+
+      try {
+        if (state.pc.signalingState === 'have-local-offer') {
+          await state.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+          await flushPendingCandidates(data.socketId);
+        }
+      } catch (err) {
+        console.warn('Failed to handle WebRTC answer:', err);
+      }
+    };
+
+    const handleIceCandidate = async (data) => {
+      const state = createPeerConnection(data.socketId);
+      if (!state?.pc || !data.candidate) return;
+
+      if (!state.pc.remoteDescription) {
+        pendingCandidates.current[data.socketId] = pendingCandidates.current[data.socketId] || [];
+        pendingCandidates.current[data.socketId].push(data.candidate);
+        return;
+      }
+
+      try {
+        await state.pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+      } catch (err) {
+        if (!state.ignoreOffer) console.warn('Failed to add ICE candidate:', err);
+      }
+    };
+
+    const onRoomJoined = (data) => {
+      setIsJoining(false);
+      setIsWaiting(false);
+      setJoinDenied(false);
+      setRoomNotFound(false);
+      setIsHost(Boolean(data.isHost));
+      syncParticipants(data.participants || []);
+      acquireLocalMedia();
+    };
+
+    const onWaitingForHost = () => {
+      setIsJoining(false);
+      setIsWaiting(true);
+      setIsHost(false);
+      setIsInitializing(false);
+    };
+
+    const onJoinDenied = () => {
+      setIsJoining(false);
+      setIsWaiting(false);
+      setJoinDenied(true);
+      stopLocalMedia();
+      closeAllPeers();
+      notify?.('error', 'The host declined your request to join.');
+    };
+
+    const onRoomNotFound = () => {
+      setIsJoining(false);
+      setIsWaiting(false);
+      setRoomNotFound(true);
+      stopLocalMedia();
+      closeAllPeers();
+      notify?.('error', 'This meeting link is invalid or has ended.');
+    };
+
+    const onUserWaiting = (data) => {
+      if (!data?.socketId) return;
+      setWaitingUsers((prev) => {
+        if (prev.some((user) => user.socketId === data.socketId)) return prev;
+        return [...prev, data];
+      });
+      notify?.('success', `${data.username || 'A participant'} wants to join.`);
+    };
+
+    const onWaitingUsersList = (list) => {
+      setWaitingUsers(Array.isArray(list) ? list : []);
+    };
+
+    const onUserJoined = (data) => {
+      if (!data?.socketId || data.socketId === socket.id) return;
+
+      setParticipants((prev) => {
+        if (prev.some((participant) => participant.socketId === data.socketId)) return prev;
+        return [
+          ...prev,
+          {
+            socketId: data.socketId,
+            username: data.username || 'User',
+            audioEnabled: data.audioEnabled !== false,
+            videoEnabled: data.videoEnabled !== false,
+            isHost: Boolean(data.isHost),
+          },
+        ];
+      });
+      createPeerConnection(data.socketId);
+    };
+
+    const onUserLeft = (data) => {
+      setParticipants((prev) => prev.filter((participant) => participant.socketId !== data.socketId));
+      closePeer(data.socketId);
+    };
+
+    const onParticipantsList = (list) => {
+      syncParticipants(list);
+    };
+
+    const onUserAudioToggled = ({ socketId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((participant) =>
+          participant.socketId === socketId ? { ...participant, audioEnabled: enabled } : participant
+        )
+      );
+    };
+
+    const onUserVideoToggled = ({ socketId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((participant) =>
+          participant.socketId === socketId ? { ...participant, videoEnabled: enabled } : participant
+        )
+      );
+    };
+
+    const onChatMessage = (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...data,
+          isOwn: data.socketId === socket.id,
+        },
+      ]);
+    };
+
+    const onRoomError = (data) => {
+      const message = data?.message || 'Meeting connection failed.';
+      setIsJoining(false);
+      setMediaError(message);
+      notify?.('error', message);
+    };
+
+    socket.on('connect', requestJoin);
+    socket.on('user-joined', onUserJoined);
+    socket.on('user-left', onUserLeft);
+    socket.on('participants-list', onParticipantsList);
+    socket.on('chat-message', onChatMessage);
+    socket.on('webrtc-offer', handleOffer);
+    socket.on('webrtc-answer', handleAnswer);
+    socket.on('webrtc-ice-candidate', handleIceCandidate);
+    socket.on('user-audio-toggled', onUserAudioToggled);
+    socket.on('user-video-toggled', onUserVideoToggled);
+    socket.on('room-joined', onRoomJoined);
+    socket.on('waiting-for-host', onWaitingForHost);
+    socket.on('join-denied', onJoinDenied);
+    socket.on('room-not-found', onRoomNotFound);
+    socket.on('user-waiting', onUserWaiting);
+    socket.on('waiting-users-list', onWaitingUsersList);
+    socket.on('room-error', onRoomError);
+    socket.on('admission-error', onRoomError);
+
+    requestJoin();
 
     return () => {
       cancelled = true;
-
       socket.emit('leave-room', { roomId });
 
+      socket.off('connect', requestJoin);
       socket.off('user-joined', onUserJoined);
       socket.off('user-left', onUserLeft);
       socket.off('participants-list', onParticipantsList);
@@ -394,26 +525,28 @@ export default function MeetingRoom({ onLeave, roomId }) {
       socket.off('room-not-found', onRoomNotFound);
       socket.off('user-waiting', onUserWaiting);
       socket.off('waiting-users-list', onWaitingUsersList);
+      socket.off('room-error', onRoomError);
+      socket.off('admission-error', onRoomError);
 
       stopLocalMedia();
       closeAllPeers();
-
-      setLocalStream(null);
       setParticipants([]);
+      setWaitingUsers([]);
       setRemoteStreams({});
+      setMessages([]);
+      acquireMediaRef.current = null;
     };
-  }, [roomId, retryNonce]);
+  }, [roomId, notify]);
 
-  // Bind MediaStream to <video> after React mounts the element (ref was null during getUserMedia).
   useEffect(() => {
     if (isInitializing || mediaError || !localStream) return;
     const el = localVideoRef.current;
     if (!el) return;
+
     if (el.srcObject !== localStream) el.srcObject = localStream;
     el.play?.().catch(() => {});
   }, [localStream, isInitializing, mediaError, isVideoOff]);
 
-  // Scroll chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -421,47 +554,46 @@ export default function MeetingRoom({ onLeave, roomId }) {
   const toggleMute = () => {
     const stream = localStream ?? mediaStreamRef.current;
     if (!stream) return;
+
     const audioTracks = stream.getAudioTracks();
     if (audioTracks.length === 0) return;
+
     const nextMuted = !isMuted;
     audioTracks.forEach((track) => {
       track.enabled = !nextMuted;
     });
     setIsMuted(nextMuted);
-    
-    getSocket().emit('toggle-audio', { 
-      roomId, 
-      userId: getSocket().id, 
-      enabled: !nextMuted 
-    });
+    getSocket().emit('toggle-audio', { roomId, enabled: !nextMuted });
   };
 
   const toggleVideo = async () => {
     const stream = localStream ?? mediaStreamRef.current;
-    
-    // If no stream or no video tracks, we need to request them
+
     if (!stream || stream.getVideoTracks().length === 0) {
       try {
-        const newStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } } 
+        const newStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
         });
         const videoTrack = newStream.getVideoTracks()[0];
-        
+
         if (stream) {
           stream.addTrack(videoTrack);
-          // Add to all existing peer connections
-          Object.values(peerConnections.current).forEach(pc => {
-            pc.addTrack(videoTrack, stream);
+          Object.values(peerConnections.current).forEach(({ pc }) => {
+            const alreadyAdded = pc.getSenders().some((sender) => sender.track?.id === videoTrack.id);
+            if (!alreadyAdded) pc.addTrack(videoTrack, stream);
           });
         } else {
           mediaStreamRef.current = newStream;
           setLocalStream(newStream);
+          Object.values(peerConnections.current).forEach(({ pc }) => addStreamTracksToPeer(pc, newStream));
         }
+
+        setMediaError('');
         setIsVideoOff(false);
-        getSocket().emit('toggle-video', { roomId, userId: getSocket().id, enabled: true });
+        getSocket().emit('toggle-video', { roomId, enabled: true });
       } catch (err) {
         console.error('Failed to get video track:', err);
-        setRetryNonce(n => n + 1);
+        notify?.('error', 'Could not turn camera on. Check browser permissions.');
       }
       return;
     }
@@ -472,56 +604,59 @@ export default function MeetingRoom({ onLeave, roomId }) {
       track.enabled = !nextVideoOff;
     });
     setIsVideoOff(nextVideoOff);
-    
-    getSocket().emit('toggle-video', { 
-      roomId, 
-      userId: getSocket().id, 
-      enabled: !nextVideoOff 
-    });
+    getSocket().emit('toggle-video', { roomId, enabled: !nextVideoOff });
   };
 
   const handleCopyLink = () => {
     const fullUrl = `${window.location.origin}/meeting/${roomId}`;
-    navigator.clipboard.writeText(fullUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {
-      const textArea = document.createElement('textarea');
-      textArea.value = fullUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard
+      .writeText(fullUrl)
+      .then(() => {
+        setCopied(true);
+        notify?.('success', 'Meeting link copied.');
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = fullUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopied(true);
+        notify?.('success', 'Meeting link copied.');
+        setTimeout(() => setCopied(false), 2000);
+      });
   };
 
-  const handleRetryCamera = async () => {
-    setRetryNonce((n) => n + 1);
+  const handleRetryCamera = () => {
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+    setLocalStream(null);
+    setMediaError('');
+    acquireMediaRef.current?.();
   };
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
-    const socket = getSocket();
-    const msgData = {
+
+    getSocket().emit('chat-message', {
       message: message.trim(),
       username: localStorage.getItem('username') || 'Guest',
       roomId,
       timestamp: new Date().toISOString(),
-    };
-    socket.emit('chat-message', msgData);
+    });
     setMessage('');
   };
 
   const handleAdmit = (socketId) => {
     getSocket().emit('admit-user', { roomId, targetSocketId: socketId });
-    setWaitingUsers(prev => prev.filter(u => u.socketId !== socketId));
+    setWaitingUsers((prev) => prev.filter((user) => user.socketId !== socketId));
   };
 
   const handleDeny = (socketId) => {
     getSocket().emit('deny-user', { roomId, targetSocketId: socketId });
-    setWaitingUsers(prev => prev.filter(u => u.socketId !== socketId));
+    setWaitingUsers((prev) => prev.filter((user) => user.socketId !== socketId));
   };
 
   if (joinDenied) {
@@ -533,7 +668,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
           </div>
           <h2 className="text-2xl font-bold">Entry Denied</h2>
           <p className="text-slate-400">The host declined your request to join.</p>
-          <button onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
+          <button type="button" onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
             Return to Dashboard
           </button>
         </div>
@@ -550,7 +685,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
           </div>
           <h2 className="text-2xl font-bold">Room Not Found</h2>
           <p className="text-slate-400">This meeting link is invalid or the meeting was not created.</p>
-          <button onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
+          <button type="button" onClick={onLeave} className="premium-btn bg-white text-slate-900 mt-4 px-6 py-2">
             Return to Dashboard
           </button>
         </div>
@@ -565,9 +700,21 @@ export default function MeetingRoom({ onLeave, roomId }) {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto" />
           <h2 className="text-2xl font-bold">Waiting for Host</h2>
           <p className="text-slate-400">Please wait, the meeting host will let you in soon.</p>
-          <button onClick={onLeave} className="text-red-400 hover:text-red-300 mt-6 block mx-auto underline">
+          <button type="button" onClick={onLeave} className="text-red-400 hover:text-red-300 mt-6 block mx-auto underline">
             Cancel
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isJoining) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-screen bg-[#202124] text-white">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-400 mx-auto" />
+          <h2 className="text-2xl font-bold">Opening Meeting</h2>
+          <p className="text-slate-400">Checking the room and connecting securely.</p>
         </div>
       </div>
     );
@@ -584,12 +731,9 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
   return (
     <div className="flex-1 flex h-screen overflow-hidden bg-[#202124] text-white font-sans">
-
       <div className={`flex-1 flex flex-col transition-all duration-300 relative ${isChatOpen ? 'pr-0 md:pr-80' : 'pr-0'}`}>
-
         <div className="flex-1 p-4 md:p-6 pb-24 md:pb-28 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className={`${getGridClass()} gap-4 w-full h-full max-w-7xl mx-auto`}>
-
             <div className={`bg-[#3c4043] rounded-2xl relative overflow-hidden flex items-center justify-center min-h-[220px] border-2 border-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.3)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video' : ''}`}>
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#3c4043]">
@@ -599,17 +743,14 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   </div>
                 </div>
               )}
+
               {!isInitializing && mediaError && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center space-y-3 p-4 bg-[#3c4043]">
                   <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center">
                     <VideoOff size={32} className="text-red-400" />
                   </div>
                   <span className="text-red-400 text-sm text-center">{mediaError}</span>
-                  <button
-                    type="button"
-                    onClick={handleRetryCamera}
-                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600 transition-colors"
-                  >
+                  <button type="button" onClick={handleRetryCamera} className="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600 transition-colors">
                     Retry
                   </button>
                 </div>
@@ -624,10 +765,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
                     playsInline
                     className={`w-full h-full min-h-[200px] object-cover ${isVideoOff ? 'opacity-0 absolute inset-0 pointer-events-none' : ''}`}
                     style={{ transform: 'scaleX(-1)' }}
-                    onError={() => {
-                      console.error('Local video element error');
-                      setMediaError('Camera failed to load. Please check permissions.');
-                    }}
+                    onError={() => setMediaError('Camera failed to load. Please check permissions.')}
                   />
                   {isVideoOff && (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#3c4043]">
@@ -639,13 +777,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
                 </>
               )}
 
+              {!localStream && !mediaError && !isInitializing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#3c4043]">
+                  <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                    <User size={40} className="text-indigo-400" />
+                  </div>
+                </div>
+              )}
+
               <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2 border border-white/10">
                 {isMuted && <MicOff size={14} className="text-red-400" />}
-                <span>You</span>
-              </div>
-
-              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center animate-pulse shadow-lg shadow-indigo-500/50">
-                <div className="w-2 h-2 bg-white rounded-full" />
+                <span>You{isHost ? ' (Host)' : ''}</span>
               </div>
             </div>
 
@@ -669,30 +811,29 @@ export default function MeetingRoom({ onLeave, roomId }) {
                   )}
                   <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md text-white text-sm font-medium px-3 py-1.5 rounded-lg flex items-center space-x-2 border border-white/10">
                     {participant.audioEnabled === false && <MicOff size={14} className="text-red-400" />}
-                    <span>{participant.username || 'User'}</span>
+                    <span>{participant.username || 'User'}{participant.isHost ? ' (Host)' : ''}</span>
                   </div>
                 </div>
               );
             })}
-
           </div>
         </div>
 
         {isHost && waitingUsers.length > 0 && (
-          <div className="absolute top-20 right-6 z-50 w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4">
+          <div className="absolute top-20 right-6 z-50 w-80 max-w-[calc(100vw-3rem)] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4">
             <h3 className="text-white font-semibold mb-3 flex items-center">
               <span className="bg-indigo-500 text-xs px-2 py-0.5 rounded-full mr-2">{waitingUsers.length}</span>
               Waiting to join
             </h3>
             <div className="space-y-3 max-h-60 overflow-y-auto">
-              {waitingUsers.map(user => (
+              {waitingUsers.map((user) => (
                 <div key={user.socketId} className="flex items-center justify-between bg-slate-800 p-3 rounded-lg">
                   <span className="text-sm font-medium text-slate-200 truncate pr-2">{user.username}</span>
                   <div className="flex space-x-2">
-                    <button onClick={() => handleDeny(user.socketId)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-md transition-colors">
+                    <button type="button" onClick={() => handleDeny(user.socketId)} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-md transition-colors" title="Reject">
                       <X size={16} />
                     </button>
-                    <button onClick={() => handleAdmit(user.socketId)} className="p-1.5 text-emerald-400 hover:bg-emerald-500/20 rounded-md transition-colors">
+                    <button type="button" onClick={() => handleAdmit(user.socketId)} className="p-1.5 text-emerald-400 hover:bg-emerald-500/20 rounded-md transition-colors" title="Admit">
                       <Check size={16} />
                     </button>
                   </div>
@@ -707,13 +848,8 @@ export default function MeetingRoom({ onLeave, roomId }) {
           <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block" />
           <span className="text-[15px] font-medium hidden sm:block mr-4">WabiSeminar Meeting</span>
           <div className="w-px h-4 bg-white/30 mr-4 hidden sm:block" />
-          <span className="text-[15px] font-mono mr-2">{roomId || 'xyz-abcd-efg'}</span>
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white relative group"
-            title="Copy Room Link"
-          >
+          <span className="text-[15px] font-mono mr-2">{roomId}</span>
+          <button type="button" onClick={handleCopyLink} className="p-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white relative group" title="Copy Room Link">
             {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
               {copied ? 'Link copied!' : 'Copy meeting link'}
@@ -723,43 +859,25 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
           <div className="bg-[#3c4043] px-6 py-3 rounded-full flex items-center space-x-4 shadow-xl">
-
-            <button
-              type="button"
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isMuted ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
-              onClick={toggleMute}
-            >
+            <button type="button" className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isMuted ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`} onClick={toggleMute}>
               {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
             </button>
 
-            <button
-              type="button"
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isVideoOff ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`}
-              onClick={toggleVideo}
-            >
+            <button type="button" className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${isVideoOff ? 'bg-[#ea4335] hover:bg-[#d93025] text-white shadow-lg shadow-red-500/20' : 'bg-[#4a4d51] hover:bg-[#5f6368] text-white'}`} onClick={toggleVideo}>
               {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
             </button>
 
-            <button
-              type="button"
-              className="w-16 h-12 rounded-[24px] flex items-center justify-center bg-[#ea4335] text-white hover:bg-[#d93025] transition-all shadow-lg shadow-red-500/30 ml-2"
-              onClick={onLeave}
-            >
+            <button type="button" className="w-16 h-12 rounded-[24px] flex items-center justify-center bg-[#ea4335] text-white hover:bg-[#d93025] transition-all shadow-lg shadow-red-500/30 ml-2" onClick={onLeave}>
               <PhoneOff size={22} />
             </button>
           </div>
         </div>
 
         <div className="absolute bottom-6 right-6 z-20">
-          <button
-            type="button"
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${isChatOpen ? 'bg-indigo-500/20 text-indigo-400' : 'bg-[#3c4043] hover:bg-[#4a4d51] text-white'}`}
-            onClick={() => setIsChatOpen(!isChatOpen)}
-          >
+          <button type="button" className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${isChatOpen ? 'bg-indigo-500/20 text-indigo-400' : 'bg-[#3c4043] hover:bg-[#4a4d51] text-white'}`} onClick={() => setIsChatOpen(!isChatOpen)}>
             <MessageSquare size={20} />
           </button>
         </div>
-
       </div>
 
       <div
@@ -770,11 +888,7 @@ export default function MeetingRoom({ onLeave, roomId }) {
       >
         <div className="h-16 flex items-center justify-between px-6 border-b border-[#3c4043]">
           <span className="text-lg font-medium text-white">In-call messages</span>
-          <button
-            type="button"
-            className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5"
-            onClick={() => setIsChatOpen(false)}
-          >
+          <button type="button" className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5" onClick={() => setIsChatOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -785,21 +899,17 @@ export default function MeetingRoom({ onLeave, roomId }) {
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center text-slate-500 text-sm mt-8">
-              No messages yet. Start the conversation!
-            </div>
+            <div className="text-center text-slate-500 text-sm mt-8">No messages yet. Start the conversation!</div>
           ) : (
             messages.map((msg, index) => (
-              <div key={index} className={`flex flex-col space-y-1 ${msg.isOwn ? 'items-end' : 'items-start'}`}>
+              <div key={`${msg.timestamp}-${index}`} className={`flex flex-col space-y-1 ${msg.isOwn ? 'items-end' : 'items-start'}`}>
                 <div className="flex items-baseline space-x-2">
                   <span className="text-sm font-semibold text-white">{msg.username}</span>
                   <span className="text-xs text-slate-500">
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
-                <div
-                  className={`text-sm p-2 rounded-lg max-w-[80%] ${msg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043] text-slate-300'}`}
-                >
+                <div className={`text-sm p-2 rounded-lg max-w-[80%] ${msg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043] text-slate-300'}`}>
                   {msg.message}
                 </div>
               </div>
@@ -820,18 +930,12 @@ export default function MeetingRoom({ onLeave, roomId }) {
                 if (e.key === 'Enter' && message.trim()) handleSendMessage();
               }}
             />
-            <button
-              type="button"
-              className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`}
-              onClick={handleSendMessage}
-              disabled={message.length === 0}
-            >
+            <button type="button" className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`} onClick={handleSendMessage} disabled={message.length === 0}>
               <Send size={18} />
             </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 }

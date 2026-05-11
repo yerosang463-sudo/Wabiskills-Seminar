@@ -9,7 +9,7 @@ import { validate, registerSchema, loginSchema } from '../middleware/validation.
 
 const router = express.Router();
 
-const ROOM_PATH = /^\/room\/[a-zA-Z0-9\-]+\/?$/;
+const ROOM_PATH = /^\/(?:room|meeting)\/[a-zA-Z0-9\-]+\/?$/;
 
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);

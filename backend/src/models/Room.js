@@ -1,6 +1,9 @@
 import { DataTypes } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
 import sequelize from '../database/sequelize.js';
+
+const ROOM_ALPHABET = 'abcdefghijkmnopqrstuvwxyz23456789';
+const randomSegment = (length) =>
+  Array.from({ length }, () => ROOM_ALPHABET[Math.floor(Math.random() * ROOM_ALPHABET.length)]).join('');
 
 const Room = sequelize.define(
   'Room',
@@ -14,7 +17,7 @@ const Room = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
-      defaultValue: () => uuidv4().slice(0, 8), // Shorter roomId for better UX
+      defaultValue: () => `${randomSegment(3)}-${randomSegment(4)}-${randomSegment(3)}`,
       validate: {
         notEmpty: true,
       },

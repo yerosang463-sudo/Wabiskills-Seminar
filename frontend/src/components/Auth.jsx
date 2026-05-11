@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Video, Loader2 } from 'lucide-react';
 import api, { API_BASE_URL } from '../services/api';
 
-const GOOGLE_CLIENT_ID = '148617595998-ojlmp47m5ith9jdevm376gcrmhkb87kd.apps.googleusercontent.com';
-
 export default function Auth({ onNavigate }) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
@@ -56,7 +54,7 @@ export default function Auth({ onNavigate }) {
         setError(response.message || 'Authentication failed');
         setIsLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.');
       setIsLoading(false);
     }
@@ -64,7 +62,8 @@ export default function Auth({ onNavigate }) {
 
   const handleGoogleLogin = () => {
     const pathOnly = window.location.pathname || '/';
-    const suffix = pathOnly.startsWith('/room/') ? `?returnTo=${encodeURIComponent(pathOnly)}` : '';
+    const isMeetingPath = pathOnly.startsWith('/room/') || pathOnly.startsWith('/meeting/');
+    const suffix = isMeetingPath ? `?returnTo=${encodeURIComponent(pathOnly)}` : '';
     window.location.href = `${API_BASE_URL}/auth/google${suffix}`;
   };
 

@@ -1,96 +1,102 @@
-import { useState } from 'react';
-import { resolveApiBase } from '../utils/url.js';
-import { Video, LogOut, Plus, Users, LayoutDashboard, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import api from '../services/api.js';
+import { roomIdFromPathname } from '../routeUtils.js';
+import { Video, LogOut, Plus, Users, LayoutDashboard, X, Loader2 } from 'lucide-react';
 
-export default function Dashboard({ onNavigate, onJoinRoom }) {
+export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
   const [joinId, setJoinId] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [actionError, setActionError] = useState('');
+  const createInFlightRef = useRef(false);
+
+  const showError = (message) => {
+    setActionError(message);
+    notify?.('error', message);
+  };
+
+  const extractRoomId = (value) => {
+    const raw = value.trim();
+    if (!raw) return '';
+
+    try {
+      const url = raw.startsWith('http') ? new URL(raw) : null;
+      if (url) {
+        return roomIdFromPathname(url.pathname) || '';
+      }
+    } catch {
+      // Fall back to plain text parsing below.
+    }
+
+    if (raw.includes('/')) {
+      const path = raw.startsWith('/') ? raw : `/${raw}`;
+      const fromPath = roomIdFromPathname(path);
+      if (fromPath) return fromPath;
+    }
+
+    return raw.split('?')[0].replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+  };
 
   const handleCreateRoom = async () => {
+    if (createInFlightRef.current) return;
+
+    createInFlightRef.current = true;
     setIsCreating(true);
     setActionError('');
+
     try {
-      // Generate a Google Meet style random ID: xxx-xxxx-xxx
-      const generateSegment = (length) => Math.random().toString(36).substring(2, 2 + length);
-      const newRoomId = `${generateSegment(3)}-${generateSegment(4)}-${generateSegment(3)}`;
-      
-      // Save room to database
       const token = localStorage.getItem('token');
       if (!token) {
-        setActionError('Your session expired. Please log in again.');
+        showError('Your session expired. Please log in again.');
         onNavigate('auth');
         return;
       }
 
-      const response = await fetch(`${resolveApiBase()}/rooms`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ roomId: newRoomId })
-      });
-
-      if (!response.ok) {
-        let msg = 'Failed to create room on server.';
-        try {
-          const data = await response.json();
-          if (data?.message) msg = data.message;
-        } catch {
-          // ignore
-        }
-        setActionError(msg);
+      const response = await api.createRoom(token);
+      if (!response.success || !response.data?.roomId) {
+        showError(response.message || 'Failed to create room on server.');
         return;
       }
 
-      onJoinRoom(newRoomId);
+      notify?.('success', 'Meeting created. Opening the room...');
+      onJoinRoom(response.data.roomId);
     } catch (error) {
       console.error('Error creating room:', error);
-      setActionError('Network error. Please try again.');
+      showError('Network error. Please try again.');
     } finally {
       setIsCreating(false);
+      createInFlightRef.current = false;
     }
   };
 
   const handleJoinRoom = async () => {
     setActionError('');
-    let id = joinId.trim();
-    if (!id) return;
-    
-    // Extract ID if the user pastes a full URL (e.g., https://domain.com/abc-defg-hij)
-    if (id.includes('/')) {
-      const parts = id.split('/');
-      id = parts[parts.length - 1];
-    }
-    
-    // Remove query parameters if any
-    if (id.includes('?')) {
-      id = id.split('?')[0];
-    }
+    const id = extractRoomId(joinId);
+    if (!id || isJoining) return;
 
+    setIsJoining(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        setActionError('Your session expired. Please log in again.');
+        showError('Your session expired. Please log in again.');
         onNavigate('auth');
         return;
       }
-      const response = await fetch(`${resolveApiBase()}/rooms/${id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!response.ok) {
-        setActionError('Room not found. Please check the meeting link/ID.');
+
+      const response = await api.getRoom(token, id);
+      if (!response.success) {
+        showError(response.status === 404 ? 'Room not found. Please check the meeting link/ID.' : response.message || 'Unable to join this room.');
         return;
       }
+
+      notify?.('success', 'Meeting found. Asking the host to let you in...');
       onJoinRoom(id);
     } catch (error) {
       console.error('Error joining room:', error);
-      setActionError('Network error. Please try again.');
+      showError('Network error. Please try again.');
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -153,11 +159,19 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
                 <Plus className="mr-2 text-indigo-400" size={20} /> New Meeting
               </h2>
               <button 
+                type="button"
                 className={`premium-btn premium-btn-primary w-full py-4 text-base shadow-indigo-500/25 ${isCreating ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={handleCreateRoom}
                 disabled={isCreating}
               >
-                {isCreating ? 'Creating Room...' : 'Create Instant Room'}
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 animate-spin" size={18} />
+                    Creating Room...
+                  </>
+                ) : (
+                  'Create Instant Room'
+                )}
               </button>
             </div>
             
@@ -184,11 +198,19 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
                   onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
                 />
                 <button 
-                  className={`premium-btn w-full ${joinId.trim() ? 'premium-btn-secondary' : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'}`}
+                  type="button"
+                  className={`premium-btn w-full ${joinId.trim() && !isJoining ? 'premium-btn-secondary' : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'}`}
                   onClick={handleJoinRoom}
-                  disabled={!joinId.trim()}
+                  disabled={!joinId.trim() || isJoining}
                 >
-                  Join Room
+                  {isJoining ? (
+                    <>
+                      <Loader2 className="mr-2 animate-spin" size={18} />
+                      Checking Room...
+                    </>
+                  ) : (
+                    'Join Room'
+                  )}
                 </button>
               </div>
             </div>

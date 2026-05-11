@@ -29,5 +29,13 @@ export const loginSchema = Joi.object({
 });
 
 export const createRoomSchema = Joi.object({
-  roomId: Joi.string().optional(),
+  roomId: Joi.string()
+    .trim()
+    .lowercase()
+    .pattern(/^[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{3}$/)
+    .optional()
+    .allow('', null)
+    .messages({
+      'string.pattern.base': 'Room ID must use the format abc-defg-hij.',
+    }),
 });

@@ -19,12 +19,14 @@ const setupAssociations = () => {
   // Room has many Messages (one-to-many)
   Room.hasMany(Message, {
     foreignKey: 'roomId',
+    sourceKey: 'roomId',
     as: 'messages',
   });
 
   // Message belongs to Room
   Message.belongsTo(Room, {
     foreignKey: 'roomId',
+    targetKey: 'roomId',
     as: 'room',
   });
 

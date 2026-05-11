@@ -2,6 +2,24 @@ import { resolveApiBase } from '../utils/url.js';
 
 export const API_BASE_URL = resolveApiBase();
 
+async function parseApiResponse(response) {
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = {
+      success: false,
+      message: response.ok ? 'Empty server response' : 'Server returned an invalid response',
+    };
+  }
+
+  return {
+    ...data,
+    ok: response.ok,
+    status: response.status,
+  };
+}
+
 export const api = {
   // Auth endpoints
   async register(username, email, password) {
@@ -47,7 +65,7 @@ export const api = {
       },
       body: JSON.stringify({ roomId }),
     });
-    return response.json();
+    return parseApiResponse(response);
   },
 
   async getRoom(token, roomId) {
@@ -58,7 +76,7 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    return parseApiResponse(response);
   },
 
   async joinRoom(token, roomId) {
@@ -69,7 +87,7 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    return parseApiResponse(response);
   },
 
   async leaveRoom(token, roomId) {
@@ -80,7 +98,7 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    return parseApiResponse(response);
   },
 
   async getUserRooms(token) {

@@ -1,32 +1,41 @@
-import { useState, useLayoutEffect, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
 import { roomIdFromPathname } from './routeUtils.js';
 
+function readRouteSnapshot() {
+  const roomId = roomIdFromPathname(window.location.pathname);
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
+  const authed = Boolean(token && username);
+
+  if (roomId) {
+    return {
+      currentRoomId: roomId,
+      currentView: authed ? 'meeting' : 'auth',
+    };
+  }
+
+  return {
+    currentRoomId: '',
+    currentView: authed ? 'dashboard' : 'auth',
+  };
+}
+
 function App() {
-  const [currentView, setCurrentView] = useState('auth');
-  const [currentRoomId, setCurrentRoomId] = useState('');
+  const [routeState, setRouteState] = useState(readRouteSnapshot);
+  const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
+  const { currentView, currentRoomId } = routeState;
+
+  const setCurrentView = (currentView) => {
+    setRouteState((prev) => ({ ...prev, currentView }));
+  };
 
   const syncRouteFromLocation = useCallback(() => {
-    const roomId = roomIdFromPathname(window.location.pathname);
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const authed = Boolean(token && username);
-
-    if (roomId) {
-      setCurrentRoomId(roomId);
-      setCurrentView(authed ? 'meeting' : 'auth');
-      return;
-    }
-
-    setCurrentRoomId('');
-    setCurrentView(authed ? 'dashboard' : 'auth');
+    setRouteState(readRouteSnapshot());
   }, []);
-
-  useLayoutEffect(() => {
-    syncRouteFromLocation();
-  }, [syncRouteFromLocation]);
 
   useEffect(() => {
     const onPop = () => syncRouteFromLocation();
@@ -35,33 +44,61 @@ function App() {
   }, [syncRouteFromLocation]);
 
   const navigateToRoom = (roomId) => {
-    setCurrentRoomId(roomId);
-    setCurrentView('meeting');
+    setRouteState({ currentRoomId: roomId, currentView: 'meeting' });
     window.history.pushState({}, '', `/meeting/${roomId}`);
   };
 
   const leaveRoom = () => {
-    setCurrentRoomId('');
-    setCurrentView('dashboard');
+    setRouteState({ currentRoomId: '', currentView: 'dashboard' });
     window.history.pushState({}, '', '/');
   };
 
   const handleAuthSuccess = () => {
     const roomId = roomIdFromPathname(window.location.pathname) || currentRoomId;
     if (roomId) {
-      setCurrentRoomId(roomId);
-      setCurrentView('meeting');
+      setRouteState({ currentRoomId: roomId, currentView: 'meeting' });
       window.history.pushState({}, '', `/meeting/${roomId}`);
     } else {
-      setCurrentView('dashboard');
+      setRouteState({ currentRoomId: '', currentView: 'dashboard' });
     }
   };
+
+  const notify = useCallback((type, message) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    setToast({ type, message });
+    toastTimerRef.current = setTimeout(() => setToast(null), 3600);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
       {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
-      {currentView === 'dashboard' && <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} />}
-      {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} />}
+      {currentView === 'dashboard' && (
+        <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+      )}
+      {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+
+      {toast && (
+        <div className="fixed top-4 left-1/2 z-[100] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2">
+          <div
+            className={`rounded-xl border px-4 py-3 text-sm shadow-2xl backdrop-blur-md ${
+              toast.type === 'error'
+                ? 'border-red-500/30 bg-red-950/80 text-red-100'
+                : 'border-emerald-500/30 bg-emerald-950/80 text-emerald-100'
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
