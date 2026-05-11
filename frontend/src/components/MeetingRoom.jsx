@@ -737,28 +737,9 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
         {/* Top Bar - Google Meet Style */}
         <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-black/60 to-transparent backdrop-blur-sm">
           <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2.5 sm:py-3">
-            {/* Left: Time and Meeting Code */}
+            {/* Left: Time */}
             <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
               <span className="text-xs sm:text-sm md:text-base font-medium">{currentTime}</span>
-              <div className="hidden sm:block w-px h-4 bg-white/30" />
-              <div className="hidden sm:flex items-center space-x-2 bg-[#3c4043]/90 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10">
-                <span className="text-xs sm:text-sm font-mono">{roomId}</span>
-                <button 
-                  type="button" 
-                  onClick={handleCopyLink} 
-                  className="p-1 rounded hover:bg-white/10 transition-colors group relative"
-                  title="Copy meeting link"
-                >
-                  {copied ? (
-                    <Check size={14} className="text-emerald-400 sm:w-4 sm:h-4" />
-                  ) : (
-                    <Copy size={14} className="text-slate-300 group-hover:text-white sm:w-4 sm:h-4" />
-                  )}
-                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                    {copied ? 'Copied!' : 'Copy link'}
-                  </div>
-                </button>
-              </div>
             </div>
 
             {/* Right: Participant Count */}
@@ -884,34 +865,67 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
           </div>
         )}
 
-        {/* Mobile: Meeting Code & Copy Link (Bottom Sheet Style) */}
-        <div className="sm:hidden absolute bottom-20 left-0 right-0 z-20 px-3">
-          <div className="bg-[#3c4043]/95 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 mr-3">
-                <p className="text-xs text-slate-400 mb-0.5">Meeting code</p>
-                <p className="text-sm font-mono font-medium">{roomId}</p>
+        {/* Mobile: Meeting Code & Copy Link (Host Only - Bottom Sheet Style) */}
+        {isHost && (
+          <div className="sm:hidden absolute bottom-20 left-0 right-0 z-20 px-3">
+            <div className="bg-[#3c4043]/95 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 mr-3">
+                  <p className="text-xs text-slate-400 mb-0.5">Meeting code</p>
+                  <p className="text-sm font-mono font-medium">{roomId}</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handleCopyLink} 
+                  className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 shrink-0"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={14} />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
               </div>
-              <button 
-                type="button" 
-                onClick={handleCopyLink} 
-                className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 shrink-0"
-              >
-                {copied ? (
-                  <>
-                    <Check size={14} />
-                    <span>Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy size={14} />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Desktop: Meeting Code & Copy Link (Host Only - Above Controls) */}
+        {isHost && (
+          <div className="hidden sm:block absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-20">
+            <div className="bg-[#3c4043]/95 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 shadow-xl">
+              <div className="flex items-center space-x-4">
+                <div>
+                  <p className="text-xs text-slate-400 mb-0.5">Meeting code</p>
+                  <p className="text-sm font-mono font-medium">{roomId}</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handleCopyLink} 
+                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={16} />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Control Bar - Google Meet Style */}
         <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20">
