@@ -865,71 +865,36 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
           </div>
         )}
 
-        {/* Mobile: Meeting Code & Copy Link (Host Only - Bottom Sheet Style) */}
-        {isHost && (
-          <div className="sm:hidden absolute bottom-20 left-0 right-0 z-20 px-3">
-            <div className="bg-[#3c4043]/95 backdrop-blur-md rounded-xl p-3 border border-white/10 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 mr-3">
-                  <p className="text-xs text-slate-400 mb-0.5">Meeting code</p>
-                  <p className="text-sm font-mono font-medium">{roomId}</p>
-                </div>
-                <button 
-                  type="button" 
-                  onClick={handleCopyLink} 
-                  className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5 shrink-0"
-                >
-                  {copied ? (
-                    <>
-                      <Check size={14} />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Desktop: Meeting Code & Copy Link (Host Only - Above Controls) */}
-        {isHost && (
-          <div className="hidden sm:block absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-20">
-            <div className="bg-[#3c4043]/95 backdrop-blur-md rounded-xl px-4 py-3 border border-white/10 shadow-xl">
-              <div className="flex items-center space-x-4">
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Meeting code</p>
-                  <p className="text-sm font-mono font-medium">{roomId}</p>
-                </div>
-                <button 
-                  type="button" 
-                  onClick={handleCopyLink} 
-                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
-                >
-                  {copied ? (
-                    <>
-                      <Check size={16} />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={16} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Bottom Control Bar - Google Meet Style */}
         <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20">
           <div className="bg-[#3c4043] px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full flex items-center space-x-2 sm:space-x-3 md:space-x-4 shadow-2xl border border-white/5">
+            {/* Meeting Code & Copy Link (Host Only - Left of Mic) */}
+            {isHost && (
+              <div className="flex items-center space-x-2 sm:space-x-3 pr-2 sm:pr-3 border-r border-white/10">
+                <div className="hidden sm:block">
+                  <p className="text-[10px] text-slate-400 leading-none mb-0.5">Meeting code</p>
+                  <p className="text-xs font-mono font-medium leading-none">{roomId}</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handleCopyLink} 
+                  className="px-3 py-2 sm:px-4 sm:py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center space-x-1.5 sm:space-x-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={14} className="sm:w-4 sm:h-4" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} className="sm:w-4 sm:h-4" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
             {/* Microphone */}
             <button 
               type="button" 
