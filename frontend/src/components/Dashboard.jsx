@@ -6,9 +6,11 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
   const [joinId, setJoinId] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [actionError, setActionError] = useState('');
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
+    setActionError('');
     try {
       // Generate a Google Meet style random ID: xxx-xxxx-xxx
       const generateSegment = (length) => Math.random().toString(36).substring(2, 2 + length);
@@ -17,7 +19,8 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       // Save room to database
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No auth token found. Please log in again.');
+        setActionError('Your session expired. Please log in again.');
+        onNavigate('auth');
         return;
       }
 
@@ -31,19 +34,28 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       });
 
       if (!response.ok) {
-        console.error('Failed to create room on server');
+        let msg = 'Failed to create room on server.';
+        try {
+          const data = await response.json();
+          if (data?.message) msg = data.message;
+        } catch {
+          // ignore
+        }
+        setActionError(msg);
         return;
       }
 
       onJoinRoom(newRoomId);
     } catch (error) {
       console.error('Error creating room:', error);
+      setActionError('Network error. Please try again.');
     } finally {
       setIsCreating(false);
     }
   };
 
   const handleJoinRoom = async () => {
+    setActionError('');
     let id = joinId.trim();
     if (!id) return;
     
@@ -61,7 +73,8 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No auth token found. Please log in again.');
+        setActionError('Your session expired. Please log in again.');
+        onNavigate('auth');
         return;
       }
       const response = await fetch(`${resolveApiBase()}/rooms/${id}`, {
@@ -71,12 +84,13 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
         }
       });
       if (!response.ok) {
-        console.error('Room not found');
+        setActionError('Room not found. Please check the meeting link/ID.');
         return;
       }
       onJoinRoom(id);
     } catch (error) {
       console.error('Error joining room:', error);
+      setActionError('Network error. Please try again.');
     }
   };
 
@@ -108,6 +122,12 @@ export default function Dashboard({ onNavigate, onJoinRoom }) {
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-6 z-10">
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          {actionError && (
+            <div className="md:col-span-2 premium-card p-4 border border-red-500/20 bg-red-500/10 text-red-200 text-sm">
+              {actionError}
+            </div>
+          )}
           
           {/* Welcome Section */}
           <div className="flex flex-col justify-center space-y-6">
