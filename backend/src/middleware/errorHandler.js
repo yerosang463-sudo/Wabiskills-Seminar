@@ -28,13 +28,6 @@ export const errorHandler = (err, req, res, next) => {
     });
   }
 
-  if (err.name === 'SequelizeDatabaseError') {
-    return res.status(500).json({
-      success: false,
-      message: 'Database error. Please try again.',
-    });
-  }
-
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({
