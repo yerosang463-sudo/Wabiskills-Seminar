@@ -1054,44 +1054,6 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
           </div>
         </div>
       </div>
-          {messages.length === 0 ? (
-            <div className="text-center text-slate-500 text-sm mt-8">No messages yet. Start the conversation!</div>
-          ) : (
-            messages.map((msg, index) => (
-              <div key={`${msg.timestamp}-${index}`} className={`flex flex-col space-y-1 ${msg.isOwn ? 'items-end' : 'items-start'}`}>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-sm font-semibold text-white">{msg.username}</span>
-                  <span className="text-xs text-slate-500">
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-                <div className={`text-sm p-2 rounded-lg max-w-[80%] ${msg.isOwn ? 'bg-indigo-500/20 text-indigo-200' : 'bg-[#3c4043] text-slate-300'}`}>
-                  {msg.message}
-                </div>
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="p-4 border-t border-[#3c4043] bg-[#202124]">
-          <div className="relative flex items-center">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Send a message"
-              className="w-full bg-[#3c4043] border border-transparent rounded-full pl-5 pr-12 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && message.trim()) handleSendMessage();
-              }}
-            />
-            <button type="button" className={`absolute right-2 p-2 rounded-full transition-colors ${message.length > 0 ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-500 cursor-not-allowed'}`} onClick={handleSendMessage} disabled={message.length === 0}>
-              <Send size={18} />
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
