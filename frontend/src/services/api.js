@@ -65,7 +65,15 @@ export const api = {
       },
       body: JSON.stringify({ roomId }),
     });
-    return parseApiResponse(response);
+    const data = await parseApiResponse(response);
+    
+    // Auto-logout on authentication errors
+    if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+    
+    return data;
   },
 
   async getRoom(token, roomId) {
@@ -76,7 +84,15 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return parseApiResponse(response);
+    const data = await parseApiResponse(response);
+    
+    // Auto-logout on authentication errors
+    if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+    
+    return data;
   },
 
   async joinRoom(token, roomId) {
@@ -87,7 +103,15 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return parseApiResponse(response);
+    const data = await parseApiResponse(response);
+    
+    // Auto-logout on authentication errors
+    if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+    
+    return data;
   },
 
   async leaveRoom(token, roomId) {

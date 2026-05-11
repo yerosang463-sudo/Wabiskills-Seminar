@@ -12,8 +12,15 @@ build/
 backend/RENDER_DEPLOYMENT.md
 frontend/VERCEL_DEPLOYMENT.md
 
+# Documentation files (keep local)
+*.txt
+DEPLOYMENT_FIX.txt
+FIX_SUMMARY.txt
+TROUBLESHOOTING.txt
+
 # Editor/AI tooling
 .kiro/
+.vscode/
 
 # Logs
 *.log

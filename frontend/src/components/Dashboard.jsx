@@ -49,11 +49,21 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       const token = localStorage.getItem('token');
       if (!token) {
         showError('Your session expired. Please log in again.');
+        localStorage.clear(); // Clear all stored data
         onNavigate('auth');
         return;
       }
 
       const response = await api.createRoom(token);
+      
+      // Handle authentication errors
+      if (response.status === 401) {
+        showError('Your session expired. Please log in again.');
+        localStorage.clear(); // Clear all stored data
+        onNavigate('auth');
+        return;
+      }
+      
       if (!response.success || !response.data?.roomId) {
         showError(response.message || 'Failed to create room on server.');
         return;
