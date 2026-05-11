@@ -152,6 +152,47 @@ const startServer = async () => {
           });
         }
       }
+
+      // Rooms table may be missing new columns in production (additive only)
+      const roomTableCandidates = ['Rooms', 'rooms'];
+      let roomTableName = null;
+      let roomColumns = null;
+
+      for (const candidate of roomTableCandidates) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          roomColumns = await queryInterface.describeTable(candidate);
+          roomTableName = candidate;
+          break;
+        } catch {
+          // try next candidate
+        }
+      }
+
+      if (roomTableName && roomColumns) {
+        if (!roomColumns.title) {
+          await queryInterface.addColumn(roomTableName, 'title', {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+          });
+        }
+
+        if (!roomColumns.isActive) {
+          await queryInterface.addColumn(roomTableName, 'isActive', {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+          });
+        }
+
+        if (!roomColumns.maxParticipants) {
+          await queryInterface.addColumn(roomTableName, 'maxParticipants', {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 50,
+          });
+        }
+      }
     } catch (error) {
       console.warn('Database migration failed:', error?.message || error);
     }
