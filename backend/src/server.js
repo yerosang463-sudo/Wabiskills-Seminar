@@ -3,13 +3,13 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
-import { DataTypes } from 'sequelize';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import passport from './config/passport.js';
 import config from './config/config.js';
 import sequelize from './database/sequelize.js';
+import { runStartupMigrations } from './database/migrations.js';
 import routes from './routes/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { setupSocketHandlers } from './sockets/index.js';
@@ -108,91 +108,7 @@ const startServer = async () => {
 
     // Ensure legacy production databases have the expected columns (additive only)
     try {
-      const queryInterface = sequelize.getQueryInterface();
-      const tableCandidates = ['Users', 'users'];
-      let tableName = null;
-      let columns = null;
-
-      for (const candidate of tableCandidates) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          columns = await queryInterface.describeTable(candidate);
-          tableName = candidate;
-          break;
-        } catch {
-          // try next candidate
-        }
-      }
-
-      if (tableName && columns) {
-        // TiDB instance may have googleIdd typo; accept either
-        const hasGoogleId = Boolean(columns.googleId || columns.googleid);
-        const hasGoogleIdd = Boolean(columns.googleIdd || columns.googleidd);
-
-        if (!hasGoogleId) {
-          await queryInterface.addColumn(tableName, 'googleId', {
-            type: DataTypes.STRING,
-            allowNull: true,
-            unique: true,
-          });
-        }
-
-        if (!hasGoogleIdd) {
-          await queryInterface.addColumn(tableName, 'googleIdd', {
-            type: DataTypes.STRING,
-            allowNull: true,
-            unique: true,
-          });
-        }
-
-        if (!columns.avatar && !columns.Avatar) {
-          await queryInterface.addColumn(tableName, 'avatar', {
-            type: DataTypes.STRING,
-            allowNull: true,
-          });
-        }
-      }
-
-      // Rooms table may be missing new columns in production (additive only)
-      const roomTableCandidates = ['Rooms', 'rooms'];
-      let roomTableName = null;
-      let roomColumns = null;
-
-      for (const candidate of roomTableCandidates) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          roomColumns = await queryInterface.describeTable(candidate);
-          roomTableName = candidate;
-          break;
-        } catch {
-          // try next candidate
-        }
-      }
-
-      if (roomTableName && roomColumns) {
-        if (!roomColumns.title) {
-          await queryInterface.addColumn(roomTableName, 'title', {
-            type: DataTypes.STRING(100),
-            allowNull: true,
-          });
-        }
-
-        if (!roomColumns.isActive) {
-          await queryInterface.addColumn(roomTableName, 'isActive', {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: true,
-          });
-        }
-
-        if (!roomColumns.maxParticipants) {
-          await queryInterface.addColumn(roomTableName, 'maxParticipants', {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 50,
-          });
-        }
-      }
+      await runStartupMigrations(sequelize);
     } catch (error) {
       console.warn('Database migration failed:', error?.message || error);
     }

@@ -130,6 +130,7 @@ const admitSocketToRoom = ({ io, targetSocket, roomId, userInfo, isHost }) => {
 
   const participant = {
     roomId,
+    roomDbId: userInfo.roomDbId,
     socketId: targetSocket.id,
     userId: userInfo.userId,
     username: cleanUsername(userInfo.username),
@@ -210,7 +211,7 @@ export const setupSocketHandlers = (io) => {
             io,
             targetSocket: socket,
             roomId,
-            userInfo: { userId, username: displayName },
+            userInfo: { userId, username: displayName, roomDbId: room.id },
             isHost: true,
           });
           console.log(`Host ${displayName} (${userId}) joined room ${roomId}`);
@@ -224,6 +225,7 @@ export const setupSocketHandlers = (io) => {
           roomId,
           socketId: socket.id,
           userId,
+          roomDbId: room.id,
           username: displayName,
           requestedAt: new Date().toISOString(),
           audioEnabled: true,
@@ -361,7 +363,7 @@ export const setupSocketHandlers = (io) => {
         try {
           if (sender.userId && sender.userId !== socket.id) {
             await Message.create({
-              roomId,
+              roomId: sender.roomDbId,
               sender: sender.userId,
               message: cleanMessage,
             });

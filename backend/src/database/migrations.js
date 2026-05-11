@@ -1,0 +1,123 @@
+import { DataTypes } from 'sequelize';
+
+const quoteIdentifier = (value) => `\`${String(value).replace(/`/g, '``')}\``;
+
+export const findExistingTable = async (queryInterface, tableNames) => {
+  for (const tableName of tableNames) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const columns = await queryInterface.describeTable(tableName);
+      return { tableName, columns };
+    } catch {
+      // Try the next candidate; production databases may vary in casing.
+    }
+  }
+
+  return { tableName: null, columns: null };
+};
+
+export const ensureRoomsIdCompatible = async (sequelize, tableName = 'Rooms') => {
+  const quotedTableName = quoteIdentifier(tableName);
+  const [columns] = await sequelize.query(`SHOW COLUMNS FROM ${quotedTableName} LIKE 'id'`);
+  const idColumn = columns?.[0];
+
+  if (!idColumn) {
+    return {
+      changed: false,
+      reason: `${tableName}.id does not exist`,
+    };
+  }
+
+  const rawType = String(idColumn.Type || '').toLowerCase();
+  if (rawType.includes('char') || rawType.includes('varchar')) {
+    return {
+      changed: false,
+      reason: `${tableName}.id uses UUID-compatible ${idColumn.Type}; the application will provide UUID values`,
+    };
+  }
+
+  const extra = String(idColumn.Extra || '').toLowerCase();
+  if (extra.includes('auto_increment')) {
+    return {
+      changed: false,
+      reason: `${tableName}.id already has AUTO_INCREMENT`,
+    };
+  }
+
+  const integerType = rawType.includes('bigint') ? 'BIGINT' : 'INT';
+  const unsigned = rawType.includes('unsigned') ? ' UNSIGNED' : '';
+
+  await sequelize.query(
+    `ALTER TABLE ${quotedTableName} MODIFY COLUMN \`id\` ${integerType}${unsigned} NOT NULL AUTO_INCREMENT`,
+  );
+
+  return {
+    changed: true,
+    reason: `${tableName}.id was updated to AUTO_INCREMENT`,
+  };
+};
+
+export const runStartupMigrations = async (sequelize) => {
+  const queryInterface = sequelize.getQueryInterface();
+  const userResult = await findExistingTable(queryInterface, ['Users', 'users']);
+
+  if (userResult.tableName && userResult.columns) {
+    const { tableName, columns } = userResult;
+    const hasGoogleId = Boolean(columns.googleId || columns.googleid);
+    const hasGoogleIdd = Boolean(columns.googleIdd || columns.googleidd);
+
+    if (!hasGoogleId) {
+      await queryInterface.addColumn(tableName, 'googleId', {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      });
+    }
+
+    if (!hasGoogleIdd) {
+      await queryInterface.addColumn(tableName, 'googleIdd', {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      });
+    }
+
+    if (!columns.avatar && !columns.Avatar) {
+      await queryInterface.addColumn(tableName, 'avatar', {
+        type: DataTypes.STRING,
+        allowNull: true,
+      });
+    }
+  }
+
+  const roomResult = await findExistingTable(queryInterface, ['Rooms', 'rooms']);
+
+  if (roomResult.tableName && roomResult.columns) {
+    const { tableName, columns } = roomResult;
+
+    await ensureRoomsIdCompatible(sequelize, tableName);
+
+    if (!columns.title) {
+      await queryInterface.addColumn(tableName, 'title', {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      });
+    }
+
+    if (!columns.isActive) {
+      await queryInterface.addColumn(tableName, 'isActive', {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      });
+    }
+
+    if (!columns.maxParticipants) {
+      await queryInterface.addColumn(tableName, 'maxParticipants', {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 50,
+      });
+    }
+  }
+};

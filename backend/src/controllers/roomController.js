@@ -146,7 +146,7 @@ export const joinRoom = async (req, res, next) => {
 
     // Get recent messages for the room
     const messages = await Message.findAll({
-      where: { roomId: room.roomId },
+      where: { roomId: room.id },
       include: [
         {
           model: User,
