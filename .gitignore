@@ -12,6 +12,9 @@ build/
 backend/RENDER_DEPLOYMENT.md
 frontend/VERCEL_DEPLOYMENT.md
 
+# Editor/AI tooling
+.kiro/
+
 # Logs
 *.log
 npm-debug.log*
