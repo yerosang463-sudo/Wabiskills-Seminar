@@ -1,0 +1,184 @@
+WabiSeminar: Real-Time Collaborative Whiteboard & Seminar Platform
+Paid Internship Project Presentation
+======================================================================
+
+Project Overview
+----------------
+WabiSeminar is a web-based, real-time collaborative whiteboard and seminar platform designed for remote teaching, brainstorming, and meetings. It combines a React frontend with a Node.js/Express backend, WebSocket-powered real-time collaboration, and a TiDB cloud database for persistent storage.
+
+Key Goals Achieved:
+• Real-time multi-user whiteboard with drawing tools
+• Room-based sessions with unique IDs
+• User authentication (local + Google OAuth)
+• Persistent message and room storage
+• Production-ready deployment (Render + Vercel)
+• Scalable cloud database (TiDB)
+
+Technical Stack
+----------------
+Frontend:
+• React 18 with TypeScript
+• Vite for fast development and building
+• Canvas API for whiteboard drawing
+• Socket.IO client for real-time updates
+• TailwindCSS + shadcn/ui for modern UI
+• React Router for navigation
+
+Backend:
+• Node.js with Express
+• Socket.IO for WebSocket real-time events
+• Sequelize ORM with MySQL/TiDB
+• Passport.js for authentication (local + Google OAuth)
+• JWT for session management
+• bcryptjs for password hashing
+
+Database:
+• TiDB Cloud (MySQL-compatible)
+• Sequelize migrations and model sync
+• Production-safe additive migrations
+
+DevOps & Deployment:
+• Frontend: Vercel (continuous deployment)
+• Backend: Render (Node.js service)
+• Environment variables for secrets
+• Health check endpoints
+• Graceful shutdown handling
+
+Core Features
+--------------
+1. Real-Time Whiteboard
+   • Drawing tools (pen, shapes, colors)
+   • Live cursor tracking for all users
+   • Undo/redo with history
+   • Clear canvas for all participants
+
+2. Room System
+   • Short, shareable room IDs
+   • Persistent room metadata
+   • Active/inactive room states
+   • Max participants limit
+
+3. User Authentication
+   • Email/password registration
+   • Google OAuth one-click login
+   • Unique username enforcement
+   • Avatar support from Google profile
+
+4. Messaging & Presence
+   • Real-time chat inside rooms
+   • User join/leave notifications
+   • Message persistence
+   • System messages for events
+
+5. Production Features
+   • Health check endpoint
+   • Error handling and logging
+   • CORS for cross-origin requests
+   • SPA fallback routing
+
+Architecture Diagram (Textual)
+------------------------------
+┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
+│   React Frontend   │─────►│  Express Backend   │─────►│   TiDB Database   │
+│ (Vite + Socket.IO) │      │ (Socket.IO Server) │      │ (Users, Rooms, Msgs)│
+└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
+         ▲                         ▲
+         │                         │
+         ▼                         ▼
+   Vercel (CDN)            Render (Node Service)
+
+Real-Time Flow:
+1. Client joins room via REST API
+2. WebSocket connection established
+3. Drawing events broadcast to room
+4. Chat messages persisted and broadcast
+5. Presence updates on join/leave
+
+Database Schema
+---------------
+Users:
+  id (UUID), username (UNIQUE), email (UNIQUE), password (nullable), googleId (UNIQUE), avatar, timestamps
+
+Rooms:
+  id (INT), roomId (UNIQUE), title, createdBy (FK Users), isActive, maxParticipants, timestamps
+
+Messages:
+  id (INT), roomId, sender (FK Users), message (TEXT), messageType, timestamp
+
+Authentication Flow
+-------------------
+Local:
+1. Register → hash password → store
+2. Login → compare hash → JWT
+
+Google OAuth:
+1. /api/auth/google → redirect to Google
+2. Callback → fetch profile → create/update user
+3. Generate JWT → redirect frontend with token
+
+Deployment & CI/CD
+-------------------
+Frontend (Vercel):
+• GitHub integration
+• Automatic builds on push
+• Environment variables via Vercel UI
+• CDN distribution
+
+Backend (Render):
+• GitHub-linked service
+• Docker-like build
+• Environment variables via Render UI
+• Zero-downtime deploys
+• Health checks and logs
+
+Challenges & Solutions
+----------------------
+1. Real-Time Sync
+   • Challenge: Low-latency drawing sync across users
+   • Solution: Socket.IO rooms + efficient event batching
+
+2. Auth State in SPA
+   • Challenge: Persisting login across page refreshes
+   • Solution: JWT in httpOnly cookies + localStorage fallback
+
+3. Database Migrations
+   • Challenge: Production schema drift
+   • Solution: Additive-only migrations + table name consistency
+
+4. Environment Variables
+   • Challenge: Secure secret management
+   • Solution: Render/Vercel environment variables, never commit .env
+
+5. CORS & Cookies
+   • Challenge: Cross-origin cookie handling
+   • Solution: Explicit CORS config + sameSite settings
+
+Performance & Scalability
+------------------------
+• Frontend: Code-splitting, lazy loading
+• Backend: Connection pooling, query optimization
+• Real-time: Room-based Socket.IO namespaces
+• Database: Indexes on email, googleId, roomId
+
+Testing Strategy
+----------------
+• Unit tests for models (Jest)
+• Integration tests for auth flow
+• Manual testing for real-time features
+• Production monitoring via Render logs
+
+Future Enhancements
+-------------------
+• File/image upload support
+• Video/audio integration
+• Admin dashboard
+• Export whiteboard as image/PDF
+• Advanced drawing tools
+• Rate limiting and abuse protection
+
+Conclusion
+-----------
+WabiSeminar demonstrates end-to-end full-stack development with real-time collaboration, secure authentication, and production-grade deployment. The project showcases proficiency in React, Node.js, WebSocket communication, database design, and modern DevOps practices.
+
+Prepared by: [Your Name]
+Date: [Presentation Date]
