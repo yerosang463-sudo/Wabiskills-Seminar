@@ -78,11 +78,8 @@ passport.use(
           if (!user.googleId) updates.googleId = googleId;
           if (avatar && user.avatar !== avatar) updates.avatar = avatar;
           
-          // Always update username to Google name if it's different or if it was previously 'admin'
-          if (
-            rawUsername &&
-            (user.username !== rawUsername || user.username.toLowerCase() === 'admin')
-          ) {
+          // Update username to Google name if it's different
+          if (rawUsername && user.username !== rawUsername) {
             const uniqueUsername = await generateUniqueUsername(rawUsername, user.id);
             if (uniqueUsername && uniqueUsername !== user.username) {
               updates.username = uniqueUsername;
