@@ -26,6 +26,41 @@ const generateUniqueRoomId = async () => {
   throw Object.assign(new Error('Could not generate a unique meeting ID'), { status: 500 });
 };
 
+const isMissingIdDefaultError = (error) => {
+  const message = `${error?.message || ''} ${error?.original?.message || ''} ${error?.original?.sqlMessage || ''}`;
+  return /Field 'id' doesn't have a default value/i.test(message);
+};
+
+const generateLegacySafeRoomId = async () => {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    // Keep this inside signed INT range because some legacy production tables have INT ids without AUTO_INCREMENT.
+    const id = Math.floor(100000 + Math.random() * 2000000000);
+    // eslint-disable-next-line no-await-in-loop
+    const existing = await Room.findByPk(id);
+    if (!existing) return id;
+  }
+
+  throw Object.assign(new Error('Could not generate a database row ID for the room'), { status: 500 });
+};
+
+const createRoomRecord = async ({ roomId, createdBy }) => {
+  try {
+    return await Room.create({ roomId, createdBy });
+  } catch (error) {
+    if (!isMissingIdDefaultError(error)) throw error;
+
+    console.warn(
+      "Rooms.id is missing AUTO_INCREMENT/default in the database. Retrying room creation with an explicit id.",
+    );
+
+    return Room.create({
+      id: await generateLegacySafeRoomId(),
+      roomId,
+      createdBy,
+    });
+  }
+};
+
 export const createRoom = async (req, res, next) => {
   try {
     const requestedRoomId = normalizeRoomId(req.body?.roomId);
@@ -61,7 +96,7 @@ export const createRoom = async (req, res, next) => {
       });
     }
 
-    const room = await Room.create({
+    const room = await createRoomRecord({
       roomId: finalRoomId,
       createdBy: req.user.id,
     });
