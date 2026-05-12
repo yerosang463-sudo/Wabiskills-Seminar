@@ -40,12 +40,10 @@ export default function Auth({ onNavigate }) {
       }
 
       if (response.success) {
-        // Store token and username
         if (response.data.token) {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('user', JSON.stringify(response.data.user || response.data));
         }
-        // Store username for meeting room
         const userUsername = response.data.user?.username || response.data.username || username;
         localStorage.setItem('username', userUsername);
         setIsLoading(false);
@@ -67,7 +65,6 @@ export default function Auth({ onNavigate }) {
     window.location.href = `${API_BASE_URL}/auth/google${suffix}`;
   };
 
-  // Check for token in URL (from OAuth callback)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username');

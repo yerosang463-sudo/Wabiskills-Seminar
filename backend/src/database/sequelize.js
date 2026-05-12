@@ -3,15 +3,16 @@ import config from '../config/config.js';
 
 let sequelize;
 
-// Determine if we're in test mode
+// Determine if we're in test mode or development without MySQL
 const isTestMode = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+const useSQLite = process.env.USE_SQLITE === 'true' || process.env.NODE_ENV === 'development';
 
-if (isTestMode) {
-  // Use SQLite for testing
+if (isTestMode || useSQLite) {
+  // Use SQLite for testing or development
   sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: ':memory:',
-    logging: false,
+    storage: './database.sqlite',
+    logging: config.nodeEnv === 'development' ? console.log : false,
   });
 } else {
   // Parse DATABASE_URL for MySQL connection
