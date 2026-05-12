@@ -114,3 +114,4 @@ TROUBLESHOOTING.txt
 # Editor/AI tooling
 .kiro/
 .vscode/
+backend/database.sqlite
