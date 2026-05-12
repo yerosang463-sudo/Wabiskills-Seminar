@@ -102,8 +102,9 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
 
-    // Sync database models
-    await sequelize.sync({ alter: config.nodeEnv === 'development' });
+    // Sync database models (disable alter for SQLite to avoid conflicts with custom migrations)
+    const isSQLite = sequelize.options.dialect === 'sqlite';
+    await sequelize.sync({ alter: config.nodeEnv === 'development' && !isSQLite });
     console.log('Database models synchronized.');
 
     // Ensure legacy production databases have the expected columns (additive only)
