@@ -133,87 +133,14 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
     }
   };
 
-  return (
-    <div className="flex flex-col min-h-screen bg-[#050816] relative text-white font-sans overflow-x-hidden">
+  return ( <div className="flex-1">
       
-      {/* Background Animated Blobs */}
-      <div className="fixed bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[10%] right-[-10%] pointer-events-none"></div>
+      
+      
+      
 
-      {/* Sticky Top Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5 transition-all">
-        {/* Logo */}
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
-            WabiSeminar
-          </span>
-        </div>
-
-        {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center space-x-8">
-          <a href="#" className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
-            Home
-          </a>
-          <button onClick={() => {
-            onNavigate('features');
-            window.history.pushState({}, '', '/features');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Features
-          </button>
-          <button onClick={() => {
-            onNavigate('how-it-works');
-            window.history.pushState({}, '', '/how-it-works');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            How It Works
-          </button>
-          <button onClick={() => {
-            onNavigate('faq');
-            window.history.pushState({}, '', '/faq');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            FAQ
-          </button>
-          <button onClick={() => {
-            onNavigate('pricing');
-            window.history.pushState({}, '', '/pricing');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Pricing
-          </button>
-        </nav>
-
-        {/* Right Actions */}
-        <div className="flex items-center space-x-3 lg:space-x-4">
-          <button className="hidden lg:flex w-10 h-10 rounded-full border border-white/10 items-center justify-center text-[#94A3B8] hover:text-white transition-colors hover:bg-white/5">
-            <Moon size={18} />
-          </button>
-          <button 
-            className="flex items-center space-x-2 text-sm font-semibold text-white bg-white/10 border border-white/10 px-5 py-2 lg:py-2.5 rounded-full hover:bg-white/20 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-            onClick={handleAuthAction}
-          >
-            {isAuthenticated ? (
-              <>
-                <LogOut size={16} />
-                <span className="hidden sm:inline">Logout</span>
-              </>
-            ) : (
-              <>
-                <LogIn size={16} />
-                <span className="hidden sm:inline">Sign In</span>
-              </>
-            )}
-          </button>
-          
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="lg:hidden p-2 text-[#94A3B8] hover:text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </header>
+      
+      
 
       {/* Mobile Menu */}
       {isMenuOpen && (
@@ -567,62 +494,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       </main>
 
       {/* MODERN FOOTER */}
-      <footer className="border-t border-white/10 bg-[#02040A] pt-20 pb-10 px-6 lg:px-8 xl:px-16 relative z-20">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-          <div className="col-span-1 md:col-span-5 pr-0 md:pr-12">
-            <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-                  <Video className="text-white w-5 h-5" />
-                </div>
-                <span className="font-bold text-2xl tracking-wide text-white">WabiSeminar</span>
-            </div>
-            <p className="text-[#94A3B8] text-lg leading-relaxed mb-8">The most beautiful, reliable, and premium way to host engaging masterclasses and webinars without limits.</p>
-            <div className="flex items-center space-x-2 text-[#94A3B8] font-medium">
-              <Shield size={18} className="text-emerald-400"/>
-              <span>Secure End-to-End Encryption</span>
-            </div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Product</h4>
-            <ul className="space-y-4 text-[#94A3B8]">
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Integrations</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Changelog</a></li>
-            </ul>
-          </div>
-
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Resources</h4>
-            <ul className="space-y-4 text-[#94A3B8]">
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">API Documentation</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Community</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Status</a></li>
-            </ul>
-          </div>
-
-          <div className="col-span-1 md:col-span-3">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Ready to start?</h4>
-            <button 
-              onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
-              className="w-full py-4 px-6 rounded-xl font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:-translate-y-1"
-            >
-              Host a Meeting Now
-            </button>
-          </div>
-        </div>
-        
-        <div className="max-w-[1400px] mx-auto border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-[#94A3B8]">
-          <p>© 2026 WabiSeminar Inc. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Settings</a>
-          </div>
-        </div>
-      </footer>
+      
 
       {/* Info Modal */}
       {showInfoModal && (
@@ -655,6 +527,4 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+    </div> ); }

@@ -27,40 +27,12 @@ export default function Features({ onNavigate }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#050816] text-white font-sans overflow-x-hidden relative">
-      {/* Background Animated Blobs */}
-      <div className="fixed bg-purple-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-10%] right-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-blue-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] left-[-10%] pointer-events-none"></div>
+      
+      
+      
 
-      {/* Sticky Top Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5 transition-all">
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
-            WabiSeminar
-          </span>
-        </div>
-
-        <nav className="hidden lg:flex items-center space-x-8">
-          <button onClick={() => onNavigate('dashboard')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Home
-          </button>
-          <span className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
-            Features
-          </span>
-          <button onClick={() => onNavigate('dashboard')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Testimonials
-          </button>
-        </nav>
-
-        <button 
-          className="flex items-center space-x-2 text-sm font-semibold text-white bg-white/10 border border-white/10 px-5 py-2.5 rounded-full hover:bg-white/20 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-          onClick={() => onNavigate('dashboard')}
-        >
-          Go to Dashboard
-        </button>
-      </header>
+      
+      
 
       <main className="flex-1 pt-32 lg:pt-40 relative z-10">
         
@@ -207,16 +179,9 @@ export default function Features({ onNavigate }) {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#02040A] pt-12 pb-8 px-6 lg:px-8 xl:px-16 relative z-20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-[#94A3B8]">
-          <div className="flex items-center space-x-3 mb-4 md:mb-0">
-             <Video size={20} className="text-indigo-400"/>
-             <span className="font-bold text-white text-lg">WabiSeminar</span>
-          </div>
-          <p>© 2026 WabiSeminar Inc. All rights reserved.</p>
-        </div>
-      </footer>
+      
+      
     </div>
   );
 }
+

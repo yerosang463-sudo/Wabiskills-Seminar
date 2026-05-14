@@ -6,6 +6,9 @@ import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
 import Faq from './components/Faq';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { AnimatePresence, motion } from 'framer-motion';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -110,29 +113,65 @@ function App() {
     };
   }, []);
 
+  const isMarketing = ['dashboard', 'features', 'how-it-works', 'pricing', 'faq'].includes(currentView);
+
+  const pageVariants = {
+    initial: { opacity: 0, y: 10 },
+    in: { opacity: 1, y: 0 },
+    out: { opacity: 0, y: -10 }
+  };
+
+  const pageTransition = {
+    type: 'tween',
+    ease: 'easeInOut',
+    duration: 0.3
+  };
+
+  const handleNavigate = (view) => {
+    setCurrentView(view);
+    window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col font-sans">
-      {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
-      {currentView === 'dashboard' && (
-        <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+    <div className="min-h-screen flex flex-col font-sans bg-[#050816] text-white overflow-x-hidden relative">
+      {/* Global Background Blobs for Marketing Pages */}
+      {isMarketing && (
+        <div className="fixed inset-0 pointer-events-none z-0">
+          <div className="absolute bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-10%] right-[-10%]"></div>
+          <div className="absolute bg-fuchsia-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] left-[-10%]"></div>
+        </div>
       )}
-      {currentView === 'features' && <Features onNavigate={(view) => {
-        setCurrentView(view);
-        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
-      }} />}
-      {currentView === 'how-it-works' && <HowItWorks onNavigate={(view) => {
-        setCurrentView(view);
-        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
-      }} />}
-      {currentView === 'pricing' && <Pricing onNavigate={(view) => {
-        setCurrentView(view);
-        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
-      }} />}
-      {currentView === 'faq' && <Faq onNavigate={(view) => {
-        setCurrentView(view);
-        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
-      }} />}
-      {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+
+      {/* Global Navbar */}
+      {isMarketing && <Navbar currentView={currentView} onNavigate={handleNavigate} />}
+
+      <main className="flex-1 relative z-10 flex flex-col">
+        {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
+        {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+        
+        {isMarketing && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentView}
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+              className="flex-1 flex flex-col"
+            >
+              {currentView === 'dashboard' && <Dashboard onNavigate={handleNavigate} onJoinRoom={navigateToRoom} notify={notify} />}
+              {currentView === 'features' && <Features onNavigate={handleNavigate} />}
+              {currentView === 'how-it-works' && <HowItWorks onNavigate={handleNavigate} />}
+              {currentView === 'pricing' && <Pricing onNavigate={handleNavigate} />}
+              {currentView === 'faq' && <Faq onNavigate={handleNavigate} />}
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </main>
+
+      {/* Global Footer */}
+      {isMarketing && <Footer onNavigate={handleNavigate} />}
 
       {toast && (
         <div className="fixed top-4 left-1/2 z-[100] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2">
