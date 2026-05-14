@@ -157,9 +157,12 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <a href="#" className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
             Home
           </a>
-          <a href="#features" className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+          <button onClick={() => {
+            onNavigate('features');
+            window.history.pushState({}, '', '/features');
+          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Features
-          </a>
+          </button>
           <a href="#testimonials" className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Testimonials
           </a>
@@ -204,7 +207,11 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-[#050816]/95 backdrop-blur-xl pt-24 px-6 pb-6 flex flex-col space-y-6 lg:hidden border-b border-white/10">
           <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-purple-400">Home</a>
-          <a href="#features" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">Features</a>
+          <button onClick={() => {
+            setIsMenuOpen(false);
+            onNavigate('features');
+            window.history.pushState({}, '', '/features');
+          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">Features</button>
           <a href="#testimonials" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">Testimonials</a>
           <a href="#faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</a>
         </div>

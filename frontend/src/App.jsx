@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
+import Features from './components/Features';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -14,6 +15,13 @@ function readRouteSnapshot() {
     return {
       currentRoomId: roomId,
       currentView: authed ? 'meeting' : 'auth',
+    };
+  }
+
+  if (window.location.pathname === '/features') {
+    return {
+      currentRoomId: '',
+      currentView: 'features',
     };
   }
 
@@ -84,6 +92,10 @@ function App() {
       {currentView === 'dashboard' && (
         <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
       )}
+      {currentView === 'features' && <Features onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
       {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
 
       {toast && (
