@@ -19,7 +19,7 @@ function readRouteSnapshot() {
 
   return {
     currentRoomId: '',
-    currentView: authed ? 'dashboard' : 'auth',
+    currentView: 'dashboard', // Always show dashboard as landing page
   };
 }
 
@@ -79,7 +79,7 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans">
       {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
       {currentView === 'dashboard' && (
         <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />

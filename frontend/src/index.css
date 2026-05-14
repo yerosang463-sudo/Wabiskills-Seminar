@@ -6,39 +6,45 @@
 
 @layer base {
   body {
-    background-color: #020617; /* slate-950 */
-    color: #f8fafc; /* slate-50 */
+    background-color: #050816;
+    color: #FFFFFF;
     font-family: var(--font-sans);
+    overflow-x: hidden;
   }
 }
 
 @layer components {
   /* Premium UI styles */
   .premium-card {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 1.5rem;
   }
   
   .premium-input {
-    @apply w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300;
+    @apply w-full bg-[#050816]/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300;
   }
   
   .premium-btn {
-    @apply flex items-center justify-center px-4 py-3 rounded-xl font-medium transition-all duration-300 text-sm active:scale-[0.98];
+    @apply flex items-center justify-center px-4 py-3 rounded-xl font-semibold transition-all duration-300 text-sm active:scale-[0.98];
   }
   
   .premium-btn-primary {
-    @apply bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 border border-white/10;
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] border border-white/5;
+  }
+  
+  .premium-btn-success {
+    @apply bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:from-emerald-500 hover:to-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border border-white/5;
   }
   
   .premium-btn-secondary {
     @apply bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20;
   }
-  
-  .premium-btn-danger {
-    @apply bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white shadow-lg hover:shadow-rose-500/40;
-  }
 
-  /* Custom Scrollbar for Chat */
+  /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -55,7 +61,7 @@
   position: absolute;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(147,51,234,0.15) 0%, rgba(0,0,0,0) 70%);
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
@@ -65,4 +71,17 @@
 @keyframes pulse {
   0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
   100% { transform: scale(1.2) translate(5%, 5%); opacity: 1; }
+}
+
+.blob {
+  position: absolute;
+  filter: blur(80px);
+  z-index: 0;
+  opacity: 0.4;
+  animation: move 10s infinite alternate ease-in-out;
+}
+
+@keyframes move {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -30px) scale(1.1); }
 }
