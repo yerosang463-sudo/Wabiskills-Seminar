@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
+import Pricing from './components/Pricing';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -30,6 +31,13 @@ function readRouteSnapshot() {
     return {
       currentRoomId: '',
       currentView: 'how-it-works',
+    };
+  }
+
+  if (window.location.pathname === '/pricing') {
+    return {
+      currentRoomId: '',
+      currentView: 'pricing',
     };
   }
 
@@ -105,6 +113,10 @@ function App() {
         window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
       }} />}
       {currentView === 'how-it-works' && <HowItWorks onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
+      {currentView === 'pricing' && <Pricing onNavigate={(view) => {
         setCurrentView(view);
         window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
       }} />}
