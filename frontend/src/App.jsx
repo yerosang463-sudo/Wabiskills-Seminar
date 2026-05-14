@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
+import Features from './components/Features';
+import HowItWorks from './components/HowItWorks';
+import Pricing from './components/Pricing';
+import Faq from './components/Faq';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -17,9 +21,37 @@ function readRouteSnapshot() {
     };
   }
 
+  if (window.location.pathname === '/features') {
+    return {
+      currentRoomId: '',
+      currentView: 'features',
+    };
+  }
+
+  if (window.location.pathname === '/how-it-works') {
+    return {
+      currentRoomId: '',
+      currentView: 'how-it-works',
+    };
+  }
+
+  if (window.location.pathname === '/pricing') {
+    return {
+      currentRoomId: '',
+      currentView: 'pricing',
+    };
+  }
+
+  if (window.location.pathname === '/faq') {
+    return {
+      currentRoomId: '',
+      currentView: 'faq',
+    };
+  }
+
   return {
     currentRoomId: '',
-    currentView: authed ? 'dashboard' : 'auth',
+    currentView: 'dashboard', // Always show dashboard as landing page
   };
 }
 
@@ -79,11 +111,27 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans">
       {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
       {currentView === 'dashboard' && (
         <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
       )}
+      {currentView === 'features' && <Features onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
+      {currentView === 'how-it-works' && <HowItWorks onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
+      {currentView === 'pricing' && <Pricing onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
+      {currentView === 'faq' && <Faq onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
       {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
 
       {toast && (

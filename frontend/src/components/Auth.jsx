@@ -79,16 +79,21 @@ export default function Auth({ onNavigate }) {
   }, []);
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-slate-950 min-h-screen">
+    <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-[#050816] min-h-screen font-sans text-white">
       {/* Background Glow Effects */}
-      <div className="bg-glow top-0 left-0"></div>
-      <div className="bg-glow bottom-0 right-0 bg-purple-500/10" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
+      <div className="absolute bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
-      <div className="premium-card w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10">
+      <div className="w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10 bg-[#0A0F24]/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl shadow-[0_0_80px_-15px_rgba(124,58,237,0.25)] relative">
         
+        {/* Floating Accent */}
+        <div className="absolute -top-4 -right-4 w-10 h-10 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
+          <Lock size={18} className="text-indigo-300" />
+        </div>
+
         {/* Logo/Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-500/20">
-          <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)]">
+          <div className="w-full h-full bg-[#0A0F24] rounded-[15px] flex items-center justify-center">
             <Video className="text-indigo-400" size={32} />
           </div>
         </div>
