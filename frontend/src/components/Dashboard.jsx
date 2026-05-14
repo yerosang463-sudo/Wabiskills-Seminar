@@ -163,6 +163,12 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Features
           </button>
+          <button onClick={() => {
+            onNavigate('how-it-works');
+            window.history.pushState({}, '', '/how-it-works');
+          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+            How It Works
+          </button>
           <a href="#testimonials" className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Testimonials
           </a>
@@ -212,6 +218,11 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             onNavigate('features');
             window.history.pushState({}, '', '/features');
           }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">Features</button>
+          <button onClick={() => {
+            setIsMenuOpen(false);
+            onNavigate('how-it-works');
+            window.history.pushState({}, '', '/how-it-works');
+          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">How It Works</button>
           <a href="#testimonials" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">Testimonials</a>
           <a href="#faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</a>
         </div>

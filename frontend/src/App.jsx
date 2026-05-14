@@ -3,6 +3,7 @@ import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
 import Features from './components/Features';
+import HowItWorks from './components/HowItWorks';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -22,6 +23,13 @@ function readRouteSnapshot() {
     return {
       currentRoomId: '',
       currentView: 'features',
+    };
+  }
+
+  if (window.location.pathname === '/how-it-works') {
+    return {
+      currentRoomId: '',
+      currentView: 'how-it-works',
     };
   }
 
@@ -93,6 +101,10 @@ function App() {
         <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
       )}
       {currentView === 'features' && <Features onNavigate={(view) => {
+        setCurrentView(view);
+        window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
+      }} />}
+      {currentView === 'how-it-works' && <HowItWorks onNavigate={(view) => {
         setCurrentView(view);
         window.history.pushState({}, '', view === 'dashboard' ? '/' : `/${view}`);
       }} />}
