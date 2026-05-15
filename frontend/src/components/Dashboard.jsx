@@ -313,16 +313,28 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               transition={{ duration: 0.8, delay: 0.2, type: "spring", stiffness: 100 }}
               className="relative lg:ml-auto w-full max-w-[540px] perspective-[1000px]"
             >
+              {/* Interactive Floating Action Button */}
+              <button 
+                onClick={handleCreateRoom}
+                disabled={isCreating}
+                className="absolute -top-4 -right-4 h-12 bg-[#050816] border border-purple-500/50 rounded-full flex items-center shadow-[0_0_30px_rgba(147,51,234,0.8)] z-20 transition-all duration-300 hover:border-purple-400 group cursor-pointer"
+                title="Create a new meeting room"
+              >
+                <div className="flex items-center w-12 group-hover:w-[130px] transition-all duration-500 ease-out h-full overflow-hidden">
+                  <div className="w-12 h-full flex items-center justify-center shrink-0">
+                    <Plus size={24} className="text-indigo-300 group-hover:rotate-90 transition-transform duration-500" />
+                  </div>
+                  <span className="text-sm font-bold text-indigo-200 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 -ml-1 pr-4">
+                    New Room
+                  </span>
+                </div>
+              </button>
+
               {/* The Main Glowing Card */}
-              <div className="bg-[#0A0F24]/90 backdrop-blur-3xl border border-purple-500/40 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_100px_-20px_rgba(124,58,237,0.4)] relative overflow-hidden group">
+              <div className="premium-card p-8 sm:p-10 relative overflow-hidden group">
                 
                 {/* Internal card glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                {/* Floating + Icon */}
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(147,51,234,0.8)] z-20 hover:rotate-90 transition-transform duration-500">
-                  <Plus size={24} className="text-indigo-300" />
-                </div>
 
                 {/* Start Meeting Section */}
                 <div className="mb-10 relative z-10">
@@ -336,7 +348,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   
                   <button 
                     type="button"
-                    className={`w-full py-4 px-6 rounded-2xl text-[16px] font-bold text-white flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 hover:from-indigo-400 hover:via-purple-400 hover:to-blue-400 shadow-[0_10px_30px_-10px_rgba(99,102,241,0.7)] ${isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.8)]'}`}
+                    className={`premium-btn premium-btn-brand w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-1'}`}
                     onClick={handleCreateRoom}
                     disabled={isCreating}
                   >
@@ -382,13 +394,13 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                         value={joinId}
                         onChange={(e) => setJoinId(e.target.value)}
                         placeholder="Enter Room ID (e.g. abc-defg-hij)" 
-                        className="w-full bg-[#050816] border border-white/10 rounded-2xl pl-11 pr-4 py-4.5 text-[15px] text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner" 
+                        className="premium-input pl-11 py-4.5 text-[15px]" 
                         onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
                       />
                     </div>
                     <button 
                       type="button"
-                      className={`w-full py-4 px-6 rounded-2xl text-[16px] font-bold text-white flex items-center justify-between transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)] ${!joinId.trim() || isJoining ? 'opacity-90' : 'hover:-translate-y-1 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.7)]'}`}
+                      className={`premium-btn premium-btn-success w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${!joinId.trim() || isJoining ? 'opacity-90' : 'hover:-translate-y-1'}`}
                       onClick={handleJoinRoom}
                     >
                       <div className="flex items-center">
@@ -428,7 +440,13 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
         </section>
 
         {/* TRUSTED BY STRIP */}
-        <section className="border-y border-white/5 bg-white/[0.01] py-12 relative z-10 backdrop-blur-sm">
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="border-y border-white/5 bg-white/[0.01] py-12 relative z-10 backdrop-blur-sm"
+        >
           <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="text-slate-400 text-sm font-bold tracking-[0.2em] uppercase mb-8">Trusted by innovative teams worldwide</p>
             <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
@@ -438,58 +456,82 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               <div className="text-2xl font-black flex items-center gap-3 text-white hidden md:flex"><div className="w-8 h-8 rotate-45 bg-gradient-to-tr from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/50"></div> Initech</div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* FEATURES SECTION */}
         <section id="features" className="py-24 lg:py-32 relative z-10 px-6 lg:px-8 xl:px-16">
           <div className="max-w-[1400px] mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-20">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6 }}
+              className="text-center max-w-3xl mx-auto mb-20"
+            >
               <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Everything you need for <br className="hidden md:block"/><span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">perfect seminars</span></h2>
               <p className="text-[#94A3B8] text-lg md:text-xl leading-relaxed">WabiSeminar brings together the best tools for video collaboration in one beautiful, frictionless package. Focus on your audience, not the tech.</p>
-            </div>
+            </motion.div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
               {/* Feature 1 */}
-              <div className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-indigo-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(99,102,241,0.2)] group">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-indigo-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(99,102,241,0.2)] group">
                 <div className="w-16 h-16 bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors text-indigo-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-indigo-500/20"> 
                   <Video size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Ultra HD Video</h3>
                 <p className="text-[#94A3B8] leading-relaxed text-lg">Experience crystal clear video and audio quality powered by advanced WebRTC architecture, ensuring you always look your best.</p>
-              </div>
+              </motion.div>
 
               {/* Feature 2 */}
-              <div className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-emerald-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(16,185,129,0.2)] group">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-emerald-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(16,185,129,0.2)] group">
                 <div className="w-16 h-16 bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-emerald-500/20"> 
                   <MessageSquare size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Real-time Chat</h3>
                 <p className="text-[#94A3B8] leading-relaxed text-lg">Keep your audience engaged with lightning-fast built-in chat. Share links, answer questions, and foster community instantly.</p>
-              </div>
+              </motion.div>
 
               {/* Feature 3 */}
-              <div className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-purple-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(168,85,247,0.2)] group">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-purple-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(168,85,247,0.2)] group">
                 <div className="w-16 h-16 bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors text-purple-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-purple-500/20"> 
                   <Monitor size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Screen Sharing</h3>
                 <p className="text-[#94A3B8] leading-relaxed text-lg">Present your masterclass seamlessly. Share your entire screen, specific windows, or browser tabs with zero lag.</p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
         {/* TESTIMONIALS SECTION */}
         <section id="testimonials" className="py-24 lg:py-32 relative z-10 bg-gradient-to-b from-transparent to-[#0A0F24] px-6 lg:px-8 xl:px-16">
           <div className="max-w-[1400px] mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-20">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6 }}
+              className="text-center max-w-3xl mx-auto mb-20"
+            >
               <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Loved by educators</h2>
               <p className="text-[#94A3B8] text-lg md:text-xl leading-relaxed">See why thousands of professionals choose WabiSeminar over legacy video conferencing platforms.</p>
-            </div>
+            </motion.div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.15 } } }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            >
               {/* Testimonial 1 */}
-              <div className="bg-[#160B2A]/40 backdrop-blur-md border border-purple-500/20 p-10 rounded-[2rem] relative">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#160B2A]/40 backdrop-blur-md border border-purple-500/20 p-10 rounded-[2rem] relative">
                 <div className="flex gap-1 text-yellow-400 mb-6">
                   <Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" />
                 </div>
@@ -501,10 +543,10 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                     <p className="text-[#94A3B8] text-sm">Lead Designer, StudioX</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Testimonial 2 */}
-              <div className="bg-[#0A241A]/40 backdrop-blur-md border border-emerald-500/20 p-10 rounded-[2rem] relative md:-translate-y-6">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A241A]/40 backdrop-blur-md border border-emerald-500/20 p-10 rounded-[2rem] relative md:-translate-y-6">
                 <div className="flex gap-1 text-yellow-400 mb-6">
                   <Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" />
                 </div>
@@ -516,10 +558,10 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                     <p className="text-[#94A3B8] text-sm">Executive Coach</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Testimonial 3 */}
-              <div className="bg-[#0A0F24]/80 backdrop-blur-md border border-blue-500/20 p-10 rounded-[2rem] relative">
+              <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/80 backdrop-blur-md border border-blue-500/20 p-10 rounded-[2rem] relative">
                 <div className="flex gap-1 text-yellow-400 mb-6">
                   <Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" /><Star size={20} fill="currentColor" />
                 </div>
@@ -531,15 +573,21 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                     <p className="text-[#94A3B8] text-sm">CTO, TechFlow</p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
       </main>
 
       {/* MODERN FOOTER */}
-      <footer className="border-t border-white/10 bg-[#02040A] pt-20 pb-10 px-6 lg:px-8 xl:px-16 relative z-20">
+      <motion.footer 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8 }}
+        className="border-t border-white/10 bg-[#02040A] pt-20 pb-10 px-6 lg:px-8 xl:px-16 relative z-20"
+      >
         <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           <div className="col-span-1 md:col-span-5 pr-0 md:pr-12">
             <div className="flex items-center space-x-3 mb-6">
@@ -594,7 +642,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             <a href="#" className="hover:text-white transition-colors">Cookie Settings</a>
           </div>
         </div>
-      </footer>
+      </motion.footer>
 
       {/* Info Modal */}
       {showInfoModal && (
