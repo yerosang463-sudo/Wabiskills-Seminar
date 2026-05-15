@@ -1,331 +1,313 @@
 import { useState, useEffect } from 'react';
-import { 
-  Video, Check, Shield, Zap, HelpCircle, 
-  ChevronDown, Building2, Crown, Sparkles, X
-} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Check, X, Video, ChevronRight, HelpCircle, ArrowRight, Shield, Zap, Sparkles
+} from 'lucide-react';
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function Pricing({ onNavigate }) {
   const [isAnnual, setIsAnnual] = useState(true);
-  const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
-
-  const faqs = [
+  const plans = [
     {
-      q: "Can I use WabiSeminar for free forever?",
-      a: "Yes! Our Free plan includes unlimited 1-on-1 meetings, screen sharing, and real-time chat. It's completely free forever with no credit card required."
+      name: "Free",
+      desc: "Perfect for getting started with masterclasses.",
+      monthlyPrice: "0",
+      annualPrice: "0",
+      features: [
+        { name: "Up to 10 participants", included: true },
+        { name: "40 minute time limit", included: true },
+        { name: "720p Video Quality", included: true },
+        { name: "Screen Sharing", included: true },
+        { name: "Custom Branding", included: false },
+        { name: "Cloud Recording", included: false },
+      ],
+      cta: "Get Started Free",
+      colorClass: "indigo",
+      recommended: false
     },
     {
-      q: "What counts as a 'participant'?",
-      a: "A participant is anyone who joins your meeting room, including the host. So if you host a webinar with 50 guests, that counts as 51 participants."
+      name: "Pro",
+      desc: "Ideal for professional educators and teams.",
+      monthlyPrice: "29",
+      annualPrice: "24",
+      features: [
+        { name: "Up to 100 participants", included: true },
+        { name: "Unlimited meeting time", included: true },
+        { name: "1080p Ultra HD Video", included: true },
+        { name: "Screen Sharing", included: true },
+        { name: "Custom Branding", included: true },
+        { name: "10GB Cloud Recording", included: true },
+      ],
+      cta: "Start Pro Trial",
+      colorClass: "purple",
+      recommended: true
     },
     {
-      q: "Can I switch from monthly to annual billing?",
-      a: "Absolutely. You can upgrade to annual billing at any time from your account settings to take advantage of the 20% discount."
-    },
-    {
-      q: "Do guests need to create an account to join?",
-      a: "No. Guests can join instantly via your secure link directly from their browser without creating an account or downloading any software."
+      name: "Enterprise",
+      desc: "Advanced security and control for large orgs.",
+      monthlyPrice: "99",
+      annualPrice: "89",
+      features: [
+        { name: "Up to 1000 participants", included: true },
+        { name: "Unlimited meeting time", included: true },
+        { name: "4K Video Support", included: true },
+        { name: "Screen Sharing", included: true },
+        { name: "Advanced Custom Branding", included: true },
+        { name: "Unlimited Cloud Recording", included: true },
+      ],
+      cta: "Contact Sales",
+      colorClass: "blue",
+      recommended: false
     }
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#050816] text-white font-sans overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050816] text-white font-sans overflow-hidden relative">
       {/* Background Animated Blobs */}
-      <div className="fixed bg-indigo-600/10 blur-[150px] w-[600px] h-[600px] rounded-full top-[-10%] right-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-fuchsia-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] left-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] left-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
-      {/* Sticky Top Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5 transition-all">
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
+      {/* Navbar */}
+      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5">
+        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-shadow">
             <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
           </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
-            WabiSeminar
-          </span>
+          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">WabiSeminar</span>
         </div>
-
-        <nav className="hidden lg:flex items-center space-x-8">
-          <button onClick={() => onNavigate('dashboard')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Home
-          </button>
-          <button onClick={() => { onNavigate('features'); window.history.pushState({}, '', '/features'); }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Features
-          </button>
-          <button onClick={() => { onNavigate('how-it-works'); window.history.pushState({}, '', '/how-it-works'); }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            How It Works
-          </button>
-          <span className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
-            Pricing
-          </span>
-        </nav>
-
         <button 
-          className="flex items-center space-x-2 text-sm font-semibold text-white bg-white/10 border border-white/10 px-5 py-2.5 rounded-full hover:bg-white/20 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-          onClick={() => onNavigate('dashboard')}
+          onClick={() => onNavigate('dashboard')} 
+          className="text-sm font-semibold text-white bg-white/5 border border-white/10 px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all"
         >
-          Get Started Free
+          Back to Home
         </button>
       </header>
 
-      <main className="flex-1 pt-32 lg:pt-40 relative z-10">
+      <main className="pt-32 lg:pt-40 pb-20 relative z-10 max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-16">
         
-        {/* HERO SECTION */}
-        <section className="px-6 lg:px-8 xl:px-16 pb-20 text-center max-w-5xl mx-auto">
-          <motion.div initial="hidden" animate="visible" variants={containerVariants}>
-            <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6">
-              Simple pricing for <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-fuchsia-400">limitless potential</span>
+        {/* 1. Hero Section & Toggle */}
+        <section className="text-center mb-24">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="max-w-4xl mx-auto flex flex-col items-center"
+          >
+            <motion.div variants={fadeIn} className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 w-fit text-sm font-semibold shadow-[0_0_15px_rgba(168,85,247,0.15)] mb-8">
+              <Sparkles size={16} className="text-purple-400" />
+              <span>Simple, transparent pricing</span>
+            </motion.div>
+            <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
+              Invest in your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">masterclasses</span>
             </motion.h1>
-            <motion.p variants={itemVariants} className="text-[#94A3B8] text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-              Start for free, upgrade when you need more power. Transparent pricing with no hidden fees and no credit card required to start.
+            <motion.p variants={fadeIn} className="text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl font-light mb-12">
+              Start for free, then upgrade as your audience grows. No hidden fees. Cancel anytime.
             </motion.p>
 
             {/* Billing Toggle */}
-            <motion.div variants={itemVariants} className="flex items-center justify-center space-x-4 mb-16">
-              <span className={`text-sm font-semibold transition-colors ${!isAnnual ? 'text-white' : 'text-[#94A3B8]'}`}>Monthly</span>
-              <button 
-                onClick={() => setIsAnnual(!isAnnual)}
-                className="relative w-16 h-8 rounded-full bg-[#1E113C] border border-purple-500/30 p-1 flex items-center transition-colors"
-              >
-                <div className={`w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-md transform transition-transform duration-300 ${isAnnual ? 'translate-x-8' : 'translate-x-0'}`}></div>
-              </button>
-              <div className="flex items-center space-x-2">
-                <span className={`text-sm font-semibold transition-colors ${isAnnual ? 'text-white' : 'text-[#94A3B8]'}`}>Annually</span>
-                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">Save 20%</span>
-              </div>
+            <motion.div variants={fadeIn} className="flex items-center space-x-4 bg-[#0A0F24]/80 p-2 rounded-full border border-white/10 backdrop-blur-md shadow-xl">
+               <span className={`text-sm font-bold pl-4 transition-colors ${!isAnnual ? 'text-white' : 'text-[#94A3B8]'}`}>Monthly</span>
+               <button 
+                 onClick={() => setIsAnnual(!isAnnual)}
+                 className="w-16 h-8 bg-indigo-500/20 border border-indigo-500/30 rounded-full relative transition-colors focus:outline-none flex items-center px-1 cursor-pointer"
+               >
+                  <motion.div 
+                    animate={{ x: isAnnual ? 32 : 0 }} 
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="w-6 h-6 bg-indigo-400 rounded-full shadow-md"
+                  />
+               </button>
+               <span className={`text-sm font-bold pr-4 flex items-center space-x-2 transition-colors ${isAnnual ? 'text-white' : 'text-[#94A3B8]'}`}>
+                  <span>Annually</span>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Save 20%</span>
+               </span>
             </motion.div>
           </motion.div>
         </section>
 
-        {/* PRICING CARDS */}
-        <section className="px-6 lg:px-8 xl:px-16 pb-32 max-w-[1300px] mx-auto">
-          <motion.div 
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 items-center"
-          >
-            {/* FREE PLAN */}
-            <motion.div variants={itemVariants} className="bg-[#0A0F24]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 flex flex-col hover:-translate-y-2 transition-transform duration-300">
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-slate-300 mb-2">Starter</h3>
-                <p className="text-sm text-[#94A3B8]">Perfect for individuals and small teams starting out.</p>
-              </div>
-              <div className="mb-8">
-                <div className="flex items-end space-x-1">
-                  <span className="text-5xl font-extrabold text-white">$0</span>
-                  <span className="text-[#94A3B8] mb-1">/ forever</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-10 flex-1">
-                {['Up to 4 participants', 'Unlimited meeting duration', 'HD Video (720p)', 'Basic screen sharing', 'End-to-end encryption'].map((feat, i) => (
-                  <li key={i} className="flex items-start space-x-3 text-sm text-slate-300">
-                    <Check size={18} className="text-indigo-400 shrink-0" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => onNavigate('dashboard')} className="w-full py-4 rounded-xl font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                Get Started Free
-              </button>
-            </motion.div>
-
-            {/* PRO PLAN (RECOMMENDED) */}
-            <motion.div variants={itemVariants} className="relative transform md:scale-110 z-10">
-              <div className="absolute inset-0 bg-gradient-to-b from-indigo-500 via-purple-500 to-fuchsia-500 rounded-[2.5rem] p-[2px] opacity-100 animate-[pulse_4s_ease-in-out_infinite]">
-                 <div className="absolute inset-0 blur-xl bg-gradient-to-b from-indigo-500 via-purple-500 to-fuchsia-500 opacity-30"></div>
-              </div>
-              <div className="bg-[#0B0A1E] backdrop-blur-2xl rounded-[2.5rem] p-10 flex flex-col relative h-full shadow-[0_20px_50px_-20px_rgba(124,58,237,0.5)]">
-                <div className="absolute top-0 right-10 -translate-y-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg flex items-center space-x-1">
-                  <Crown size={12} />
-                  <span>Most Popular</span>
-                </div>
-                <div className="mb-8 mt-2">
-                  <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
-                  <p className="text-sm text-[#94A3B8]">For educators, creators, and growing businesses.</p>
-                </div>
-                <div className="mb-8">
-                  <div className="flex items-end space-x-1">
-                    <span className="text-5xl font-extrabold text-white">${isAnnual ? '12' : '15'}</span>
-                    <span className="text-[#94A3B8] mb-1">/ user / month</span>
-                  </div>
-                  {isAnnual && <p className="text-xs text-emerald-400 mt-2">Billed annually ($144/yr)</p>}
-                </div>
-                <ul className="space-y-4 mb-10 flex-1">
-                  <li className="flex items-start space-x-3 text-sm text-white font-medium">
-                    <Check size={18} className="text-purple-400 shrink-0" />
-                    <span>Everything in Starter, plus:</span>
-                  </li>
-                  {['Up to 100 participants', 'Ultra HD Video (4K ready)', 'Advanced screen sharing & recording', 'Waiting rooms & host controls', 'Priority email support'].map((feat, i) => (
-                    <li key={i} className="flex items-start space-x-3 text-sm text-slate-300">
-                      <Check size={18} className="text-purple-400 shrink-0" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => onNavigate('dashboard')} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 shadow-[0_10px_20px_-10px_rgba(124,58,237,0.6)] transition-all hover:-translate-y-1">
-                  Upgrade to Pro
-                </button>
-              </div>
-            </motion.div>
-
-            {/* ENTERPRISE PLAN */}
-            <motion.div variants={itemVariants} className="bg-[#0A0F24]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-10 flex flex-col hover:-translate-y-2 transition-transform duration-300">
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-slate-300 mb-2">Enterprise</h3>
-                <p className="text-sm text-[#94A3B8]">Custom solutions for large organizations and schools.</p>
-              </div>
-              <div className="mb-8">
-                <div className="flex items-end space-x-1">
-                  <span className="text-5xl font-extrabold text-white">Custom</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-10 flex-1">
-                <li className="flex items-start space-x-3 text-sm text-white font-medium">
-                  <Check size={18} className="text-indigo-400 shrink-0" />
-                  <span>Everything in Pro, plus:</span>
-                </li>
-                {['Up to 1,000 participants', 'Custom domain & branding', 'Single Sign-On (SSO)', 'Dedicated account manager', '24/7 Phone support', 'Advanced analytics API'].map((feat, i) => (
-                  <li key={i} className="flex items-start space-x-3 text-sm text-slate-300">
-                    <Check size={18} className="text-indigo-400 shrink-0" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full py-4 rounded-xl font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 transition-all">
-                Contact Sales
-              </button>
-            </motion.div>
-          </motion.div>
-        </section>
-
-        {/* TRUST BADGES */}
-        <section className="border-y border-white/5 bg-white/[0.01] py-10 relative z-10 backdrop-blur-sm mb-32">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 text-[#94A3B8]">
-            <div className="flex items-center space-x-3">
-              <Shield size={24} className="text-emerald-400"/>
-              <span className="font-semibold text-sm">SOC 2 Type II Certified</span>
-            </div>
-            <div className="hidden sm:block w-1 h-1 rounded-full bg-white/20"></div>
-            <div className="flex items-center space-x-3">
-              <Zap size={24} className="text-indigo-400"/>
-              <span className="font-semibold text-sm">99.99% Uptime Guarantee</span>
-            </div>
-            <div className="hidden sm:block w-1 h-1 rounded-full bg-white/20"></div>
-            <div className="flex items-center space-x-3">
-              <Building2 size={24} className="text-purple-400"/>
-              <span className="font-semibold text-sm">GDPR Compliant</span>
-            </div>
-          </div>
-        </section>
-
-        {/* FEATURE COMPARISON TABLE */}
-        <section className="px-6 lg:px-8 xl:px-16 pb-32 max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Compare all features</h2>
-            <p className="text-[#94A3B8]">Find the perfect plan for your specific needs.</p>
-          </div>
-
-          <div className="bg-[#0A0F24]/80 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="p-6 font-semibold text-slate-300 w-1/3">Core Features</th>
-                    <th className="p-6 font-bold text-white text-center">Starter</th>
-                    <th className="p-6 font-bold text-purple-300 text-center bg-purple-500/10">Professional</th>
-                    <th className="p-6 font-bold text-white text-center">Enterprise</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm divide-y divide-white/5">
-                  {[
-                    { name: 'Max Participants', s: '4', p: '100', e: '1000' },
-                    { name: 'Meeting Duration', s: 'Unlimited', p: 'Unlimited', e: 'Unlimited' },
-                    { name: 'Video Quality', s: '720p HD', p: '4K Ultra HD', e: '4K Ultra HD' },
-                    { name: 'Screen Sharing', s: true, p: true, e: true },
-                    { name: 'Cloud Recording', s: false, p: '100GB', e: 'Unlimited' },
-                    { name: 'Waiting Rooms', s: false, p: true, e: true },
-                    { name: 'Breakout Rooms', s: false, p: true, e: true },
-                    { name: 'Custom Branding', s: false, p: false, e: true },
-                  ].map((row, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="p-6 text-slate-300">{row.name}</td>
-                      <td className="p-6 text-center text-[#94A3B8]">
-                        {typeof row.s === 'boolean' ? (row.s ? <Check size={18} className="mx-auto text-emerald-400"/> : <X size={18} className="mx-auto text-slate-600"/>) : row.s}
-                      </td>
-                      <td className="p-6 text-center text-purple-200 bg-purple-500/5">
-                        {typeof row.p === 'boolean' ? (row.p ? <Check size={18} className="mx-auto text-purple-400"/> : <X size={18} className="mx-auto text-slate-600"/>) : row.p}
-                      </td>
-                      <td className="p-6 text-center text-[#94A3B8]">
-                        {typeof row.e === 'boolean' ? (row.e ? <Check size={18} className="mx-auto text-indigo-400"/> : <X size={18} className="mx-auto text-slate-600"/>) : row.e}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ SECTION */}
-        <section className="px-6 lg:px-8 xl:px-16 pb-32 max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-[#94A3B8]">Everything you need to know about billing and pricing.</p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <div key={i} className="bg-[#0A0F24]/80 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
-                <button 
-                  className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+        {/* 2. Pricing Cards */}
+        <section className="mb-40">
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center max-w-6xl mx-auto">
+             {plans.map((plan, index) => (
+                <motion.div 
+                   key={plan.name}
+                   initial={{ opacity: 0, y: 30 }}
+                   whileInView={{ opacity: 1, y: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ delay: index * 0.1, duration: 0.5 }}
+                   className={`relative rounded-[2rem] p-8 md:p-10 transition-all duration-300 group ${
+                     plan.recommended 
+                     ? 'bg-gradient-to-b from-[#160B2A] to-[#0A0F24] border-2 border-purple-500 shadow-[0_0_50px_rgba(168,85,247,0.3)] scale-100 md:scale-105 z-10 hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]' 
+                     : 'bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 hover:border-white/30 z-0 hover:-translate-y-2'
+                   }`}
                 >
-                  <span className="font-semibold text-white">{faq.q}</span>
-                  <ChevronDown size={20} className={`text-[#94A3B8] transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
-                </button>
-                <AnimatePresence>
-                  {openFaq === i && (
-                    <motion.div 
-                      initial={{ height: 0, opacity: 0 }} 
-                      animate={{ height: 'auto', opacity: 1 }} 
-                      exit={{ height: 0, opacity: 0 }}
-                      className="px-6 pb-5 text-[#94A3B8] text-sm leading-relaxed"
-                    >
-                      {faq.a}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                   {/* Animated border for recommended */}
+                   {plan.recommended && (
+                      <div className="absolute inset-[-2px] rounded-[2rem] border-2 border-transparent bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 bg-[length:200%_100%] animate-[gradient_4s_linear_infinite] opacity-50 z-[-1] pointer-events-none mix-blend-screen mask-border"></div>
+                   )}
+
+                   {plan.recommended && (
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                        Most Popular
+                     </div>
+                   )}
+                   
+                   <div className="mb-8">
+                     <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                     <p className="text-[#94A3B8] text-sm h-10">{plan.desc}</p>
+                   </div>
+                   
+                   <div className="mb-8">
+                      <div className="flex items-baseline text-white">
+                         <span className="text-5xl font-extrabold tracking-tight">${isAnnual ? plan.annualPrice : plan.monthlyPrice}</span>
+                         <span className="text-[#94A3B8] ml-2 font-medium">/mo</span>
+                      </div>
+                      {isAnnual && plan.annualPrice !== "0" && (
+                         <div className="text-sm text-emerald-400 font-medium mt-2">Billed annually</div>
+                      )}
+                      {(!isAnnual || plan.annualPrice === "0") && (
+                         <div className="text-sm text-transparent font-medium mt-2">&nbsp;</div>
+                      )}
+                   </div>
+
+                   <button 
+                     className={`w-full py-4 rounded-xl font-bold transition-all mb-10 ${
+                        plan.recommended 
+                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white shadow-[0_10px_20px_-10px_rgba(168,85,247,0.6)] hover:-translate-y-1' 
+                        : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white hover:-translate-y-1'
+                     }`}
+                     onClick={() => onNavigate('dashboard')}
+                   >
+                     {plan.cta}
+                   </button>
+
+                   <div className="space-y-4">
+                      {plan.features.map((feature, i) => (
+                         <div key={i} className={`flex items-start space-x-3 ${feature.included ? 'text-white' : 'text-slate-600'}`}>
+                            {feature.included ? (
+                               <Check size={20} className={`text-${plan.colorClass}-400 shrink-0`} />
+                            ) : (
+                               <X size={20} className="shrink-0" />
+                            )}
+                            <span className="text-sm font-medium">{feature.name}</span>
+                         </div>
+                      ))}
+                   </div>
+                </motion.div>
+             ))}
+           </div>
+        </section>
+
+        {/* 3. Feature Comparison Table */}
+        <section className="mb-40">
+           <div className="text-center mb-16">
+              <h2 className="text-4xl font-extrabold mb-4">Compare Features</h2>
+              <p className="text-[#94A3B8] text-lg">Detailed breakdown of what's included.</p>
+           </div>
+           <div className="max-w-5xl mx-auto bg-[#0A0F24]/60 backdrop-blur-md rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl">
+              <div className="overflow-x-auto">
+                 <table className="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                       <tr className="border-b border-white/10">
+                          <th className="py-6 px-6 font-semibold text-[#94A3B8] text-sm uppercase tracking-wider w-1/3">Feature</th>
+                          <th className="py-6 px-6 font-bold text-white text-center w-[22%]">Free</th>
+                          <th className="py-6 px-6 font-bold text-purple-400 text-center w-[22%] bg-purple-500/5">Pro</th>
+                          <th className="py-6 px-6 font-bold text-white text-center w-[22%]">Enterprise</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                       {[
+                         { name: "Max Participants", free: "10", pro: "100", ent: "1,000" },
+                         { name: "Time Limit", free: "40 mins", pro: "Unlimited", ent: "Unlimited" },
+                         { name: "Video Quality", free: "720p HD", pro: "1080p Ultra HD", ent: "4K Support" },
+                         { name: "Screen Sharing", free: true, pro: true, ent: true },
+                         { name: "Breakout Rooms", free: false, pro: true, ent: true },
+                         { name: "Cloud Recording", free: false, pro: "10GB", ent: "Unlimited" },
+                         { name: "Custom Branding", free: false, pro: true, ent: true },
+                         { name: "Analytics Dashboard", free: false, pro: true, ent: true },
+                         { name: "Priority Support", free: false, pro: false, ent: true },
+                       ].map((row, i) => (
+                          <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                             <td className="py-5 px-6 text-sm text-[#94A3B8] font-medium">{row.name}</td>
+                             <td className="py-5 px-6 text-center text-sm font-medium">
+                                {typeof row.free === 'boolean' ? (row.free ? <Check size={18} className="mx-auto text-indigo-400"/> : <X size={18} className="mx-auto text-slate-700"/>) : row.free}
+                             </td>
+                             <td className="py-5 px-6 text-center text-sm font-bold text-white bg-purple-500/5">
+                                {typeof row.pro === 'boolean' ? (row.pro ? <Check size={18} className="mx-auto text-purple-400"/> : <X size={18} className="mx-auto text-slate-700"/>) : row.pro}
+                             </td>
+                             <td className="py-5 px-6 text-center text-sm font-medium">
+                                {typeof row.ent === 'boolean' ? (row.ent ? <Check size={18} className="mx-auto text-blue-400"/> : <X size={18} className="mx-auto text-slate-700"/>) : row.ent}
+                             </td>
+                          </tr>
+                       ))}
+                    </tbody>
+                 </table>
               </div>
-            ))}
-          </div>
+           </div>
+        </section>
+
+        {/* 4. Trust Badges */}
+        <section className="mb-40 text-center">
+           <p className="text-slate-400 text-sm font-bold tracking-[0.2em] uppercase mb-8">Trusted by educators at</p>
+           <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-60">
+              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-500"></div> Harvard</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500"></div> Stanford</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded-tr-xl rounded-bl-xl bg-gradient-to-br from-rose-500 to-orange-500"></div> MIT</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white hidden sm:flex"><div className="w-6 h-6 rotate-45 bg-gradient-to-br from-blue-500 to-cyan-500"></div> Oxford</div>
+           </div>
+        </section>
+
+        {/* 5. FAQ Pricing Section */}
+        <section className="mb-20 max-w-4xl mx-auto">
+           <div className="text-center mb-16">
+              <h2 className="text-4xl font-extrabold mb-4">Frequently Asked Questions</h2>
+           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                 { q: "Can I change plans anytime?", a: "Yes, you can upgrade, downgrade, or cancel your subscription at any time right from your dashboard." },
+                 { q: "What happens when I hit my participant limit?", a: "We won't drop your call. You'll receive a notification and new participants will be placed in a waiting room until you upgrade." },
+                 { q: "Is there a discount for non-profits?", a: "Absolutely! We offer a 50% discount on Pro and Enterprise plans for registered non-profits and educational institutions." },
+                 { q: "How does the free trial work?", a: "Our Pro plan comes with a 14-day free trial. No credit card required to start. You can cancel before the trial ends and you won't be charged." }
+              ].map((faq, i) => (
+                 <div key={i} className="bg-[#0A0F24]/40 border border-white/5 p-6 rounded-2xl hover:border-white/10 transition-colors">
+                    <h4 className="text-lg font-bold text-white mb-3 flex items-start gap-3">
+                       <HelpCircle size={20} className="text-purple-400 shrink-0 mt-0.5" />
+                       {faq.q}
+                    </h4>
+                    <p className="text-[#94A3B8] text-sm leading-relaxed pl-8">{faq.a}</p>
+                 </div>
+              ))}
+           </div>
         </section>
 
       </main>
-
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#02040A] pt-12 pb-8 px-6 lg:px-8 xl:px-16 relative z-20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-[#94A3B8]">
-          <div className="flex items-center space-x-3 mb-4 md:mb-0">
-             <Video size={20} className="text-indigo-400"/>
-             <span className="font-bold text-white text-lg">WabiSeminar</span>
-          </div>
-          <p>© 2026 WabiSeminar Inc. All rights reserved.</p>
-        </div>
-      </footer>
+      
+      <style>{`
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
     </div>
   );
 }

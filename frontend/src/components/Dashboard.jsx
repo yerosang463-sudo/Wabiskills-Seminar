@@ -157,29 +157,17 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <a href="#" className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
             Home
           </a>
-          <button onClick={() => {
-            onNavigate('features');
-            window.history.pushState({}, '', '/features');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+          <button onClick={() => onNavigate('features')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Features
           </button>
-          <button onClick={() => {
-            onNavigate('how-it-works');
-            window.history.pushState({}, '', '/how-it-works');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+          <button onClick={() => onNavigate('how-it-works')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             How It Works
           </button>
-          <button onClick={() => {
-            onNavigate('faq');
-            window.history.pushState({}, '', '/faq');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            FAQ
-          </button>
-          <button onClick={() => {
-            onNavigate('pricing');
-            window.history.pushState({}, '', '/pricing');
-          }} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+          <button onClick={() => onNavigate('pricing')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Pricing
+          </button>
+          <button onClick={() => onNavigate('faq')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+            FAQ
           </button>
         </nav>
 
@@ -219,26 +207,10 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-[#050816]/95 backdrop-blur-xl pt-24 px-6 pb-6 flex flex-col space-y-6 lg:hidden border-b border-white/10">
           <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-purple-400">Home</a>
-          <button onClick={() => {
-            setIsMenuOpen(false);
-            onNavigate('features');
-            window.history.pushState({}, '', '/features');
-          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">Features</button>
-          <button onClick={() => {
-            setIsMenuOpen(false);
-            onNavigate('how-it-works');
-            window.history.pushState({}, '', '/how-it-works');
-          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">How It Works</button>
-          <button onClick={() => {
-            setIsMenuOpen(false);
-            onNavigate('faq');
-            window.history.pushState({}, '', '/faq');
-          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">FAQ</button>
-          <button onClick={() => {
-            setIsMenuOpen(false);
-            onNavigate('pricing');
-            window.history.pushState({}, '', '/pricing');
-          }} className="text-lg font-medium text-[#94A3B8] hover:text-white text-left">Pricing</button>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('features'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Features</button>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('how-it-works'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">How It Works</button>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('pricing'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Pricing</button>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('faq'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</button>
         </div>
       )}
 
@@ -586,9 +558,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Product</h4>
             <ul className="space-y-4 text-[#94A3B8]">
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Features</a></li>
+              <li><button onClick={() => onNavigate('features')} className="hover:text-purple-400 transition-colors">Features</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Integrations</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Pricing</a></li>
+              <li><button onClick={() => onNavigate('pricing')} className="hover:text-purple-400 transition-colors">Pricing</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Changelog</a></li>
             </ul>
           </div>
@@ -596,7 +568,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Resources</h4>
             <ul className="space-y-4 text-[#94A3B8]">
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Help Center</a></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-purple-400 transition-colors">Help Center / FAQ</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">API Documentation</a></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Community</a></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Status</a></li>
