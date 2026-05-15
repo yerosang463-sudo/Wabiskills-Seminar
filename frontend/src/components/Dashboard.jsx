@@ -166,6 +166,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <button onClick={() => onNavigate('pricing')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             Pricing
           </button>
+          <button onClick={() => onNavigate('faq')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+            FAQ
+          </button>
         </nav>
 
         {/* Right Actions */}
@@ -207,6 +210,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <button onClick={() => { setIsMenuOpen(false); onNavigate('features'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Features</button>
           <button onClick={() => { setIsMenuOpen(false); onNavigate('how-it-works'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">How It Works</button>
           <button onClick={() => { setIsMenuOpen(false); onNavigate('pricing'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Pricing</button>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('faq'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</button>
         </div>
       )}
 
@@ -564,7 +568,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <div className="col-span-1 md:col-span-2">
             <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Resources</h4>
             <ul className="space-y-4 text-[#94A3B8]">
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Help Center</a></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-purple-400 transition-colors">Help Center / FAQ</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">API Documentation</a></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Community</a></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Status</a></li>

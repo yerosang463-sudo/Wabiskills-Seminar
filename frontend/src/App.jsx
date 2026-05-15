@@ -5,6 +5,7 @@ import MeetingRoom from './components/MeetingRoom';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -90,6 +91,7 @@ function App() {
       {currentView === 'features' && <Features onNavigate={setCurrentView} />}
       {currentView === 'how-it-works' && <HowItWorks onNavigate={setCurrentView} />}
       {currentView === 'pricing' && <Pricing onNavigate={setCurrentView} />}
+      {currentView === 'faq' && <FAQ onNavigate={setCurrentView} />}
       {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
 
       {toast && (
