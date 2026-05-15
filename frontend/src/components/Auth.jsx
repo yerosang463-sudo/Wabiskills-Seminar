@@ -84,7 +84,7 @@ export default function Auth({ onNavigate }) {
       <div className="absolute bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
       <div className="absolute bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
-      <div className="w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10 bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/90 backdrop-blur-2xl border border-purple-500/30 rounded-3xl shadow-[0_0_80px_-15px_rgba(124,58,237,0.25)] relative">
+      <div className="premium-card w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10 relative">
         
         {/* Floating Accent */}
         <div className="absolute -top-4 -right-4 w-10 h-10 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
