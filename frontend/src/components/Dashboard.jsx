@@ -16,14 +16,22 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
   const [actionError, setActionError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const createInFlightRef = useRef(false);
 
   useEffect(() => {
     setIsAuthenticated(!!localStorage.getItem('token'));
     // Smooth scroll behavior for the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
+    
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
       document.documentElement.style.scrollBehavior = 'auto';
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -141,7 +149,16 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       <div className="fixed bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[10%] right-[-10%] pointer-events-none"></div>
 
       {/* Sticky Top Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5 transition-all">
+      <motion.header 
+        className={`fixed top-0 w-full flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'h-20 lg:h-24 bg-[#050816]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' 
+            : 'h-24 lg:h-28 bg-transparent border-b-transparent'
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         {/* Logo */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
           <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
@@ -201,7 +218,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
@@ -346,9 +363,11 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   </div>
                   <p className="text-sm text-[#94A3B8] mb-6">Create a secure room instantly and invite others to join.</p>
                   
-                  <button 
+                  <motion.button 
                     type="button"
-                    className={`premium-btn premium-btn-brand w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${isCreating ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-1'}`}
+                    whileHover={{ scale: isCreating ? 1 : 1.02 }}
+                    whileTap={{ scale: isCreating ? 1 : 0.98 }}
+                    className={`group premium-btn premium-btn-brand w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${isCreating ? 'opacity-75 cursor-not-allowed' : 'shadow-lg shadow-indigo-500/20'}`}
                     onClick={handleCreateRoom}
                     disabled={isCreating}
                   >
@@ -360,8 +379,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                       )}
                       <span>Create Instant Room</span>
                     </div>
-                    <ChevronRight size={22} className="opacity-90" />
-                  </button>
+                    <ChevronRight size={22} className="opacity-90 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
                 </div>
                 
                 {/* Divider */}
@@ -398,9 +417,11 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                         onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
                       />
                     </div>
-                    <button 
+                    <motion.button 
                       type="button"
-                      className={`premium-btn premium-btn-success w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${!joinId.trim() || isJoining ? 'opacity-90' : 'hover:-translate-y-1'}`}
+                      whileHover={{ scale: (!joinId.trim() || isJoining) ? 1 : 1.02 }}
+                      whileTap={{ scale: (!joinId.trim() || isJoining) ? 1 : 0.98 }}
+                      className={`group premium-btn premium-btn-success w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${(!joinId.trim() || isJoining) ? 'opacity-90 cursor-not-allowed' : 'shadow-lg shadow-emerald-500/20'}`}
                       onClick={handleJoinRoom}
                     >
                       <div className="flex items-center">
@@ -411,8 +432,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                         )}
                         <span>Join Room</span>
                       </div>
-                      <ChevronRight size={22} className="opacity-90" />
-                    </button>
+                      <ChevronRight size={22} className="opacity-90 group-hover:translate-x-1 transition-transform" />
+                    </motion.button>
                   </div>
                 </div>
 

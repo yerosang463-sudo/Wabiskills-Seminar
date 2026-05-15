@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Video, Monitor, Shield, Zap, Lock, Globe, MessageSquare, Layers,
@@ -21,8 +21,15 @@ const staggerContainer = {
 };
 
 export default function Features({ onNavigate }) {
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -32,20 +39,31 @@ export default function Features({ onNavigate }) {
       <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
       {/* Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5">
+      <motion.header 
+        className={`fixed top-0 w-full flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'h-20 lg:h-24 bg-[#050816]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' 
+            : 'h-24 lg:h-28 bg-transparent border-b-transparent'
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
           <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-shadow">
             <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
           </div>
           <span className="font-bold text-lg lg:text-xl tracking-wide text-white">WabiSeminar</span>
         </div>
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onNavigate('dashboard')} 
           className="text-sm font-semibold text-white bg-white/5 border border-white/10 px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all"
         >
           Back to Home
-        </button>
-      </header>
+        </motion.button>
+      </motion.header>
 
       <main className="pt-32 lg:pt-40 pb-20 relative z-10 max-w-[1400px] mx-auto">
         
@@ -221,13 +239,15 @@ export default function Features({ onNavigate }) {
             <div className="relative z-10">
               <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Ready to host your next masterpiece?</h2>
               <p className="text-indigo-100 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">Join thousands of professionals who have upgraded their meeting experience with WabiSeminar.</p>
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('dashboard')}
-                className="bg-white text-indigo-600 px-10 py-4 rounded-full font-bold text-lg hover:bg-indigo-50 hover:scale-105 transition-all shadow-xl flex items-center justify-center mx-auto space-x-2"
+                className="bg-white text-indigo-600 px-10 py-4 rounded-full font-bold text-lg shadow-xl flex items-center justify-center mx-auto space-x-2 group"
               >
                 <span>Start for free</span>
-                <ChevronRight size={20} />
-              </button>
+                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </motion.button>
             </div>
           </motion.div>
         </section>

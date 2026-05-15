@@ -87,7 +87,7 @@ export default function Auth({ onNavigate }) {
       <div className="premium-card w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10 relative">
         
         {/* Floating Accent */}
-        <div className="absolute -top-4 -right-4 w-10 h-10 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
+        <div className="absolute top-4 right-4 w-10 h-10 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
           <Lock size={18} className="text-indigo-600 dark:text-indigo-300" />
         </div>
 
