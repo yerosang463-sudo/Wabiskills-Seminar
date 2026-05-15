@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
+import Pricing from './components/Pricing';
 import { roomIdFromPathname } from './routeUtils.js';
 
 function readRouteSnapshot() {
@@ -88,6 +89,7 @@ function App() {
       )}
       {currentView === 'features' && <Features onNavigate={setCurrentView} />}
       {currentView === 'how-it-works' && <HowItWorks onNavigate={setCurrentView} />}
+      {currentView === 'pricing' && <Pricing onNavigate={setCurrentView} />}
       {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
 
       {toast && (

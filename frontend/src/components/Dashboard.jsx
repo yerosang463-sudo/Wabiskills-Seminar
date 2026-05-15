@@ -163,9 +163,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <button onClick={() => onNavigate('how-it-works')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
             How It Works
           </button>
-          <a href="#faq" className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            FAQ
-          </a>
+          <button onClick={() => onNavigate('pricing')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
+            Pricing
+          </button>
         </nav>
 
         {/* Right Actions */}
@@ -206,7 +206,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-purple-400">Home</a>
           <button onClick={() => { setIsMenuOpen(false); onNavigate('features'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Features</button>
           <button onClick={() => { setIsMenuOpen(false); onNavigate('how-it-works'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">How It Works</button>
-          <a href="#faq" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</a>
+          <button onClick={() => { setIsMenuOpen(false); onNavigate('pricing'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Pricing</button>
         </div>
       )}
 
@@ -556,7 +556,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             <ul className="space-y-4 text-[#94A3B8]">
               <li><button onClick={() => onNavigate('features')} className="hover:text-purple-400 transition-colors">Features</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Integrations</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Pricing</a></li>
+              <li><button onClick={() => onNavigate('pricing')} className="hover:text-purple-400 transition-colors">Pricing</button></li>
               <li><a href="#" className="hover:text-purple-400 transition-colors">Changelog</a></li>
             </ul>
           </div>
