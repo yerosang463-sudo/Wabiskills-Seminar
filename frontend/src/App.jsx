@@ -7,6 +7,9 @@ import HowItWorks from './components/HowItWorks';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import { roomIdFromPathname } from './routeUtils.js';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/ui/PageTransition';
+import ParticleBackground from './components/ui/ParticleBackground';
 
 function readRouteSnapshot() {
   const roomId = roomIdFromPathname(window.location.pathname);
@@ -83,16 +86,21 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
-      {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
-      {currentView === 'dashboard' && (
-        <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
-      )}
-      {currentView === 'features' && <Features onNavigate={setCurrentView} />}
-      {currentView === 'how-it-works' && <HowItWorks onNavigate={setCurrentView} />}
-      {currentView === 'pricing' && <Pricing onNavigate={setCurrentView} />}
-      {currentView === 'faq' && <FAQ onNavigate={setCurrentView} />}
-      {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+    <div className="min-h-screen flex flex-col font-sans relative overflow-x-hidden bg-[#050816]">
+      <ParticleBackground />
+      <AnimatePresence mode="wait">
+        <PageTransition currentKey={currentView}>
+          {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
+          {currentView === 'dashboard' && (
+            <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+          )}
+          {currentView === 'features' && <Features onNavigate={setCurrentView} />}
+          {currentView === 'how-it-works' && <HowItWorks onNavigate={setCurrentView} />}
+          {currentView === 'pricing' && <Pricing onNavigate={setCurrentView} />}
+          {currentView === 'faq' && <FAQ onNavigate={setCurrentView} />}
+          {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+        </PageTransition>
+      </AnimatePresence>
 
       {toast && (
         <div className="fixed top-4 left-1/2 z-[100] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2">
