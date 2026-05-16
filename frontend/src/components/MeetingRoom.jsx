@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getSocket } from '../socket.js';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -778,7 +779,12 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
         <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pt-20 sm:pt-24 md:pt-28 pb-32 sm:pb-28 md:pb-24 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className={`${getGridClass()} gap-3 sm:gap-4 md:gap-6 w-full h-full max-w-7xl mx-auto`}>
             {/* Local Video */}
-            <div className={`bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/80 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-300 dark:border-indigo-500/40 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
+              className={`bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/80 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-300 dark:border-indigo-500/40 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}
+            >
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/80 backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center space-y-4">
@@ -825,16 +831,21 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                 {isMuted && <MicOff size={14} className="text-rose-400" />}
                 <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">You{isHost ? ' (Host)' : ''}</span>
               </div>
-            </div>
+            </motion.div>
 
             {/* Remote Videos */}
-            {participants.map((participant) => {
-              const remoteStream = remoteStreams[participant.socketId];
-              return (
-                <div
-                  key={participant.socketId}
-                  className="bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/80 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-slate-200 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
-                >
+            <AnimatePresence>
+              {participants.map((participant) => {
+                const remoteStream = remoteStreams[participant.socketId];
+                return (
+                  <motion.div
+                    key={participant.socketId}
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                    transition={{ duration: 0.4, type: 'spring', bounce: 0.4 }}
+                    className="bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/80 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-slate-200 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
+                  >
                   {remoteStream && participant.videoEnabled !== false ? (
                     <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[160px] sm:min-h-[200px] object-cover" />
                   ) : (
@@ -850,9 +861,10 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                     {participant.audioEnabled === false && <MicOff size={14} className="text-rose-400" />}
                     <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{participant.username || 'User'}{participant.isHost ? ' (Host)' : ''}</span>
                   </div>
-                </div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
 

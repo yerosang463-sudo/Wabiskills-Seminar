@@ -92,32 +92,7 @@ export default function Pricing({ onNavigate }) {
       <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] left-[-10%] pointer-events-none"></div>
       <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
-      {/* Navbar */}
-      <motion.header 
-        className={`fixed top-0 w-full flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'h-20 lg:h-24 bg-[#050816]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' 
-            : 'h-24 lg:h-28 bg-transparent border-b-transparent'
-        }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-shadow">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">WabiSeminar</span>
-        </div>
-        <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onNavigate('dashboard')} 
-          className="text-sm font-semibold text-white bg-white/5 border border-white/10 px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all"
-        >
-          Back to Home
-        </motion.button>
-      </motion.header>
+      {/* Navbar handled globally in App.jsx */}
 
       <main className="pt-32 lg:pt-40 pb-20 relative z-10 max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-16">
         

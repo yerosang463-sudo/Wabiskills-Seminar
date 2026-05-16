@@ -4,7 +4,7 @@ import { roomIdFromPathname } from '../routeUtils.js';
 import { 
   Video, LogOut, LogIn, Plus, Users, X, Loader2, 
   Sparkles, Zap, Shield, Clock, Monitor, Moon, ChevronRight, Link,
-  CheckCircle, Star, MessageSquare, Menu
+  CheckCircle, Star, MessageSquare, Menu, Calendar, Play
 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
@@ -14,13 +14,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
   const [isJoining, setIsJoining] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [actionError, setActionError] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const createInFlightRef = useRef(false);
 
   useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem('token'));
     // Smooth scroll behavior for the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
     
@@ -130,16 +126,6 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
     }
   };
 
-  const handleAuthAction = () => {
-    if (isAuthenticated) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      setIsAuthenticated(false);
-      notify?.('success', 'Logged out successfully');
-    } else {
-      onNavigate('auth');
-    }
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#050816] relative text-white font-sans overflow-x-hidden">
@@ -147,89 +133,6 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
       {/* Background Animated Blobs */}
       <div className="fixed bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
       <div className="fixed bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[10%] right-[-10%] pointer-events-none"></div>
-
-      {/* Sticky Top Navbar */}
-      <motion.header 
-        className={`fixed top-0 w-full flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'h-20 lg:h-24 bg-[#050816]/80 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.1)]' 
-            : 'h-24 lg:h-28 bg-transparent border-b-transparent'
-        }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {/* Logo */}
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
-            WabiSeminar
-          </span>
-        </div>
-
-        {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center space-x-8">
-          <a href="#" className="text-sm font-semibold text-purple-300 bg-purple-600/20 px-6 py-2 rounded-full border border-purple-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all">
-            Home
-          </a>
-          <button onClick={() => onNavigate('features')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Features
-          </button>
-          <button onClick={() => onNavigate('how-it-works')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            How It Works
-          </button>
-          <button onClick={() => onNavigate('pricing')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            Pricing
-          </button>
-          <button onClick={() => onNavigate('faq')} className="text-sm font-medium text-[#94A3B8] hover:text-white transition-colors">
-            FAQ
-          </button>
-        </nav>
-
-        {/* Right Actions */}
-        <div className="flex items-center space-x-3 lg:space-x-4">
-          <button className="hidden lg:flex w-10 h-10 rounded-full border border-white/10 items-center justify-center text-[#94A3B8] hover:text-white transition-colors hover:bg-white/5">
-            <Moon size={18} />
-          </button>
-          <button 
-            className="flex items-center space-x-2 text-sm font-semibold text-white bg-white/10 border border-white/10 px-5 py-2 lg:py-2.5 rounded-full hover:bg-white/20 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-            onClick={handleAuthAction}
-          >
-            {isAuthenticated ? (
-              <>
-                <LogOut size={16} />
-                <span className="hidden sm:inline">Logout</span>
-              </>
-            ) : (
-              <>
-                <LogIn size={16} />
-                <span className="hidden sm:inline">Sign In</span>
-              </>
-            )}
-          </button>
-          
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="lg:hidden p-2 text-[#94A3B8] hover:text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </motion.header>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#050816]/95 backdrop-blur-xl pt-24 px-6 pb-6 flex flex-col space-y-6 lg:hidden border-b border-white/10">
-          <a href="#" onClick={() => setIsMenuOpen(false)} className="text-lg font-semibold text-purple-400">Home</a>
-          <button onClick={() => { setIsMenuOpen(false); onNavigate('features'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Features</button>
-          <button onClick={() => { setIsMenuOpen(false); onNavigate('how-it-works'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">How It Works</button>
-          <button onClick={() => { setIsMenuOpen(false); onNavigate('pricing'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">Pricing</button>
-          <button onClick={() => { setIsMenuOpen(false); onNavigate('faq'); }} className="text-left text-lg font-medium text-[#94A3B8] hover:text-white">FAQ</button>
-        </div>
-      )}
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col pt-32 lg:pt-40 relative z-10">
@@ -601,69 +504,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
 
       </main>
 
-      {/* MODERN FOOTER */}
-      <motion.footer 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.8 }}
-        className="border-t border-white/10 bg-[#02040A] pt-20 pb-10 px-6 lg:px-8 xl:px-16 relative z-20"
-      >
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-          <div className="col-span-1 md:col-span-5 pr-0 md:pr-12">
-            <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
-                  <Video className="text-white w-5 h-5" />
-                </div>
-                <span className="font-bold text-2xl tracking-wide text-white">WabiSeminar</span>
-            </div>
-            <p className="text-[#94A3B8] text-lg leading-relaxed mb-8">The most beautiful, reliable, and premium way to host engaging masterclasses and webinars without limits.</p>
-            <div className="flex items-center space-x-2 text-[#94A3B8] font-medium">
-              <Shield size={18} className="text-emerald-400"/>
-              <span>Secure End-to-End Encryption</span>
-            </div>
-          </div>
-          
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Product</h4>
-            <ul className="space-y-4 text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('features')} className="hover:text-purple-400 transition-colors">Features</button></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Integrations</a></li>
-              <li><button onClick={() => onNavigate('pricing')} className="hover:text-purple-400 transition-colors">Pricing</button></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Changelog</a></li>
-            </ul>
-          </div>
 
-          <div className="col-span-1 md:col-span-2">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Resources</h4>
-            <ul className="space-y-4 text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-purple-400 transition-colors">Help Center / FAQ</button></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">API Documentation</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Community</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">Status</a></li>
-            </ul>
-          </div>
-
-          <div className="col-span-1 md:col-span-3">
-            <h4 className="text-white font-bold text-lg mb-6 tracking-wide">Ready to start?</h4>
-            <button 
-              onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
-              className="w-full py-4 px-6 rounded-xl font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:-translate-y-1"
-            >
-              Host a Meeting Now
-            </button>
-          </div>
-        </div>
-        
-        <div className="max-w-[1400px] mx-auto border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-[#94A3B8]">
-          <p>© 2026 WabiSeminar Inc. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Cookie Settings</a>
-          </div>
-        </div>
-      </motion.footer>
 
       {/* Info Modal */}
       {showInfoModal && (
