@@ -300,6 +300,39 @@ export const setupSocketHandlers = (io) => {
       console.log(`Socket ${targetSocketId} was denied entry to room ${roomId}`);
     });
 
+    socket.on('kick-user', ({ roomId: rawRoomId, targetSocketId }) => {
+      const roomId = normalizeRoomId(rawRoomId);
+      const host = activeUsers.get(socket.id);
+      if (!host?.isHost || host.roomId !== roomId) return;
+
+      const targetParticipant = activeUsers.get(targetSocketId);
+      if (targetParticipant && targetParticipant.roomId === roomId && !targetParticipant.isHost) {
+        const targetSocket = io.sockets.sockets.get(targetSocketId);
+        if (targetSocket) {
+          removeSocketFromActiveRoom(io, targetSocket, true);
+          targetSocket.emit('room-error', { message: 'You have been removed from the meeting by the host.' });
+        }
+      }
+    });
+
+    socket.on('mute-all-users', ({ roomId: rawRoomId }) => {
+      const roomId = normalizeRoomId(rawRoomId);
+      const host = activeUsers.get(socket.id);
+      if (!host?.isHost || host.roomId !== roomId) return;
+
+      const participants = roomParticipants.get(roomId);
+      if (participants) {
+        for (const [sId, p] of participants.entries()) {
+          if (!p.isHost) {
+            p.audioEnabled = false;
+            const tSocket = io.sockets.sockets.get(sId);
+            if (tSocket) tSocket.emit('force-mute');
+          }
+        }
+        emitParticipantsList(io, roomId);
+      }
+    });
+
     socket.on('leave-room', ({ roomId: rawRoomId }) => {
       const roomId = normalizeRoomId(rawRoomId);
       removeSocketFromWaiting(io, socket.id);

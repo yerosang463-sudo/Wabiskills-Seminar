@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getSocket } from '../socket.js';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, X, Copy, Check } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, Users, X, Copy, Check, MonitorUp, ShieldBan } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ICE_SERVERS = [
@@ -56,6 +56,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
@@ -74,6 +75,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
   const [roomNotFound, setRoomNotFound] = useState(false);
 
   const localVideoRef = useRef(null);
+  const screenTrackRef = useRef(null);
   const peerConnections = useRef({});
   const pendingCandidates = useRef({});
   const messagesEndRef = useRef(null);
@@ -485,6 +487,15 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
       notify?.('error', message);
     };
 
+    const onForceMute = () => {
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getAudioTracks().forEach((track) => track.enabled = false);
+        setIsMuted(true);
+        getSocket().emit('toggle-audio', { roomId, enabled: false });
+        notify?.('error', 'You have been muted by the host.');
+      }
+    };
+
     socket.on('connect', requestJoin);
     socket.on('user-joined', onUserJoined);
     socket.on('user-left', onUserLeft);
@@ -606,6 +617,70 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
     });
     setIsVideoOff(nextVideoOff);
     getSocket().emit('toggle-video', { roomId, enabled: !nextVideoOff });
+  };
+
+  const toggleScreenShare = async () => {
+    if (isScreenSharing) {
+      if (screenTrackRef.current) {
+        screenTrackRef.current.stop();
+        screenTrackRef.current = null;
+      }
+      setIsScreenSharing(false);
+      
+      const videoTrack = mediaStreamRef.current?.getVideoTracks()[0];
+      if (videoTrack) {
+        Object.values(peerConnections.current).forEach(({ pc }) => {
+          const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+          if (sender) sender.replaceTrack(videoTrack);
+        });
+      }
+      if (localVideoRef.current && mediaStreamRef.current) {
+        localVideoRef.current.srcObject = mediaStreamRef.current;
+      }
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const screenTrack = stream.getVideoTracks()[0];
+        screenTrackRef.current = screenTrack;
+        setIsScreenSharing(true);
+        
+        screenTrack.onended = () => {
+          setIsScreenSharing(false);
+          const videoTrack = mediaStreamRef.current?.getVideoTracks()[0];
+          if (videoTrack) {
+            Object.values(peerConnections.current).forEach(({ pc }) => {
+              const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+              if (sender) sender.replaceTrack(videoTrack);
+            });
+          }
+          if (localVideoRef.current && mediaStreamRef.current) {
+            localVideoRef.current.srcObject = mediaStreamRef.current;
+          }
+        };
+        
+        Object.values(peerConnections.current).forEach(({ pc }) => {
+          const sender = pc.getSenders().find((s) => s.track?.kind === 'video');
+          if (sender) sender.replaceTrack(screenTrack);
+        });
+        
+        if (localVideoRef.current) {
+          const tempStream = new MediaStream([screenTrack]);
+          localVideoRef.current.srcObject = tempStream;
+        }
+      } catch (err) {
+        console.error('Failed to share screen:', err);
+      }
+    }
+  };
+
+  const handleMuteAll = () => {
+    getSocket().emit('mute-all-users', { roomId });
+    notify?.('success', 'Muted all guests.');
+  };
+
+  const handleKickUser = (socketId) => {
+    getSocket().emit('kick-user', { roomId, targetSocketId: socketId });
+    notify?.('success', 'Participant removed.');
   };
 
   const handleCopyLink = () => {
@@ -767,10 +842,22 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
               <span className="text-sm sm:text-base font-semibold tracking-wide text-white drop-shadow-md">{currentTime}</span>
             </div>
 
-            {/* Right: Participant Count */}
-            <div className="flex items-center space-x-2 bg-[#0A0F24]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-              <User size={16} className="text-indigo-400" />
-              <span className="text-sm font-semibold text-white">{allParticipantsCount}</span>
+            {/* Right: Participant Count & Host Controls */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {isHost && participants.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleMuteAll}
+                  className="hidden sm:flex items-center space-x-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-4 py-2 rounded-full shadow-[0_4px_20px_rgba(244,63,94,0.15)] transition-all font-semibold text-sm"
+                >
+                  <MicOff size={16} />
+                  <span>Mute All</span>
+                </button>
+              )}
+              <div className="flex items-center space-x-2 bg-[#0A0F24]/80 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <Users size={16} className="text-indigo-400" />
+                <span className="text-sm font-semibold text-white">{allParticipantsCount}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -861,6 +948,16 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                     {participant.audioEnabled === false && <MicOff size={14} className="text-rose-400" />}
                     <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{participant.username || 'User'}{participant.isHost ? ' (Host)' : ''}</span>
                   </div>
+                  {isHost && !participant.isHost && (
+                    <button
+                      type="button"
+                      onClick={() => handleKickUser(participant.socketId)}
+                      className="absolute top-4 right-4 bg-rose-500/80 hover:bg-rose-500 text-white p-2 rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all border border-rose-400/30 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
+                      title="Remove participant"
+                    >
+                      <ShieldBan size={16} />
+                    </button>
+                  )}
                   </motion.div>
                 );
               })}
@@ -949,6 +1046,20 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
               title={isVideoOff ? 'Turn on camera' : 'Turn off camera'}
             >
               {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+            </button>
+
+            {/* Screen Share */}
+            <button 
+              type="button" 
+              className={`hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 rounded-2xl items-center justify-center transition-all duration-300 border ${
+                isScreenSharing 
+                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-500/30' 
+                  : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
+              }`} 
+              onClick={toggleScreenShare}
+              title={isScreenSharing ? 'Stop sharing screen' : 'Share screen'}
+            >
+              <MonitorUp size={20} />
             </button>
 
             {/* Leave Call */}
