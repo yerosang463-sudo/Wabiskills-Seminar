@@ -14,7 +14,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
   const [isJoining, setIsJoining] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [actionError, setActionError] = useState('');
-  const [platformStats, setPlatformStats] = useState({ users: 10000, meetings: 50000, minutes: 1000000 });
+  const [platformStats, setPlatformStats] = useState({ users: 0, meetings: 0, minutes: 0 });
   const createInFlightRef = useRef(false);
 
   useEffect(() => {
@@ -218,21 +218,21 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
                   <Users size={20} className="text-indigo-400 mb-2" />
                   <div className="text-3xl font-extrabold text-white mb-1">
-                    {platformStats.users >= 1000 ? `${(platformStats.users / 1000).toFixed(1).replace(/\.0$/, '')}K+` : platformStats.users}
+                    {platformStats.users.toLocaleString()}
                   </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Happy Users</div>
                 </div>
                 <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
                   <Video size={20} className="text-purple-400 mb-2" />
                   <div className="text-3xl font-extrabold text-white mb-1">
-                    {platformStats.meetings >= 1000 ? `${(platformStats.meetings / 1000).toFixed(1).replace(/\.0$/, '')}K+` : platformStats.meetings}
+                    {platformStats.meetings.toLocaleString()}
                   </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Meetings Hosted</div>
                 </div>
                 <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg hidden sm:block">
                   <Clock size={20} className="text-purple-400 mb-2" />
                   <div className="text-3xl font-extrabold text-white mb-1">
-                    {platformStats.minutes >= 1000000 ? `${(platformStats.minutes / 1000000).toFixed(1).replace(/\.0$/, '')}M+` : `${(platformStats.minutes / 1000).toFixed(1).replace(/\.0$/, '')}K+`}
+                    {platformStats.minutes.toLocaleString()}
                   </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Minutes Shared</div>
                 </div>

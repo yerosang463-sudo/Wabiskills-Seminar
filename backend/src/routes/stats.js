@@ -14,13 +14,12 @@ router.get('/', async (req, res) => {
     // The user said "access thes data from entire 10K+", let's return real data + offset or just real data formatted?
     // Let's return raw data and format on frontend if needed, but since it's a dev DB, let's just use raw data.
     
-    // Actually, I'll return the exact counts.
     res.json({
       success: true,
       data: {
-        users: userCount + 10000,
-        meetings: roomCount + 50000,
-        minutes: (roomCount * 45) + 1000000
+        users: userCount,
+        meetings: roomCount,
+        minutes: roomCount * 45
       }
     });
   } catch (error) {
