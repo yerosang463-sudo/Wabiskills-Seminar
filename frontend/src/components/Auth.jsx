@@ -92,7 +92,7 @@ export default function Auth({ onNavigate }) {
         </div>
 
         {/* Logo/Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)]">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 p-[1px] shadow-[0_10px_20px_-10px_rgba(0,174,239,0.6)]">
           <div className="w-full h-full bg-[#0A0F24] rounded-[15px] flex items-center justify-center">
             <Video className="text-indigo-400" size={32} />
           </div>

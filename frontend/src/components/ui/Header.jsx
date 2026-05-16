@@ -43,7 +43,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
       >
         {/* Logo */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavClick('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(0,174,239,0.4)]">
             <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
           </div>
           <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
