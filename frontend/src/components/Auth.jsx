@@ -80,7 +80,7 @@ export default function Auth({ onNavigate }) {
   }, []);
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-[#050816] min-h-screen font-sans text-slate-900 dark:text-white">
+    <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-[#050816] min-h-screen font-sans text-white">
       {/* Background Glow Effects */}
       <div className="absolute bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
       <div className="absolute bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
@@ -89,18 +89,18 @@ export default function Auth({ onNavigate }) {
         
         {/* Floating Accent */}
         <div className="absolute top-4 right-4 w-10 h-10 bg-[#050816] border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
-          <Lock size={18} className="text-indigo-600 dark:text-indigo-300" />
+          <Lock size={18} className="text-indigo-300" />
         </div>
 
         {/* Logo/Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)]">
-          <div className="w-full h-full bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none rounded-[15px] flex items-center justify-center">
-            <Video className="text-indigo-600 dark:text-indigo-400" size={32} />
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-400 to-indigo-600 p-[1px] shadow-[0_10px_20px_-10px_rgba(0,174,239,0.6)]">
+          <div className="w-full h-full bg-[#0A0F24] rounded-[15px] flex items-center justify-center">
+            <Video className="text-indigo-400" size={32} />
           </div>
         </div>
 
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">WabiSeminar Live</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">WabiSeminar Live</h1>
           <p className="text-sm text-slate-400">
             {isLogin ? 'Sign in to your account to continue' : 'Create an account to get started'}
           </p>
@@ -115,7 +115,7 @@ export default function Auth({ onNavigate }) {
 
           {!isLogin && (
             <div className="space-y-2 group">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Username</label>
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Username</label>
               <div className="relative">
                 <input 
                   type="text" 
@@ -130,9 +130,9 @@ export default function Auth({ onNavigate }) {
           )}
 
           <div className="space-y-2 group">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Email</label>
+            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Email</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-600 dark:text-indigo-400 transition-colors" size={18} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
               <input 
                 type="email" 
                 value={email}
@@ -146,9 +146,9 @@ export default function Auth({ onNavigate }) {
           
           <div className="space-y-2 group">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Password</label>
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Password</label>
               {isLogin && (
-                <button type="button" className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-600 dark:text-indigo-300 transition-colors">
+                <button type="button" className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
                   Forgot password?
                 </button>
               )}

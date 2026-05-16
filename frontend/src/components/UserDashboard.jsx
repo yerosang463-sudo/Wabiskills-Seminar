@@ -175,10 +175,10 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(16,185,129,0.2)] hover:border-emerald-500/30 transition-all flex flex-col justify-between"
+          className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(243,112,33,0.2)] hover:border-purple-500/30 transition-all flex flex-col justify-between"
         >
           <div>
-            <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 border border-emerald-500/20">
+            <div className="w-14 h-14 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20">
               <Link size={28} />
             </div>
             <h2 className="text-2xl font-bold mb-3">Join a Session</h2>
@@ -192,13 +192,13 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
               value={joinId}
               onChange={(e) => setJoinId(e.target.value)}
               placeholder="e.g. abc-defg-hij"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-[#94A3B8] focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-[#94A3B8] focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
             />
             <button 
               onClick={handleJoinRoom}
               disabled={isJoining || !joinId.trim()}
-              className="w-full py-3.5 rounded-xl font-bold bg-white/10 border border-white/10 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-300 text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-xl font-bold bg-white/10 border border-white/10 hover:bg-purple-500/20 hover:border-purple-500/30 hover:text-purple-300 text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isJoining ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
               {isJoining ? 'Joining...' : 'Join Now'}
@@ -214,7 +214,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           className="flex flex-col gap-6"
         >
           <div className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 flex items-center gap-6 hover:border-white/20 transition-all flex-1">
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shrink-0">
               <Activity size={24} />
             </div>
             <div>
@@ -224,7 +224,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           </div>
           
           <div className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 flex items-center gap-6 hover:border-white/20 transition-all flex-1">
-            <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400 border border-orange-500/20 shrink-0">
+            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20 shrink-0">
               <Shield size={24} />
             </div>
             <div>
