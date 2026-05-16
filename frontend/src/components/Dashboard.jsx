@@ -187,8 +187,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-3 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#0A241A] flex items-center justify-center border border-emerald-500/20 group-hover:border-emerald-500/50 transition-all shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                    <Users size={20} className="text-emerald-400" />
+                  <div className="w-12 h-12 rounded-xl bg-[#0A241A] flex items-center justify-center border border-indigo-500/20 group-hover:border-indigo-500/50 transition-all shadow-[0_0_15px_rgba(0,174,239,0.1)]">
+                    <Users size={20} className="text-indigo-400" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-sm mb-1">No Limits</h3>
@@ -196,8 +196,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-3 group hidden sm:flex">
-                  <div className="w-12 h-12 rounded-xl bg-[#331C0D] flex items-center justify-center border border-orange-500/20 group-hover:border-orange-500/50 transition-all shadow-[0_0_15px_rgba(249,115,22,0.1)]">
-                    <Shield size={20} className="text-orange-400" />
+                  <div className="w-12 h-12 rounded-xl bg-[#331C0D] flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/50 transition-all shadow-[0_0_15px_rgba(243,112,33,0.1)]">
+                    <Shield size={20} className="text-purple-400" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-white text-sm mb-1">Ultra Secure</h3>
@@ -214,7 +214,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Happy Users</div>
                 </div>
                 <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-2xl p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
-                  <Video size={20} className="text-emerald-400 mb-2" />
+                  <Video size={20} className="text-purple-400 mb-2" />
                   <div className="text-3xl font-extrabold text-white mb-1">50K+</div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Meetings Hosted</div>
                 </div>
@@ -299,8 +299,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 {/* Join Meeting Section */}
                 <div className="mb-8 relative z-10">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="bg-emerald-500/20 p-2 rounded-xl">
-                      <Users className="text-emerald-400" size={24} />
+                    <div className="bg-purple-500/20 p-2 rounded-xl">
+                      <Users className="text-purple-400" size={24} />
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">Join an Existing Meeting</h2>
                   </div>
@@ -324,7 +324,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                       type="button"
                       whileHover={{ scale: (!joinId.trim() || isJoining) ? 1 : 1.02 }}
                       whileTap={{ scale: (!joinId.trim() || isJoining) ? 1 : 0.98 }}
-                      className={`group premium-btn premium-btn-success w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${(!joinId.trim() || isJoining) ? 'opacity-90 cursor-not-allowed' : 'shadow-lg shadow-emerald-500/20'}`}
+                      className={`group premium-btn premium-btn-orange w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${(!joinId.trim() || isJoining) ? 'opacity-90 cursor-not-allowed' : 'shadow-lg shadow-purple-500/20'}`}
                       onClick={handleJoinRoom}
                     >
                       <div className="flex items-center">
@@ -343,7 +343,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 {/* Bottom Feature Highlights */}
                 <div className="flex justify-between border-t border-white/10 pt-6 relative z-10">
                   <div className="flex items-start space-x-3">
-                    <Monitor size={18} className="text-emerald-400 mt-0.5" />
+                    <Monitor size={18} className="text-indigo-400 mt-0.5" />
                     <div>
                       <h4 className="text-sm font-bold text-white mb-0.5">No Downloads</h4>
                       <p className="text-[11px] text-[#94A3B8] leading-relaxed">Web-based, works<br/>on any device</p>
