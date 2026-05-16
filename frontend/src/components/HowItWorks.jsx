@@ -335,6 +335,7 @@ export default function HowItWorks({ onNavigate }) {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => onNavigate('faq')}
                 className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 px-8 py-4 rounded-full font-bold text-white transition-colors hover:border-white/20"
               >
                 View Documentation

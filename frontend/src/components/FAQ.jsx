@@ -268,6 +268,7 @@ export default function FAQ({ onNavigate }) {
                     <motion.button 
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => window.location.href = 'mailto:support@wabiseminar.com'}
                       className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-8 rounded-full shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-3 transition-colors hover:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.8)]"
                     >
                        <Mail size={20} />

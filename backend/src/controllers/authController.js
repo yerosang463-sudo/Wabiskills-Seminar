@@ -108,3 +108,31 @@ export const getMe = async (req, res, next) => {
     next(error);
   }
 };
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    // User is attached via authenticate middleware
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ success: false, message: 'OAuth users cannot change passwords directly.' });
+    }
+
+    const isPasswordValid = await user.comparePassword(currentPassword);
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: 'Invalid current password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -136,11 +136,11 @@ function App() {
           )}
 
           {currentView === 'profile' && isAuthenticated && (
-            <UserProfile />
+            <UserProfile onNavigate={setCurrentView} />
           )}
 
           {currentView === 'settings' && isAuthenticated && (
-            <UserSettings />
+            <UserSettings onNavigate={setCurrentView} />
           )}
           
           {currentView === 'features' && <Features onNavigate={setCurrentView} />}

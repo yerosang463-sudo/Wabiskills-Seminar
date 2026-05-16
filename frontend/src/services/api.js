@@ -55,6 +55,18 @@ export const api = {
     return response.json();
   },
 
+  async changePassword(token, currentPassword, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return parseApiResponse(response);
+  },
+
   // Room endpoints
   async createRoom(token, roomId = null) {
     const response = await fetch(`${API_BASE_URL}/rooms`, {

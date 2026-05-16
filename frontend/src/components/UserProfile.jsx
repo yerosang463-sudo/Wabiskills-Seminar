@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { User, Mail, Calendar, Shield, Edit3 } from 'lucide-react';
 
-export default function UserProfile() {
+export default function UserProfile({ onNavigate }) {
   const username = localStorage.getItem('username') || 'User';
 
   return (
@@ -22,7 +22,10 @@ export default function UserProfile() {
           className="lg:col-span-1"
         >
           <div className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)] text-center relative">
-            <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#94A3B8] hover:text-white hover:bg-white/10 transition-colors">
+            <button 
+              onClick={() => onNavigate('settings')}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#94A3B8] hover:text-white hover:bg-white/10 transition-colors"
+            >
               <Edit3 size={16} />
             </button>
             <div className="w-32 h-32 mx-auto rounded-full bg-indigo-500 p-[2px] mb-6 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
@@ -74,7 +77,10 @@ export default function UserProfile() {
                 <textarea rows="3" placeholder="Tell us about yourself..." className="w-full bg-[#050816]/60 border border-white/10 rounded-full px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all resize-none"></textarea>
               </div>
               <div className="flex justify-end pt-4">
-                <button className="px-6 py-2.5 rounded-full font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+                <button 
+                  onClick={() => onNavigate('dashboard')}
+                  className="px-6 py-2.5 rounded-full font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+                >
                   Save Changes
                 </button>
               </div>
