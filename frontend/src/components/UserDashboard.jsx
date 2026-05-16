@@ -32,6 +32,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           }
         }
       } catch (error) {
+        console.error('Dashboard loadRooms error:', error);
         notify('error', 'Connection error. The backend server might be down.');
       } finally {
         setIsLoading(false);
@@ -72,6 +73,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
       notify('success', 'Meeting created successfully!');
       onJoinRoom(response.data.roomId);
     } catch (error) {
+      console.error('Dashboard handleCreateRoom error:', error);
       notify('error', 'Connection error. Please check your internet or if the server is running.');
     } finally {
       setIsCreating(false);

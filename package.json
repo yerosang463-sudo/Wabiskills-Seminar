@@ -1,14 +1,12 @@
 {
+  "name": "wabiseminar-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "cd backend && npm install && cd ../frontend && npm install && VITE_API_URL=/api npm run build"
+  },
   "dependencies": {
     "socket.io-client": "^4.8.3"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  },
-  "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   }
 }
