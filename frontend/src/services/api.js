@@ -135,6 +135,16 @@ export const api = {
     });
     return response.json();
   },
+
+  async getStats() {
+    const response = await fetch(`${API_BASE_URL}/stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.json();
+  },
 };
 
 export default api;

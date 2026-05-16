@@ -25,7 +25,7 @@ export default function UserProfile() {
             <button className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#94A3B8] hover:text-white hover:bg-white/10 transition-colors">
               <Edit3 size={16} />
             </button>
-            <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px] mb-6 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
+            <div className="w-32 h-32 mx-auto rounded-full bg-indigo-500 p-[2px] mb-6 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
               <div className="w-full h-full rounded-full bg-[#050816] flex items-center justify-center text-4xl font-bold text-white">
                 {username.charAt(0).toUpperCase()}
               </div>
@@ -62,19 +62,19 @@ export default function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider block mb-2">Username</label>
-                  <input type="text" defaultValue={username} className="w-full bg-[#050816]/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all" />
+                  <input type="text" defaultValue={username} className="w-full bg-[#050816]/60 border border-white/10 rounded-full px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider block mb-2">Email Address</label>
-                  <input type="email" defaultValue={`${username.toLowerCase()}@example.com`} className="w-full bg-[#050816]/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all" />
+                  <input type="email" defaultValue={`${username.toLowerCase()}@example.com`} className="w-full bg-[#050816]/60 border border-white/10 rounded-full px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider block mb-2">Bio</label>
-                <textarea rows="3" placeholder="Tell us about yourself..." className="w-full bg-[#050816]/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all resize-none"></textarea>
+                <textarea rows="3" placeholder="Tell us about yourself..." className="w-full bg-[#050816]/60 border border-white/10 rounded-full px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all resize-none"></textarea>
               </div>
               <div className="flex justify-end pt-4">
-                <button className="px-6 py-2.5 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]">
+                <button className="px-6 py-2.5 rounded-full font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]">
                   Save Changes
                 </button>
               </div>

@@ -109,7 +109,7 @@ export default function Pricing({ onNavigate }) {
               <span>Simple, transparent pricing</span>
             </motion.div>
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-              Invest in your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">masterclasses</span>
+              Invest in your <span className="text-indigo-500">masterclasses</span>
             </motion.h1>
             <motion.p variants={fadeIn} className="text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl font-light mb-12">
               Start for free, then upgrade as your audience grows. No hidden fees. Cancel anytime.
@@ -158,7 +158,7 @@ export default function Pricing({ onNavigate }) {
                    )}
 
                    {plan.recommended && (
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-purple-500 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
                         Most Popular
                      </div>
                    )}
@@ -184,9 +184,9 @@ export default function Pricing({ onNavigate }) {
                    <motion.button 
                      whileHover={{ scale: 1.05 }}
                      whileTap={{ scale: 0.95 }}
-                     className={`w-full py-4 rounded-xl font-bold mb-10 ${
+                     className={`w-full py-4 rounded-full font-bold mb-10 ${
                         plan.recommended 
-                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white shadow-[0_10px_20px_-10px_rgba(168,85,247,0.6)]' 
+                        ? 'bg-purple-500 hover:bg-purple-600 text-white shadow-[0_10px_20px_-10px_rgba(168,85,247,0.6)]' 
                         : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                      }`}
                      onClick={() => onNavigate('dashboard')}
@@ -263,8 +263,8 @@ export default function Pricing({ onNavigate }) {
         <section className="mb-40 text-center">
            <p className="text-slate-400 text-sm font-bold tracking-[0.2em] uppercase mb-8">Trusted by educators at</p>
            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-60">
-              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-500"></div> Harvard</div>
-              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500"></div> Stanford</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded bg-indigo-500"></div> Harvard</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded-full bg-indigo-500"></div> Stanford</div>
               <div className="text-xl font-bold flex items-center gap-2 text-white"><div className="w-6 h-6 rounded-tr-xl rounded-bl-xl bg-gradient-to-br from-rose-500 to-orange-500"></div> MIT</div>
               <div className="text-xl font-bold flex items-center gap-2 text-white hidden sm:flex"><div className="w-6 h-6 rotate-45 bg-gradient-to-br from-blue-500 to-cyan-500"></div> Oxford</div>
            </div>
@@ -282,7 +282,7 @@ export default function Pricing({ onNavigate }) {
                  { q: "Is there a discount for non-profits?", a: "Absolutely! We offer a 50% discount on Pro and Enterprise plans for registered non-profits and educational institutions." },
                  { q: "How does the free trial work?", a: "Our Pro plan comes with a 14-day free trial. No credit card required to start. You can cancel before the trial ends and you won't be charged." }
               ].map((faq, i) => (
-                 <div key={i} className="bg-[#0A0F24]/40 border border-white/5 p-6 rounded-2xl hover:border-white/10 transition-colors">
+                 <div key={i} className="bg-[#0A0F24]/40 border border-white/5 p-6 rounded-full hover:border-white/10 transition-colors">
                     <h4 className="text-lg font-bold text-white mb-3 flex items-start gap-3">
                        <HelpCircle size={20} className="text-purple-400 shrink-0 mt-0.5" />
                        {faq.q}

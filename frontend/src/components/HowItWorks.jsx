@@ -98,7 +98,7 @@ export default function HowItWorks({ onNavigate }) {
               <span>Simple Setup. Powerful Execution.</span>
             </motion.div>
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-              How <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">WabiSeminar</span> Works
+              How <span className="text-indigo-500">WabiSeminar</span> Works
             </motion.h1>
             <motion.p variants={fadeIn} className="text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl font-light mb-10">
               Get from sign-up to your first masterclass in less than a minute. Our friction-free workflow is designed for immediate collaboration.
@@ -137,12 +137,12 @@ export default function HowItWorks({ onNavigate }) {
               {steps.map((step, i) => (
                 <motion.div key={i} variants={fadeIn} whileHover={{ scale: 1.05, y: -10 }} className="relative flex flex-col items-start lg:items-center text-left lg:text-center group pl-20 lg:pl-0 transition-transform duration-300 cursor-default">
                   {/* Step Number Badge */}
-                  <div className="absolute left-2 lg:left-1/2 lg:-translate-x-1/2 top-4 lg:-top-6 text-[80px] lg:text-[100px] font-black text-white/[0.03] pointer-events-none group-hover:text-white/[0.08] transition-colors duration-500 z-0">
+                  <div className="absolute left-2 lg:left-1/2 lg:-translate-x-1/2 top-4 lg:-top-6 text-[80px] lg:text-[100px] font-black text-white/[0.08] pointer-events-none group-hover:text-white/[0.15] transition-colors duration-500 z-0">
                     {step.number}
                   </div>
 
                   {/* Icon Node */}
-                  <div className={`w-16 h-16 rounded-2xl bg-[#0A0F24] border-2 flex items-center justify-center transition-all duration-300 relative z-10 mb-6 lg:mt-16 ${step.colorClass}`}>
+                  <div className={`w-16 h-16 rounded-full bg-[#0A0F24] border-2 flex items-center justify-center transition-all duration-300 relative z-10 mb-6 lg:mt-16 ${step.colorClass}`}>
                     {step.icon}
                   </div>
 
@@ -158,8 +158,8 @@ export default function HowItWorks({ onNavigate }) {
                   )}
 
                   {/* Content Card */}
-                  <div className={`bg-[#0A0F24]/60 backdrop-blur-md border border-white/5 p-6 rounded-2xl transition-colors w-full z-10 shadow-lg group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${step.cardHoverClass}`}>
-                    <h3 className={`text-xl font-bold mb-3 text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white transition-all ${step.textGradientClass}`}>{step.title}</h3>
+                  <div className={`bg-[#0A0F24]/60 backdrop-blur-md border border-white/5 p-6 rounded-full transition-colors w-full z-10 shadow-lg group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${step.cardHoverClass}`}>
+                    <h3 className={`text-xl font-bold mb-3 text-white group-hover:text-indigo-500 transition-all ${step.textGradientClass}`}>{step.title}</h3>
                     <p className="text-[#94A3B8] text-sm leading-relaxed">{step.desc}</p>
                   </div>
                 </motion.div>
@@ -192,7 +192,7 @@ export default function HowItWorks({ onNavigate }) {
              <div className="grid grid-cols-1 md:grid-cols-3 w-full h-full p-8 relative z-10 gap-8">
                 {/* Host Column */}
                 <div className="flex flex-col items-center justify-center space-y-6 relative">
-                   <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="bg-[#160B2A]/90 backdrop-blur-md border border-indigo-500/30 p-5 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.2)] w-full max-w-[240px]">
+                   <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="bg-[#160B2A]/90 backdrop-blur-md border border-indigo-500/30 p-5 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.2)] w-full max-w-[240px]">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400"><Monitor size={20}/></div>
                         <span className="font-bold text-white">Host Client</span>
@@ -226,7 +226,7 @@ export default function HowItWorks({ onNavigate }) {
 
                 {/* Participants Column */}
                 <div className="flex flex-col items-center justify-center space-y-6 relative">
-                   <motion.div animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }} className="bg-[#160B2A]/90 backdrop-blur-md border border-emerald-500/30 p-5 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.2)] w-full max-w-[240px]">
+                   <motion.div animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }} className="bg-[#160B2A]/90 backdrop-blur-md border border-emerald-500/30 p-5 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.2)] w-full max-w-[240px]">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400"><UserPlus size={20}/></div>
                         <span className="font-bold text-white">Participants</span>
@@ -292,7 +292,7 @@ export default function HowItWorks({ onNavigate }) {
 
                   {/* Orbiting Elements */}
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 20, ease: "linear" }} className="absolute inset-4 rounded-full border border-white/5 z-10">
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#160B2A] border border-emerald-500/30 rounded-xl flex items-center justify-center shadow-lg" style={{ transform: "rotate(-0deg)" }}>
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#160B2A] border border-emerald-500/30 rounded-full flex items-center justify-center shadow-lg" style={{ transform: "rotate(-0deg)" }}>
                        <Monitor size={18} className="text-emerald-400"/>
                     </div>
                   </motion.div>
@@ -327,7 +327,7 @@ export default function HowItWorks({ onNavigate }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('dashboard')} 
-                className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 px-8 py-4 rounded-xl font-bold text-white shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
+                className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 px-8 py-4 rounded-full font-bold text-white shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
               >
                 <span>Start Now</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -335,7 +335,7 @@ export default function HowItWorks({ onNavigate }) {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 px-8 py-4 rounded-xl font-bold text-white transition-colors hover:border-white/20"
+                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 px-8 py-4 rounded-full font-bold text-white transition-colors hover:border-white/20"
               >
                 View Documentation
               </motion.button>
