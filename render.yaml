@@ -1,19 +1,23 @@
 services:
   - type: web
-    name: wabiskills-seminar-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    routes:
-      - type: rewrite
-        source: /room/*
-        destination: /index.html
-      - type: rewrite
-        source: /meeting/*
-        destination: /index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    name: wabiskills-seminar
+    env: node
+    plan: free
+    buildCommand: npm install && cd backend && npm install && cd ../frontend && npm install && VITE_API_URL=/api npm run build
+    startCommand: cd backend && npm start
     envVars:
-      - key: VITE_API_URL
-        value: https://wabiskills-seminar.onrender.com/api
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        value: mysql://4Qe8CQZuyB1e2jm.root:KI5AsN7Edys2nXJx@gateway01.us-west-2.prod.aws.tidbcloud.com:4000/seminar
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRY
+        value: 24h
+      - key: GOOGLE_CALLBACK_URL
+        value: https://wabiskills-seminar-1.onrender.com/api/auth/google/callback
+      - key: CORS_ORIGIN
+        value: https://wabiskills-seminar-1.onrender.com,https://wabiskills-seminar.onrender.com
+

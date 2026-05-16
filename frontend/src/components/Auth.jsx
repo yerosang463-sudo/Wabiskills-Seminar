@@ -49,11 +49,12 @@ export default function Auth({ onNavigate }) {
         setIsLoading(false);
         onNavigate('dashboard');
       } else {
-        setError(response.message || 'Authentication failed');
+        setError(response.message || 'Authentication failed. Please check your credentials.');
         setIsLoading(false);
       }
-    } catch {
-      setError('Network error. Please try again.');
+    } catch (err) {
+      console.error('Auth error:', err);
+      setError('Connection error. The backend server might be unreachable.');
       setIsLoading(false);
     }
   };

@@ -20,7 +20,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_CALLBACK_URL
-        value: https://wabiskills-seminar.onrender.com/api/auth/google/callback
+        value: https://wabiskills-seminar-1.onrender.com/api/auth/google/callback
       # First entry = public app URL (used for Google OAuth return + browser origin). Add your API host too if you open the app from both.
       - key: CORS_ORIGIN
         value: https://wabiskills-seminar-1.onrender.com,https://wabiskills-seminar.onrender.com

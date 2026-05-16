@@ -27,10 +27,12 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           const response = await api.getUserRooms(token);
           if (response.success && response.data) {
             setMyRooms(response.data);
+          } else {
+            notify('error', response.message || 'Failed to load your meetings history.');
           }
         }
       } catch (error) {
-        notify('error', 'Failed to load your meetings history.');
+        notify('error', 'Connection error. The backend server might be down.');
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +72,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
       notify('success', 'Meeting created successfully!');
       onJoinRoom(response.data.roomId);
     } catch (error) {
-      notify('error', 'Network error. Please try again.');
+      notify('error', 'Connection error. Please check your internet or if the server is running.');
     } finally {
       setIsCreating(false);
       createInFlightRef.current = false;
@@ -91,7 +93,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
       notify('success', 'Joining meeting...');
       onJoinRoom(id);
     } catch (error) {
-      notify('error', 'Network error. Please try again.');
+      notify('error', 'Connection error. Unable to reach the server.');
     } finally {
       setIsJoining(false);
     }

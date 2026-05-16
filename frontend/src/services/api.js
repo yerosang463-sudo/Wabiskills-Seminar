@@ -133,7 +133,15 @@ export const api = {
         'Content-Type': 'application/json',
       },
     });
-    return response.json();
+    const data = await parseApiResponse(response);
+
+    // Auto-logout on authentication errors
+    if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
+    return data;
   },
 };
 
