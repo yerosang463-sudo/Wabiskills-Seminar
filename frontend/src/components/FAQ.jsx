@@ -110,9 +110,15 @@ const AccordionItem = ({ q, a, isOpen, onClick }) => {
 export default function FAQ({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [openItems, setOpenItems] = useState({});
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleItem = (categoryIndex, questionIndex) => {
@@ -138,21 +144,7 @@ export default function FAQ({ onNavigate }) {
       <div className="fixed bg-blue-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-10%] right-[-10%] pointer-events-none"></div>
       <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-20%] left-[-10%] pointer-events-none"></div>
 
-      {/* Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-shadow">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">WabiSeminar</span>
-        </div>
-        <button 
-          onClick={() => onNavigate('dashboard')} 
-          className="text-sm font-semibold text-white bg-white/5 border border-white/10 px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all"
-        >
-          Back to Home
-        </button>
-      </header>
+      {/* Navbar handled globally in App.jsx */}
 
       <main className="pt-32 lg:pt-40 pb-20 relative z-10 max-w-[1000px] mx-auto px-6 lg:px-8">
         
@@ -273,17 +265,23 @@ export default function FAQ({ onNavigate }) {
                  </p>
                  
                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <button className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold py-4 px-8 rounded-xl shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-3 transition-all hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.8)]">
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold py-4 px-8 rounded-xl shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-3 transition-colors hover:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.8)]"
+                    >
                        <Mail size={20} />
                        <span>Contact Support</span>
-                    </button>
-                    <button 
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => onNavigate('dashboard')}
-                      className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-xl border border-white/10 flex items-center justify-center space-x-3 transition-all hover:-translate-y-1 hover:border-white/20"
+                      className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-xl border border-white/10 flex items-center justify-center space-x-3 transition-colors hover:border-white/20 group"
                     >
                        <span>Return to Dashboard</span>
-                       <ArrowRight size={20} className="text-[#94A3B8]" />
-                    </button>
+                       <ArrowRight size={20} className="text-[#94A3B8] group-hover:translate-x-1 transition-transform" />
+                    </motion.button>
                  </div>
               </div>
            </motion.div>

@@ -231,3 +231,38 @@ export const getUserRooms = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteRoom = async (req, res, next) => {
+  try {
+    const roomId = normalizeRoomId(req.params.roomId);
+
+    const room = await Room.findOne({
+      where: { roomId },
+    });
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: 'Room not found',
+      });
+    }
+
+    if (room.createdBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to delete this room',
+      });
+    }
+
+    await room.destroy();
+
+    res.json({
+      success: true,
+      data: {
+        message: 'Room deleted successfully',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

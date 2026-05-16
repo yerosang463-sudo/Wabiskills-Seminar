@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Video, UserPlus, Link as LinkIcon, Monitor, PlayCircle, 
@@ -20,10 +20,16 @@ const staggerContainer = {
     }
   }
 };
-
 export default function HowItWorks({ onNavigate }) {
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const steps = [
@@ -75,21 +81,7 @@ export default function HowItWorks({ onNavigate }) {
       <div className="fixed bg-blue-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] right-[-10%] pointer-events-none"></div>
       <div className="fixed bg-indigo-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] left-[-10%] pointer-events-none"></div>
 
-      {/* Navbar */}
-      <header className="fixed top-0 w-full h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 xl:px-16 z-50 bg-[#050816]/80 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => onNavigate('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] group-hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] transition-shadow">
-            <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
-          </div>
-          <span className="font-bold text-lg lg:text-xl tracking-wide text-white">WabiSeminar</span>
-        </div>
-        <button 
-          onClick={() => onNavigate('dashboard')} 
-          className="text-sm font-semibold text-white bg-white/5 border border-white/10 px-6 py-2.5 rounded-full hover:bg-white/10 hover:border-white/20 transition-all"
-        >
-          Back to Home
-        </button>
-      </header>
+      {/* Navbar handled globally in App.jsx */}
 
       <main className="pt-32 lg:pt-40 pb-20 relative z-10 max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-16">
         
@@ -277,13 +269,15 @@ export default function HowItWorks({ onNavigate }) {
                     <span className="font-medium">Instant camera and mic detection</span>
                   </li>
                 </ul>
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => onNavigate('dashboard')}
-                  className="bg-white text-indigo-900 px-8 py-3.5 rounded-full font-bold flex items-center space-x-3 transition-all hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                  className="bg-white text-indigo-900 px-8 py-3.5 rounded-full font-bold flex items-center space-x-3 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 >
-                  <PlayCircle size={20} className="text-indigo-600"/>
+                  <PlayCircle size={20} className="text-indigo-600 group-hover:scale-110 transition-transform"/>
                   <span>Try it yourself</span>
-                </button>
+                </motion.button>
               </motion.div>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative">
                 {/* Abstract UI representation */}
@@ -329,13 +323,22 @@ export default function HowItWorks({ onNavigate }) {
               Check out our detailed documentation or reach out to our support team. We're here to help you host the perfect masterclass.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 relative z-10">
-              <button onClick={() => onNavigate('dashboard')} className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 px-8 py-4 rounded-xl font-bold text-white shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-all hover:-translate-y-1 hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)]">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onNavigate('dashboard')} 
+                className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 px-8 py-4 rounded-xl font-bold text-white shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
+              >
                 <span>Start Now</span>
-                <ArrowRight size={18} />
-              </button>
-              <button className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 px-8 py-4 rounded-xl font-bold text-white transition-all hover:-translate-y-1 hover:border-white/20">
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 border border-white/10 px-8 py-4 rounded-xl font-bold text-white transition-colors hover:border-white/20"
+              >
                 View Documentation
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </section>
