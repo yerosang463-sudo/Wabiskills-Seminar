@@ -3,7 +3,7 @@ import passport from '../config/passport.js';
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
 import { getPublicAppOrigin } from '../utils/publicUrl.js';
-import { register, login, getMe, changePassword } from '../controllers/authController.js';
+import { register, login, getMe, changePassword, upgradePlan } from '../controllers/authController.js';
 import { authenticate } from '../middleware/auth.js';
 import { validate, registerSchema, loginSchema } from '../middleware/validation.js';
 
@@ -15,6 +15,7 @@ router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.get('/me', authenticate, getMe);
 router.post('/change-password', authenticate, changePassword);
+router.post('/upgrade-plan', authenticate, upgradePlan);
 
 // Google OAuth — store invite path so callback can return to /room/:id instead of /
 router.get('/google', (req, res, next) => {

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Check, X, Video, ChevronRight, HelpCircle, ArrowRight, Shield, Zap, Sparkles
+  Check, X, Video, ChevronRight, HelpCircle, ArrowRight, Shield, Zap, Sparkles, Loader2
 } from 'lucide-react';
+import api from '../services/api.js';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -22,15 +23,55 @@ const staggerContainer = {
 export default function Pricing({ onNavigate }) {
   const [isAnnual, setIsAnnual] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState('Free');
+  const [isLoading, setIsLoading] = useState(false);
+  const [actionPlan, setActionPlan] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
+
+    const fetchPlan = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const res = await api.getMe(token);
+        if (res.success && res.data) {
+          setCurrentPlan(res.data.plan || 'Free');
+        }
+      }
+    };
+    fetchPlan();
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleSelectPlan = async (planName) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      onNavigate('auth');
+      return;
+    }
+
+    if (planName === currentPlan) return;
+
+    setActionPlan(planName);
+    setIsLoading(true);
+    try {
+      const res = await api.upgradePlan(token, planName);
+      if (res.success) {
+        setCurrentPlan(res.data.plan);
+        alert(`Successfully switched to ${planName} plan!`);
+      } else {
+        alert(res.message || 'Failed to update plan.');
+      }
+    } catch (error) {
+      alert('An error occurred while updating the plan.');
+    } finally {
+      setIsLoading(false);
+      setActionPlan('');
+    }
+  };
 
   const plans = [
     {
@@ -182,16 +223,25 @@ export default function Pricing({ onNavigate }) {
                    </div>
 
                    <motion.button 
-                     whileHover={{ scale: 1.05 }}
-                     whileTap={{ scale: 0.95 }}
-                     className={`w-full py-4 rounded-full font-bold mb-10 ${
-                        plan.recommended 
+                     whileHover={{ scale: plan.name === currentPlan ? 1 : 1.05 }}
+                     whileTap={{ scale: plan.name === currentPlan ? 1 : 0.95 }}
+                     disabled={isLoading && actionPlan === plan.name}
+                     className={`w-full py-4 rounded-full font-bold mb-10 flex items-center justify-center transition-all ${
+                        plan.name === currentPlan 
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default'
+                        : plan.recommended 
                         ? 'bg-purple-500 hover:bg-purple-600 text-white shadow-[0_10px_20px_-10px_rgba(168,85,247,0.6)]' 
                         : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                      }`}
-                     onClick={() => onNavigate('dashboard')}
+                     onClick={() => handleSelectPlan(plan.name)}
                    >
-                     {plan.cta}
+                     {isLoading && actionPlan === plan.name ? (
+                       <Loader2 size={20} className="animate-spin" />
+                     ) : plan.name === currentPlan ? (
+                       'Current Plan'
+                     ) : (
+                       plan.cta
+                     )}
                    </motion.button>
 
                    <div className="space-y-4">
