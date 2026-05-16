@@ -190,7 +190,7 @@ export const setupSocketHandlers = (io) => {
         const dbUser = await getAuthenticatedUser(token);
         const userId = dbUser?.id || socket.id;
         const displayName = cleanUsername(username || dbUser?.username);
-        const isHost = Boolean(dbUser && room.createdBy === dbUser.id);
+        const isHost = Boolean(dbUser && String(room.createdBy) === String(dbUser.id));
         const currentParticipant = activeUsers.get(socket.id);
 
         if (currentParticipant?.roomId === roomId) {

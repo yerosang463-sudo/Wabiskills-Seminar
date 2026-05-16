@@ -43,7 +43,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
       >
         {/* Logo */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavClick('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center shadow-[0_0_15px_rgba(0,174,239,0.4)]">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,174,239,0.4)]">
             <Video className="text-white w-5 h-5 lg:w-6 lg:h-6" />
           </div>
           <span className="font-bold text-lg lg:text-xl tracking-wide text-white">
@@ -82,7 +82,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
                 className="flex items-center space-x-2 text-sm font-semibold text-white bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 lg:py-2.5 rounded-full hover:bg-indigo-500/20 transition-all"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-xs font-bold shadow-lg">
+                <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold shadow-lg">
                   {username.charAt(0).toUpperCase()}
                 </div>
                 <span className="hidden sm:inline">{username}</span>

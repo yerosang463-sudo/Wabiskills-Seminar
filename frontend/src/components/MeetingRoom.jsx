@@ -747,7 +747,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Entry Denied</h2>
             <p className="text-[#94A3B8]">The host declined your request to join.</p>
           </div>
-          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-2xl font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:bg-white/10 border border-slate-200 dark:border-white/10 transition-all hover:-translate-y-0.5">
+          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-full font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:bg-white/10 border border-slate-200 dark:border-white/10 transition-all hover:-translate-y-0.5">
             Return to Dashboard
           </button>
         </div>
@@ -767,7 +767,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Room Not Found</h2>
             <p className="text-[#94A3B8]">This meeting link is invalid or the meeting has ended.</p>
           </div>
-          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-2xl font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:bg-white/10 border border-slate-200 dark:border-white/10 transition-all hover:-translate-y-0.5">
+          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-full font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:bg-white/10 border border-slate-200 dark:border-white/10 transition-all hover:-translate-y-0.5">
             Return to Dashboard
           </button>
         </div>
@@ -870,7 +870,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
-              className={`bg-[#0A0F24]/40 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}
+              className={`bg-[#0A0F24]/40 backdrop-blur-md rounded-full md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}
             >
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#0A0F24]/80 backdrop-blur-sm">
@@ -887,7 +887,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                     <VideoOff size={32} className="text-rose-400" />
                   </div>
                   <span className="text-rose-300 text-sm text-center font-medium max-w-[200px]">{mediaError}</span>
-                  <button type="button" onClick={handleRetryCamera} className="px-5 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50 rounded-xl text-sm font-semibold transition-all">
+                  <button type="button" onClick={handleRetryCamera} className="px-5 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50 rounded-full text-sm font-semibold transition-all">
                     Retry
                   </button>
                 </div>
@@ -914,7 +914,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                 </>
               )}
 
-              <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+              <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
                 {isMuted && <MicOff size={14} className="text-rose-400" />}
                 <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">You{isHost ? ' (Host)' : ''}</span>
               </div>
@@ -931,7 +931,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
                     transition={{ duration: 0.4, type: 'spring', bounce: 0.4 }}
-                    className="bg-[#0A0F24]/40 backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
+                    className="bg-[#0A0F24]/40 backdrop-blur-md rounded-full md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
                   >
                   {remoteStream && participant.videoEnabled !== false ? (
                     <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[160px] sm:min-h-[200px] object-cover" />
@@ -944,7 +944,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                       </div>
                     </div>
                   )}
-                  <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-xl flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+                  <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
                     {participant.audioEnabled === false && <MicOff size={14} className="text-rose-400" />}
                     <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{participant.username || 'User'}{participant.isHost ? ' (Host)' : ''}</span>
                   </div>
@@ -952,7 +952,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                     <button
                       type="button"
                       onClick={() => handleKickUser(participant.socketId)}
-                      className="absolute top-4 right-4 bg-rose-500/80 hover:bg-rose-500 text-white p-2 rounded-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all border border-rose-400/30 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
+                      className="absolute top-4 right-4 bg-rose-500/80 hover:bg-rose-500 text-white p-2 rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all border border-rose-400/30 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
                       title="Remove participant"
                     >
                       <ShieldBan size={16} />
@@ -967,14 +967,14 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
 
         {/* Waiting Room Panel (Host Only) */}
         {isHost && waitingUsers.length > 0 && (
-          <div className="absolute top-20 right-4 md:right-8 z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/95 backdrop-blur-2xl border border-indigo-200 dark:border-indigo-500/30 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.2)] p-5">
+          <div className="absolute top-20 right-4 md:right-8 z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-white dark:bg-[#0A0F24] shadow-xl dark:shadow-none/95 backdrop-blur-2xl border border-indigo-200 dark:border-indigo-500/30 rounded-full shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.2)] p-5">
             <h3 className="text-slate-900 dark:text-white font-bold mb-4 flex items-center text-sm sm:text-base tracking-wide">
               <span className="bg-indigo-500 text-xs px-2.5 py-1 rounded-full mr-3 shadow-[0_0_10px_rgba(99,102,241,0.4)]">{waitingUsers.length}</span>
               Waiting to join
             </h3>
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
               {waitingUsers.map((user) => (
-                <div key={user.socketId} className="flex items-center justify-between bg-[#160B2A]/50 border border-slate-100 dark:border-white/5 p-3 rounded-xl hover:border-slate-200 dark:border-white/10 transition-colors">
+                <div key={user.socketId} className="flex items-center justify-between bg-[#160B2A]/50 border border-slate-100 dark:border-white/5 p-3 rounded-full hover:border-slate-200 dark:border-white/10 transition-colors">
                   <span className="text-sm font-semibold text-slate-200 truncate pr-2">{user.username}</span>
                   <div className="flex space-x-2">
                     <button type="button" onClick={() => handleDeny(user.socketId)} className="p-2 text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors border border-rose-500/20" title="Reject">
@@ -1003,7 +1003,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                 <button 
                   type="button" 
                   onClick={handleCopyLink} 
-                  className="px-4 py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-xl text-indigo-300 text-sm font-semibold transition-all hover:scale-105 flex items-center space-x-2"
+                  className="px-4 py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-full text-indigo-300 text-sm font-semibold transition-all hover:scale-105 flex items-center space-x-2"
                 >
                   {copied ? (
                     <>
@@ -1023,7 +1023,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             {/* Microphone */}
             <button 
               type="button" 
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 border ${
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 border ${
                 isMuted 
                   ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:bg-rose-500/30' 
                   : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -1037,7 +1037,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             {/* Camera */}
             <button 
               type="button" 
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 border ${
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 border ${
                 isVideoOff 
                   ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:bg-rose-500/30' 
                   : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -1051,7 +1051,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             {/* Screen Share */}
             <button 
               type="button" 
-              className={`hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 rounded-2xl items-center justify-center transition-all duration-300 border ${
+              className={`hidden sm:flex w-12 h-12 sm:w-14 sm:h-14 rounded-full items-center justify-center transition-all duration-300 border ${
                 isScreenSharing 
                   ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:bg-indigo-500/30' 
                   : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -1065,7 +1065,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             {/* Leave Call */}
             <button 
               type="button" 
-              className="px-6 h-12 sm:h-14 rounded-2xl flex items-center justify-center bg-gradient-to-r from-rose-600 to-rose-500 text-white hover:from-rose-500 hover:to-rose-400 transition-all duration-300 shadow-[0_0_20px_rgba(225,29,72,0.4)] ml-2 hover:scale-105" 
+              className="px-6 h-12 sm:h-14 rounded-full flex items-center justify-center bg-purple-500 text-white hover:from-rose-500 hover:to-rose-400 transition-all duration-300 shadow-[0_0_20px_rgba(225,29,72,0.4)] ml-2 hover:scale-105" 
               onClick={onLeave}
               title="Leave call"
             >
@@ -1075,7 +1075,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
             {/* Chat Toggle */}
             <button 
               type="button" 
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 border relative ml-2 ${
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 border relative ml-2 ${
                 isChatOpen 
                   ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.3)]' 
                   : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -1136,8 +1136,8 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                 </div>
                 <div className={`text-[14px] p-3.5 shadow-md max-w-[85%] break-words leading-relaxed ${
                   msg.isOwn 
-                    ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-2xl rounded-tr-sm shadow-[0_5px_15px_rgba(99,102,241,0.2)]' 
-                    : 'bg-white/5 border border-white/10 text-slate-200 rounded-2xl rounded-tl-sm backdrop-blur-md'
+                    ? 'bg-indigo-500 text-white rounded-full rounded-tr-sm shadow-[0_5px_15px_rgba(99,102,241,0.2)]' 
+                    : 'bg-white/5 border border-white/10 text-slate-200 rounded-full rounded-tl-sm backdrop-blur-md'
                 }`}>
                   {msg.message}
                 </div>
@@ -1155,14 +1155,14 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="w-full bg-[#050816] border border-white/10 rounded-2xl pl-5 pr-14 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+              className="w-full bg-[#050816] border border-white/10 rounded-full pl-5 pr-14 py-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && message.trim()) handleSendMessage();
               }}
             />
             <button 
               type="button" 
-              className={`absolute right-2 p-2.5 rounded-xl transition-all ${
+              className={`absolute right-2 p-2.5 rounded-full transition-all ${
                 message.length > 0 
                   ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.4)] hover:bg-indigo-400 hover:scale-105' 
                   : 'text-slate-600 cursor-not-allowed bg-transparent'

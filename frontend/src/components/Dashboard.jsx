@@ -14,9 +14,17 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
   const [isJoining, setIsJoining] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [actionError, setActionError] = useState('');
+  const [platformStats, setPlatformStats] = useState({ users: 0, meetings: 0, minutes: 0 });
   const createInFlightRef = useRef(false);
 
   useEffect(() => {
+    // Fetch stats
+    api.getStats().then(res => {
+      if (res && res.success) {
+        setPlatformStats(res.data);
+      }
+    }).catch(console.error);
+
     // Smooth scroll behavior for the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
     
@@ -142,7 +150,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <div className="max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             
             {actionError && (
-              <div className="lg:col-span-2 p-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 text-rose-200 text-sm flex items-center shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+              <div className="lg:col-span-2 p-4 rounded-full border border-rose-500/30 bg-rose-500/10 text-rose-200 text-sm flex items-center shadow-[0_0_20px_rgba(244,63,94,0.1)]">
                 <Shield className="mr-3 text-rose-400" size={18} />
                 {actionError}
               </div>
@@ -164,7 +172,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               {/* Heading */}
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-white">
                 Host Engaging <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 drop-shadow-lg">
+                <span className="text-indigo-500 drop-shadow-lg">
                   Masterclasses
                 </span><br/>
                 Without Limits
@@ -178,7 +186,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               {/* Features Row (Hero) */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-2 max-w-[550px]">
                 <div className="flex flex-col space-y-3 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#1E113C] flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/50 transition-all shadow-[0_0_15px_rgba(147,51,234,0.1)]">
+                  <div className="w-12 h-12 rounded-full bg-[#1E113C] flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/50 transition-all shadow-[0_0_15px_rgba(147,51,234,0.1)]">
                     <Zap size={20} className="text-purple-400" />
                   </div>
                   <div>
@@ -187,7 +195,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-3 group">
-                  <div className="w-12 h-12 rounded-xl bg-[#0A241A] flex items-center justify-center border border-indigo-500/20 group-hover:border-indigo-500/50 transition-all shadow-[0_0_15px_rgba(0,174,239,0.1)]">
+                  <div className="w-12 h-12 rounded-full bg-[#0A241A] flex items-center justify-center border border-indigo-500/20 group-hover:border-indigo-500/50 transition-all shadow-[0_0_15px_rgba(0,174,239,0.1)]">
                     <Users size={20} className="text-indigo-400" />
                   </div>
                   <div>
@@ -196,7 +204,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-3 group hidden sm:flex">
-                  <div className="w-12 h-12 rounded-xl bg-[#331C0D] flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/50 transition-all shadow-[0_0_15px_rgba(243,112,33,0.1)]">
+                  <div className="w-12 h-12 rounded-full bg-[#331C0D] flex items-center justify-center border border-purple-500/20 group-hover:border-purple-500/50 transition-all shadow-[0_0_15px_rgba(243,112,33,0.1)]">
                     <Shield size={20} className="text-purple-400" />
                   </div>
                   <div>
@@ -206,21 +214,26 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 </div>
               </div>
 
-              {/* Stats Cards */}
               <div className="flex flex-wrap sm:flex-nowrap gap-4 pt-4 max-w-[550px]">
-                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-2xl p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
+                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
                   <Users size={20} className="text-indigo-400 mb-2" />
-                  <div className="text-3xl font-extrabold text-white mb-1">10K+</div>
+                  <div className="text-3xl font-extrabold text-white mb-1">
+                    {platformStats.users.toLocaleString()}
+                  </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Happy Users</div>
                 </div>
-                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-2xl p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
+                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg">
                   <Video size={20} className="text-purple-400 mb-2" />
-                  <div className="text-3xl font-extrabold text-white mb-1">50K+</div>
+                  <div className="text-3xl font-extrabold text-white mb-1">
+                    {platformStats.meetings.toLocaleString()}
+                  </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Meetings Hosted</div>
                 </div>
-                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-2xl p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg hidden sm:block">
+                <div className="flex-1 min-w-[140px] bg-[#0A0F24]/60 backdrop-blur-sm border border-white/5 rounded-full p-5 hover:bg-[#0A0F24]/80 transition-all shadow-lg hidden sm:block">
                   <Clock size={20} className="text-purple-400 mb-2" />
-                  <div className="text-3xl font-extrabold text-white mb-1">1M+</div>
+                  <div className="text-3xl font-extrabold text-white mb-1">
+                    {platformStats.minutes.toLocaleString()}
+                  </div>
                   <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Minutes Shared</div>
                 </div>
               </div>
@@ -252,14 +265,11 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
 
               {/* The Main Glowing Card */}
               <div className="premium-card p-8 sm:p-10 relative overflow-hidden group">
-                
-                {/* Internal card glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                 {/* Start Meeting Section */}
                 <div className="mb-10 relative z-10">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="bg-indigo-500/20 p-2 rounded-xl">
+                    <div className="bg-indigo-500/20 p-2 rounded-full">
                       <Video className="text-indigo-400" size={24} />
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">Start a New Meeting</h2>
@@ -270,7 +280,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                     type="button"
                     whileHover={{ scale: isCreating ? 1 : 1.02 }}
                     whileTap={{ scale: isCreating ? 1 : 0.98 }}
-                    className={`group premium-btn premium-btn-brand w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${isCreating ? 'opacity-75 cursor-not-allowed' : 'shadow-lg shadow-indigo-500/20'}`}
+                    className={`group premium-btn premium-btn-brand w-full py-4 px-6 rounded-full text-[16px] font-bold flex items-center justify-between ${isCreating ? 'opacity-75 cursor-not-allowed' : 'shadow-lg shadow-indigo-500/20'}`}
                     onClick={handleCreateRoom}
                     disabled={isCreating}
                   >
@@ -299,7 +309,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 {/* Join Meeting Section */}
                 <div className="mb-8 relative z-10">
                   <div className="flex items-center space-x-3 mb-3">
-                    <div className="bg-purple-500/20 p-2 rounded-xl">
+                    <div className="bg-purple-500/20 p-2 rounded-full">
                       <Users className="text-purple-400" size={24} />
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-tight">Join an Existing Meeting</h2>
@@ -324,7 +334,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                       type="button"
                       whileHover={{ scale: (!joinId.trim() || isJoining) ? 1 : 1.02 }}
                       whileTap={{ scale: (!joinId.trim() || isJoining) ? 1 : 0.98 }}
-                      className={`group premium-btn premium-btn-orange w-full py-4 px-6 rounded-2xl text-[16px] font-bold flex items-center justify-between ${(!joinId.trim() || isJoining) ? 'opacity-90 cursor-not-allowed' : 'shadow-lg shadow-purple-500/20'}`}
+                      className={`group premium-btn premium-btn-orange w-full py-4 px-6 rounded-full text-[16px] font-bold flex items-center justify-between ${(!joinId.trim() || isJoining) ? 'opacity-90 cursor-not-allowed' : 'shadow-lg shadow-purple-500/20'}`}
                       onClick={handleJoinRoom}
                     >
                       <div className="flex items-center">
@@ -374,8 +384,8 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
           <div className="max-w-7xl mx-auto px-6 text-center">
             <p className="text-slate-400 text-sm font-bold tracking-[0.2em] uppercase mb-8">Trusted by innovative teams worldwide</p>
             <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-              <div className="text-2xl font-black flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/50"></div> Acme Corp</div>
-              <div className="text-2xl font-black flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/50"></div> Globex</div>
+              <div className="text-2xl font-black flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-lg bg-indigo-500 shadow-lg shadow-indigo-500/50"></div> Acme Corp</div>
+              <div className="text-2xl font-black flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-full bg-indigo-500 shadow-lg shadow-emerald-500/50"></div> Globex</div>
               <div className="text-2xl font-black flex items-center gap-3 text-white"><div className="w-8 h-8 rounded-tl-2xl rounded-br-2xl bg-gradient-to-tr from-rose-500 to-orange-500 shadow-lg shadow-rose-500/50"></div> Stark Ind</div>
               <div className="text-2xl font-black flex items-center gap-3 text-white hidden md:flex"><div className="w-8 h-8 rotate-45 bg-gradient-to-tr from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/50"></div> Initech</div>
             </div>
@@ -392,7 +402,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               transition={{ duration: 0.6 }}
               className="text-center max-w-3xl mx-auto mb-20"
             >
-              <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Everything you need for <br className="hidden md:block"/><span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">perfect seminars</span></h2>
+              <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight text-white">Everything you need for <br className="hidden md:block"/><span className="text-indigo-500">perfect seminars</span></h2>
               <p className="text-[#94A3B8] text-lg md:text-xl leading-relaxed">WabiSeminar brings together the best tools for video collaboration in one beautiful, frictionless package. Focus on your audience, not the tech.</p>
             </motion.div>
             
@@ -405,7 +415,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             >
               {/* Feature 1 */}
               <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-indigo-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(99,102,241,0.2)] group">
-                <div className="w-16 h-16 bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors text-indigo-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-indigo-500/20"> 
+                <div className="w-16 h-16 bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors text-indigo-400 rounded-full flex items-center justify-center mb-8 shadow-inner border border-indigo-500/20"> 
                   <Video size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Ultra HD Video</h3>
@@ -414,7 +424,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
 
               {/* Feature 2 */}
               <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-emerald-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(16,185,129,0.2)] group">
-                <div className="w-16 h-16 bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-emerald-500/20"> 
+                <div className="w-16 h-16 bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors text-emerald-400 rounded-full flex items-center justify-center mb-8 shadow-inner border border-emerald-500/20"> 
                   <MessageSquare size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Real-time Chat</h3>
@@ -423,7 +433,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
 
               {/* Feature 3 */}
               <motion.div variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } }} className="bg-[#0A0F24]/60 backdrop-blur-lg border border-white/5 hover:border-purple-500/30 p-10 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_20px_50px_-15px_rgba(168,85,247,0.2)] group">
-                <div className="w-16 h-16 bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors text-purple-400 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-purple-500/20"> 
+                <div className="w-16 h-16 bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors text-purple-400 rounded-full flex items-center justify-center mb-8 shadow-inner border border-purple-500/20"> 
                   <Monitor size={32}/> 
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-white">Screen Sharing</h3>
@@ -461,9 +471,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 </div>
                 <p className="text-white text-lg leading-relaxed mb-8 font-light">"WabiSeminar completely changed how I host my design masterclasses. The UI is gorgeous, and my students love that they don't have to download any software."</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">S</div>
+                  <div className="w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">S</div>
                   <div>
-                    <h4 className="text-white font-bold">Sarah Jenkins</h4>
+                    <h4 className="text-white font-bold">kenenisa beyan</h4>
                     <p className="text-[#94A3B8] text-sm">Lead Designer, StudioX</p>
                   </div>
                 </div>
@@ -476,9 +486,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 </div>
                 <p className="text-white text-lg leading-relaxed mb-8 font-light">"The waiting room feature is perfect for managing my 1-on-1 coaching sessions. The video quality has been incredibly stable even on lower bandwidths."</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">M</div>
+                  <div className="w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">M</div>
                   <div>
-                    <h4 className="text-white font-bold">Marcus Chen</h4>
+                    <h4 className="text-white font-bold">yerosan girma</h4>
                     <p className="text-[#94A3B8] text-sm">Executive Coach</p>
                   </div>
                 </div>
@@ -491,9 +501,9 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
                 </div>
                 <p className="text-white text-lg leading-relaxed mb-8 font-light">"We moved our entire remote engineering team over to WabiSeminar for our daily standups. It's fast, free, and secure. What more could you ask for?"</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">D</div>
+                  <div className="w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-xl shadow-lg">D</div>
                   <div>
-                    <h4 className="text-white font-bold">David Rossi</h4>
+                    <h4 className="text-white font-bold">dagin</h4>
                     <p className="text-[#94A3B8] text-sm">CTO, TechFlow</p>
                   </div>
                 </div>
@@ -516,7 +526,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             >
               <X size={20} />
             </button>
-            <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-6 border border-indigo-500/30">
+            <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6 border border-indigo-500/30">
               <Video className="text-indigo-400" size={32} />
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">About WabiSeminar</h2>
@@ -530,7 +540,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
             </div>
             <button 
               onClick={() => setShowInfoModal(false)}
-              className="mt-10 w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white py-4 rounded-xl font-bold text-lg transition-all hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+              className="mt-10 w-full bg-indigo-500 hover:from-indigo-400 hover:to-purple-400 text-white py-4 rounded-full font-bold text-lg transition-all hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
             >
               Let's get started!
             </button>

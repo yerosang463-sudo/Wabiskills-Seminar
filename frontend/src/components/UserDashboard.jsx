@@ -138,7 +138,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
         <div>
           <h1 className="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight">
-            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{username}</span>
+            Welcome back, <span className="text-indigo-500">{username}</span>
           </h1>
           <p className="text-[#94A3B8] text-lg">Manage your masterclasses, join sessions, or review your history.</p>
         </div>
@@ -154,7 +154,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)] hover:border-indigo-500/30 transition-all flex flex-col justify-between"
         >
           <div>
-            <div className="w-14 h-14 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/20">
+            <div className="w-14 h-14 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mb-6 border border-indigo-500/20">
               <Video size={28} />
             </div>
             <h2 className="text-2xl font-bold mb-3">Host a Session</h2>
@@ -165,7 +165,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           <button 
             onClick={handleCreateRoom}
             disabled={isCreating}
-            className="w-full py-4 rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-full font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isCreating ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
             {isCreating ? 'Creating...' : 'New Meeting'}
@@ -180,7 +180,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
           className="bg-[#0A0F24]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(243,112,33,0.2)] hover:border-purple-500/30 transition-all flex flex-col justify-between"
         >
           <div>
-            <div className="w-14 h-14 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20">
+            <div className="w-14 h-14 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mb-6 border border-purple-500/20">
               <Link size={28} />
             </div>
             <h2 className="text-2xl font-bold mb-3">Join a Session</h2>
@@ -194,13 +194,13 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
               value={joinId}
               onChange={(e) => setJoinId(e.target.value)}
               placeholder="e.g. abc-defg-hij"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-[#94A3B8] focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-full px-4 py-3.5 text-white placeholder-[#94A3B8] focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 outline-none transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
             />
             <button 
               onClick={handleJoinRoom}
               disabled={isJoining || !joinId.trim()}
-              className="w-full py-3.5 rounded-xl font-bold bg-white/10 border border-white/10 hover:bg-purple-500/20 hover:border-purple-500/30 hover:text-purple-300 text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-full font-bold bg-white/10 border border-white/10 hover:bg-purple-500/20 hover:border-purple-500/30 hover:text-purple-300 text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isJoining ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
               {isJoining ? 'Joining...' : 'Join Now'}
@@ -324,7 +324,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
             <p className="text-[#94A3B8] text-sm max-w-sm mb-6">You haven't hosted any masterclasses yet. Create your first secure meeting room to get started.</p>
             <button 
               onClick={handleCreateRoom}
-              className="px-6 py-2.5 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-xl border border-white/10 transition-colors"
+              className="px-6 py-2.5 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-full border border-white/10 transition-colors"
             >
               Create First Room
             </button>
@@ -342,7 +342,7 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
             >
               <X size={20} />
             </button>
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-6 border border-rose-500/20">
+            <div className="w-14 h-14 rounded-full bg-rose-500/10 flex items-center justify-center mb-6 border border-rose-500/20">
               <Trash2 className="text-rose-400" size={28} />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Delete Meeting Room?</h2>
@@ -353,14 +353,14 @@ export default function UserDashboard({ onNavigate, onJoinRoom, notify }) {
               <button 
                 onClick={() => setDeleteModalRoomId(null)}
                 disabled={isDeleting}
-                className="flex-1 py-3.5 rounded-xl font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all disabled:opacity-50"
+                className="flex-1 py-3.5 rounded-full font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDeleteRoom}
                 disabled={isDeleting}
-                className="flex-1 py-3.5 rounded-xl font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-[0_0_20px_rgba(225,29,72,0.3)] disabled:opacity-50 flex justify-center items-center gap-2"
+                className="flex-1 py-3.5 rounded-full font-bold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-[0_0_20px_rgba(225,29,72,0.3)] disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {isDeleting ? <Loader2 size={18} className="animate-spin" /> : null}
                 {isDeleting ? 'Deleting...' : 'Delete Room'}

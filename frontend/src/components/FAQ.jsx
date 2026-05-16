@@ -75,7 +75,7 @@ const faqData = [
 
 const AccordionItem = ({ q, a, isOpen, onClick }) => {
   return (
-    <div className="border border-white/5 rounded-2xl mb-4 bg-[#0A0F24]/60 backdrop-blur-md overflow-hidden transition-all duration-300 hover:border-indigo-500/30 hover:bg-[#0A0F24]/80 hover:shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)]">
+    <div className="border border-white/5 rounded-full mb-4 bg-[#0A0F24]/60 backdrop-blur-md overflow-hidden transition-all duration-300 hover:border-indigo-500/30 hover:bg-[#0A0F24]/80 hover:shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)]">
       <button
         onClick={onClick}
         className="w-full flex items-center justify-between p-6 text-left focus:outline-none group"
@@ -161,7 +161,7 @@ export default function FAQ({ onNavigate }) {
               <span>Support Center</span>
             </motion.div>
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-              How can we <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">help you?</span>
+              How can we <span className="text-indigo-500">help you?</span>
             </motion.h1>
             <motion.p variants={fadeIn} className="text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl font-light mb-12">
               Browse our most frequently asked questions or search for a specific topic to get the answers you need immediately.
@@ -177,8 +177,8 @@ export default function FAQ({ onNavigate }) {
             transition={{ delay: 0.3 }}
             className="relative max-w-2xl mx-auto group"
           >
-             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl group-hover:opacity-100 transition-opacity opacity-50 z-0"></div>
-             <div className="relative z-10 flex items-center bg-[#0A0F24]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl focus-within:border-indigo-500/50 transition-colors">
+             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl group-hover:opacity-100 transition-opacity opacity-50 z-0"></div>
+             <div className="relative z-10 flex items-center bg-[#0A0F24]/80 backdrop-blur-xl border border-white/10 rounded-full p-2 shadow-2xl focus-within:border-indigo-500/50 transition-colors">
                 <div className="pl-4 pr-2 text-[#94A3B8]">
                    <Search size={24} />
                 </div>
@@ -222,7 +222,7 @@ export default function FAQ({ onNavigate }) {
                       viewport={{ once: true, margin: "-100px" }}
                     >
                        <div className="flex items-center space-x-4 mb-8 pl-2">
-                          <div className={`w-12 h-12 rounded-xl bg-${category.colorClass}-500/10 flex items-center justify-center border border-${category.colorClass}-500/20 shadow-[0_0_15px_rgba(var(--${category.colorClass}-rgb),0.1)]`}>
+                          <div className={`w-12 h-12 rounded-full bg-${category.colorClass}-500/10 flex items-center justify-center border border-${category.colorClass}-500/20 shadow-[0_0_15px_rgba(var(--${category.colorClass}-rgb),0.1)]`}>
                              {category.icon}
                           </div>
                           <h2 className="text-3xl font-extrabold text-white">{category.category}</h2>
@@ -268,7 +268,8 @@ export default function FAQ({ onNavigate }) {
                     <motion.button 
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold py-4 px-8 rounded-xl shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-3 transition-colors hover:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.8)]"
+                      onClick={() => window.location.href = 'mailto:support@wabiseminar.com'}
+                      className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-8 rounded-full shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-3 transition-colors hover:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.8)]"
                     >
                        <Mail size={20} />
                        <span>Contact Support</span>
@@ -277,7 +278,7 @@ export default function FAQ({ onNavigate }) {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => onNavigate('dashboard')}
-                      className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-xl border border-white/10 flex items-center justify-center space-x-3 transition-colors hover:border-white/20 group"
+                      className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-full border border-white/10 flex items-center justify-center space-x-3 transition-colors hover:border-white/20 group"
                     >
                        <span>Return to Dashboard</span>
                        <ArrowRight size={20} className="text-[#94A3B8] group-hover:translate-x-1 transition-transform" />
