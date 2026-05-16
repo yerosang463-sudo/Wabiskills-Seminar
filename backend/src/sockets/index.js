@@ -126,7 +126,7 @@ const getAuthenticatedUser = async (token) => {
 
 const admitSocketToRoom = ({ io, targetSocket, roomId, userInfo, isHost }) => {
   removeSocketFromWaiting(io, targetSocket.id);
-  removeSocketFromActiveRoom(io, targetSocket, true);
+  removeSocketFromActiveRoom(io, targetSocket, false);
 
   const participant = {
     roomId,
