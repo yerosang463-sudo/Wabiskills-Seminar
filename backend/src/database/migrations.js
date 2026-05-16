@@ -119,6 +119,20 @@ export const runStartupMigrations = async (sequelize) => {
         }
       }
     }
+
+    if (!columns.plan && !columns.Plan) {
+      try {
+        await queryInterface.addColumn(tableName, 'plan', {
+          type: DataTypes.ENUM('Free', 'Pro', 'Enterprise'),
+          defaultValue: 'Free',
+          allowNull: false,
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
+    }
   }
 
   // Skip Rooms migrations for SQLite to avoid compatibility issues

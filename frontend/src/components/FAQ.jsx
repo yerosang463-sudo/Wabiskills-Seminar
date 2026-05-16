@@ -156,10 +156,7 @@ export default function FAQ({ onNavigate }) {
             variants={staggerContainer}
             className="flex flex-col items-center"
           >
-            <motion.div variants={fadeIn} className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 w-fit text-sm font-semibold shadow-[0_0_15px_rgba(59,130,246,0.15)] mb-8">
-              <HelpCircle size={16} className="text-blue-400" />
-              <span>Support Center</span>
-            </motion.div>
+
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
               How can we <span className="text-indigo-500">help you?</span>
             </motion.h1>

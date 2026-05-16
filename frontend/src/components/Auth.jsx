@@ -169,28 +169,28 @@ export default function Auth({ onNavigate }) {
             <button 
               type="submit"
               disabled={isLoading}
-              className="premium-btn premium-btn-primary w-full group disabled:opacity-70 disabled:cursor-not-allowed"
+              className="premium-btn premium-btn-brand w-full group disabled:opacity-70 disabled:cursor-not-allowed py-3.5 text-base shadow-[0_0_20px_rgba(37,99,235,0.4)]"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2" size={18} />
+                  <Loader2 className="animate-spin mr-3" size={20} />
                   <span>{isLogin ? 'Signing in...' : 'Creating account...'}</span>
                 </>
               ) : (
                 <>
                   <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
-                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
                 </>
               )}
             </button>
 
             {isLogin && (
-              <div className="relative">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-slate-950 text-slate-500">Or continue with</span>
+                  <span className="px-4 bg-[#0A0F24] text-[#94A3B8] font-medium rounded-full border border-white/5">Or continue with</span>
                 </div>
               </div>
             )}
@@ -199,7 +199,7 @@ export default function Auth({ onNavigate }) {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="premium-btn w-full flex items-center justify-center space-x-2 bg-white text-slate-900 hover:bg-slate-100"
+                className="w-full flex items-center justify-center space-x-3 bg-[#0A0F24]/60 border border-white/10 hover:bg-white/5 text-white py-3.5 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl backdrop-blur-md"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -213,7 +213,7 @@ export default function Auth({ onNavigate }) {
 
             <button 
               type="button"
-              className="w-full text-sm text-slate-400 hover:text-slate-900 dark:text-white transition-colors"
+              className="w-full pt-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');

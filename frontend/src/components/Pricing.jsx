@@ -145,10 +145,7 @@ export default function Pricing({ onNavigate }) {
             variants={staggerContainer}
             className="max-w-4xl mx-auto flex flex-col items-center"
           >
-            <motion.div variants={fadeIn} className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 w-fit text-sm font-semibold shadow-[0_0_15px_rgba(168,85,247,0.15)] mb-8">
-              <Sparkles size={16} className="text-purple-400" />
-              <span>Simple, transparent pricing</span>
-            </motion.div>
+
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
               Invest in your <span className="text-indigo-500">masterclasses</span>
             </motion.h1>

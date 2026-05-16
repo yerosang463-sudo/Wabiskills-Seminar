@@ -163,11 +163,7 @@ export default function Dashboard({ onNavigate, onJoinRoom, notify }) {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="flex flex-col justify-center space-y-8 lg:space-y-10"
             >
-              {/* Free Pill */}
-              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-transparent text-purple-300 w-fit text-xs sm:text-sm font-semibold shadow-[0_0_15px_rgba(147,51,234,0.15)]">
-                <Sparkles size={16} className="text-purple-400" />
-                <span>100% Free Forever Platform</span>
-              </div>
+
 
               {/* Heading */}
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-white">
