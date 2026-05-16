@@ -17,6 +17,14 @@ export const findExistingTable = async (queryInterface, tableNames) => {
 };
 
 export const ensureRoomsIdCompatible = async (sequelize, tableName = 'Rooms') => {
+  // SQLite doesn't support SHOW COLUMNS; skip ID migration for SQLite databases
+  if (sequelize.options.dialect === 'sqlite') {
+    return {
+      changed: false,
+      reason: `${tableName} skipped ID check (SQLite uses PRAGMA instead)`,
+    };
+  }
+
   const quotedTableName = quoteIdentifier(tableName);
   const [columns] = await sequelize.query(`SHOW COLUMNS FROM ${quotedTableName} LIKE 'id'`);
   const idColumn = columns?.[0];
@@ -59,6 +67,7 @@ export const ensureRoomsIdCompatible = async (sequelize, tableName = 'Rooms') =>
 
 export const runStartupMigrations = async (sequelize) => {
   const queryInterface = sequelize.getQueryInterface();
+  const isSQLite = sequelize.options.dialect === 'sqlite';
   const userResult = await findExistingTable(queryInterface, ['Users', 'users']);
 
   if (userResult.tableName && userResult.columns) {
@@ -67,27 +76,54 @@ export const runStartupMigrations = async (sequelize) => {
     const hasGoogleIdd = Boolean(columns.googleIdd || columns.googleidd);
 
     if (!hasGoogleId) {
-      await queryInterface.addColumn(tableName, 'googleId', {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      });
+      try {
+        // SQLite cannot add UNIQUE constraint to existing columns with NULL values
+        // Only add the constraint for non-SQLite databases
+        await queryInterface.addColumn(tableName, 'googleId', {
+          type: DataTypes.STRING,
+          allowNull: true,
+          unique: !isSQLite, // Skip UNIQUE for SQLite migrations
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
 
     if (!hasGoogleIdd) {
-      await queryInterface.addColumn(tableName, 'googleIdd', {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      });
+      try {
+        // SQLite cannot add UNIQUE constraint to existing columns with NULL values
+        // Only add the constraint for non-SQLite databases
+        await queryInterface.addColumn(tableName, 'googleIdd', {
+          type: DataTypes.STRING,
+          allowNull: true,
+          unique: !isSQLite, // Skip UNIQUE for SQLite migrations
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
 
     if (!columns.avatar && !columns.Avatar) {
-      await queryInterface.addColumn(tableName, 'avatar', {
-        type: DataTypes.STRING,
-        allowNull: true,
-      });
+      try {
+        await queryInterface.addColumn(tableName, 'avatar', {
+          type: DataTypes.STRING,
+          allowNull: true,
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
+  }
+
+  // Skip Rooms migrations for SQLite to avoid compatibility issues
+  if (isSQLite) {
+    return;
   }
 
   const roomResult = await findExistingTable(queryInterface, ['Rooms', 'rooms']);
@@ -98,26 +134,44 @@ export const runStartupMigrations = async (sequelize) => {
     await ensureRoomsIdCompatible(sequelize, tableName);
 
     if (!columns.title) {
-      await queryInterface.addColumn(tableName, 'title', {
-        type: DataTypes.STRING(100),
-        allowNull: true,
-      });
+      try {
+        await queryInterface.addColumn(tableName, 'title', {
+          type: DataTypes.STRING(100),
+          allowNull: true,
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
 
     if (!columns.isActive) {
-      await queryInterface.addColumn(tableName, 'isActive', {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      });
+      try {
+        await queryInterface.addColumn(tableName, 'isActive', {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
 
     if (!columns.maxParticipants) {
-      await queryInterface.addColumn(tableName, 'maxParticipants', {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 50,
-      });
+      try {
+        await queryInterface.addColumn(tableName, 'maxParticipants', {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 50,
+        });
+      } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+          throw error;
+        }
+      }
     }
   }
 };

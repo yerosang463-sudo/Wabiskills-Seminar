@@ -18,10 +18,7 @@ const config = {
     callbackUrl: '/api/auth/google/callback',
   },
   cors: {
-    origin:
-      typeof process.env.CORS_ORIGIN === 'string' && process.env.CORS_ORIGIN.includes(',')
-        ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
-        : process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: true, // Allow any origin in development
   },
 };
 

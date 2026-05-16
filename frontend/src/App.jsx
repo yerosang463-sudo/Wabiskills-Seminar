@@ -2,7 +2,19 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import MeetingRoom from './components/MeetingRoom';
+import Features from './components/Features';
+import HowItWorks from './components/HowItWorks';
+import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
 import { roomIdFromPathname } from './routeUtils.js';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/ui/PageTransition';
+import ParticleBackground from './components/ui/ParticleBackground';
+import Header from './components/ui/Header';
+import Footer from './components/ui/Footer';
+import UserDashboard from './components/UserDashboard';
+import UserProfile from './components/UserProfile';
+import UserSettings from './components/UserSettings';
 
 function readRouteSnapshot() {
   const roomId = roomIdFromPathname(window.location.pathname);
@@ -19,7 +31,7 @@ function readRouteSnapshot() {
 
   return {
     currentRoomId: '',
-    currentView: authed ? 'dashboard' : 'auth',
+    currentView: 'dashboard', // Always show dashboard as landing page
   };
 }
 
@@ -28,6 +40,24 @@ function App() {
   const [toast, setToast] = useState(null);
   const toastTimerRef = useRef(null);
   const { currentView, currentRoomId } = routeState;
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('token'));
+  }, [currentView]); // Re-check on view changes
+
+  const handleAuthAction = () => {
+    if (isAuthenticated) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      setIsAuthenticated(false);
+      notify('success', 'Logged out successfully');
+      setCurrentView('dashboard');
+    } else {
+      setCurrentView('auth');
+    }
+  };
 
   const setCurrentView = (currentView) => {
     setRouteState((prev) => ({ ...prev, currentView }));
@@ -78,13 +108,50 @@ function App() {
     };
   }, []);
 
+  const showHeaderFooter = !['auth', 'meeting'].includes(currentView);
+
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
-      {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
-      {currentView === 'dashboard' && (
-        <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+    <div className="min-h-screen flex flex-col font-sans relative overflow-x-hidden bg-[#050816]">
+      <ParticleBackground />
+      
+      {showHeaderFooter && (
+        <Header 
+          currentView={currentView} 
+          onNavigate={setCurrentView} 
+          isAuthenticated={isAuthenticated} 
+          handleAuthAction={handleAuthAction} 
+        />
       )}
-      {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+
+      <AnimatePresence mode="wait">
+        <PageTransition currentKey={currentView}>
+          {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
+          
+          {currentView === 'dashboard' && isAuthenticated && (
+            <UserDashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+          )}
+          
+          {currentView === 'dashboard' && !isAuthenticated && (
+            <Dashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
+          )}
+
+          {currentView === 'profile' && isAuthenticated && (
+            <UserProfile />
+          )}
+
+          {currentView === 'settings' && isAuthenticated && (
+            <UserSettings />
+          )}
+          
+          {currentView === 'features' && <Features onNavigate={setCurrentView} />}
+          {currentView === 'how-it-works' && <HowItWorks onNavigate={setCurrentView} />}
+          {currentView === 'pricing' && <Pricing onNavigate={setCurrentView} />}
+          {currentView === 'faq' && <FAQ onNavigate={setCurrentView} />}
+          {currentView === 'meeting' && <MeetingRoom onLeave={leaveRoom} roomId={currentRoomId} notify={notify} />}
+        </PageTransition>
+      </AnimatePresence>
+
+      {showHeaderFooter && <Footer onNavigate={setCurrentView} />}
 
       {toast && (
         <div className="fixed top-4 left-1/2 z-[100] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2">
