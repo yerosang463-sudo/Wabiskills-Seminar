@@ -21,6 +21,7 @@ const toParticipantPayload = (participant) => ({
   username: participant.username,
   audioEnabled: participant.audioEnabled,
   videoEnabled: participant.videoEnabled,
+  handRaised: participant.handRaised,
   isHost: participant.isHost,
   joinedAt: participant.joinedAt,
 });
@@ -136,6 +137,7 @@ const admitSocketToRoom = ({ io, targetSocket, roomId, userInfo, isHost }) => {
     username: cleanUsername(userInfo.username),
     audioEnabled: userInfo.audioEnabled !== false,
     videoEnabled: userInfo.videoEnabled !== false,
+    handRaised: false,
     isHost: Boolean(isHost),
     joinedAt: new Date().toISOString(),
   };
@@ -428,6 +430,17 @@ export const setupSocketHandlers = (io) => {
       participant.videoEnabled = Boolean(enabled);
       roomParticipants.get(roomId)?.set(socket.id, participant);
       socket.to(roomId).emit('user-video-toggled', { socketId: socket.id, enabled: participant.videoEnabled });
+      emitParticipantsList(io, roomId);
+    });
+
+    socket.on('toggle-hand', ({ roomId: rawRoomId, handRaised }) => {
+      const roomId = normalizeRoomId(rawRoomId);
+      const participant = activeUsers.get(socket.id);
+      if (!participant || participant.roomId !== roomId) return;
+
+      participant.handRaised = Boolean(handRaised);
+      roomParticipants.get(roomId)?.set(socket.id, participant);
+      socket.to(roomId).emit('user-hand-toggled', { socketId: socket.id, handRaised: participant.handRaised });
       emitParticipantsList(io, roomId);
     });
 

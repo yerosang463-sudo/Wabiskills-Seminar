@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getSocket } from '../socket.js';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, Users, X, Copy, Check, MonitorUp, ShieldBan } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MessageSquare, Send, User, Users, X, Copy, Check, MonitorUp, ShieldBan, Hand } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ICE_SERVERS = [
@@ -48,6 +48,7 @@ function normalizeParticipants(list, selfSocketId) {
       username: participant.username || 'User',
       audioEnabled: participant.audioEnabled !== false,
       videoEnabled: participant.videoEnabled !== false,
+      handRaised: participant.handRaised === true,
       isHost: Boolean(participant.isHost),
     }));
 }
@@ -57,6 +58,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isHandRaised, setIsHandRaised] = useState(false);
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
@@ -470,6 +472,20 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
       );
     };
 
+    const onUserHandToggled = ({ socketId, handRaised }) => {
+      setParticipants((prev) =>
+        prev.map((participant) =>
+          participant.socketId === socketId ? { ...participant, handRaised } : participant
+        )
+      );
+      if (handRaised) {
+        const p = participants.find((p) => p.socketId === socketId);
+        if (p) {
+          notify?.('info', `${p.username} raised their hand.`);
+        }
+      }
+    };
+
     const onChatMessage = (data) => {
       setMessages((prev) => [
         ...prev,
@@ -506,6 +522,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
     socket.on('webrtc-ice-candidate', handleIceCandidate);
     socket.on('user-audio-toggled', onUserAudioToggled);
     socket.on('user-video-toggled', onUserVideoToggled);
+    socket.on('user-hand-toggled', onUserHandToggled);
     socket.on('room-joined', onRoomJoined);
     socket.on('waiting-for-host', onWaitingForHost);
     socket.on('join-denied', onJoinDenied);
@@ -531,6 +548,7 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
       socket.off('webrtc-ice-candidate', handleIceCandidate);
       socket.off('user-audio-toggled', onUserAudioToggled);
       socket.off('user-video-toggled', onUserVideoToggled);
+      socket.off('user-hand-toggled', onUserHandToggled);
       socket.off('room-joined', onRoomJoined);
       socket.off('waiting-for-host', onWaitingForHost);
       socket.off('join-denied', onJoinDenied);
@@ -617,6 +635,12 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
     });
     setIsVideoOff(nextVideoOff);
     getSocket().emit('toggle-video', { roomId, enabled: !nextVideoOff });
+  };
+
+  const toggleHand = () => {
+    const nextHandRaised = !isHandRaised;
+    setIsHandRaised(nextHandRaised);
+    getSocket().emit('toggle-hand', { roomId, handRaised: nextHandRaised });
   };
 
   const toggleScreenShare = async () => {
@@ -914,6 +938,12 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                 </>
               )}
 
+              {isHandRaised && (
+                <div className="absolute top-4 left-4 bg-yellow-500/90 text-white p-2 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+                  <Hand size={20} className="fill-current" />
+                </div>
+              )}
+
               <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
                 {isMuted && <MicOff size={14} className="text-rose-400" />}
                 <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">You{isHost ? ' (Host)' : ''}</span>
@@ -944,6 +974,13 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
                       </div>
                     </div>
                   )}
+                  
+                  {participant.handRaised && (
+                    <div className="absolute top-4 left-4 bg-yellow-500/90 text-white p-2 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+                      <Hand size={20} className="fill-current" />
+                    </div>
+                  )}
+
                   <div className="absolute bottom-4 left-4 bg-[#050816]/90 backdrop-blur-xl text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-full flex items-center space-x-2 border border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
                     {participant.audioEnabled === false && <MicOff size={14} className="text-rose-400" />}
                     <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{participant.username || 'User'}{participant.isHost ? ' (Host)' : ''}</span>
@@ -1060,6 +1097,20 @@ export default function MeetingRoom({ onLeave, roomId, notify }) {
               title={isScreenSharing ? 'Stop sharing screen' : 'Share screen'}
             >
               <MonitorUp size={20} />
+            </button>
+
+            {/* Raised Hand */}
+            <button 
+              type="button" 
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 border ${
+                isHandRaised 
+                  ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:bg-yellow-500/30' 
+                  : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/20'
+              }`} 
+              onClick={toggleHand}
+              title={isHandRaised ? 'Lower hand' : 'Raise hand'}
+            >
+              <Hand size={20} className={isHandRaised ? 'fill-current' : ''} />
             </button>
 
             {/* Leave Call */}
