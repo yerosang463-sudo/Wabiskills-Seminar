@@ -57,23 +57,32 @@ export const api = {
 
   // Room endpoints
   async createRoom(token, roomId = null) {
-    const response = await fetch(`${API_BASE_URL}/rooms`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ roomId }),
-    });
-    const data = await parseApiResponse(response);
-    
-    // Auto-logout on authentication errors
-    if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
-      localStorage.clear();
-      window.location.href = '/';
+    try {
+      const response = await fetch(`${API_BASE_URL}/rooms`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ roomId }),
+      });
+      const data = await parseApiResponse(response);
+      
+      // Auto-logout on authentication errors
+      if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+        localStorage.clear();
+        window.location.href = '/';
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('[API] Create room error:', error);
+      return {
+        success: false,
+        message: 'Connection error. Please check your internet or if the server is running.',
+        error: error.message,
+      };
     }
-    
-    return data;
   },
 
   async getRoom(token, roomId) {
