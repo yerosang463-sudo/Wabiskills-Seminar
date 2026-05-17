@@ -55,6 +55,30 @@ export const api = {
     return response.json();
   },
 
+  async changePassword(token, currentPassword, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return parseApiResponse(response);
+  },
+
+  async upgradePlan(token, plan) {
+    const response = await fetch(`${API_BASE_URL}/auth/upgrade-plan`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ plan }),
+    });
+    return parseApiResponse(response);
+  },
+
   // Room endpoints
   async createRoom(token, roomId = null) {
     try {
@@ -151,6 +175,16 @@ export const api = {
     }
 
     return data;
+  },
+
+  async getStats() {
+    const response = await fetch(`${API_BASE_URL}/stats`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.json();
   },
 };
 

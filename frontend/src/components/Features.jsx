@@ -55,7 +55,7 @@ export default function Features({ onNavigate }) {
               <span>Powerful Features</span>
             </motion.div>
             <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-              Built for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400">flawless</span> execution.
+              Built for <span className="text-indigo-500">flawless</span> execution.
             </motion.h1>
             <motion.p variants={fadeIn} className="text-lg md:text-xl text-[#94A3B8] leading-relaxed max-w-2xl font-light mb-10">
               Everything you need to host professional, engaging, and secure meetings without the complexity of legacy platforms. No downloads. No limits. Just instant connection.
@@ -83,7 +83,7 @@ export default function Features({ onNavigate }) {
               { icon: <MessageSquare size={24}/>, title: "Real-time Comm.", desc: "Synchronized chat and audio for seamless audience interaction.", colorClass: "text-orange-400 bg-orange-500/10 border-orange-500/20", hoverClass: "hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]" }
             ].map((f, i) => (
               <motion.div key={i} variants={fadeIn} whileHover={{ scale: 1.03, y: -5 }} className={`bg-[#0A0F24]/60 backdrop-blur-xl border border-white/5 p-8 rounded-[2rem] transition-all duration-300 group ${f.hoverClass}`}>
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border group-hover:scale-110 transition-transform ${f.colorClass}`}>
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 border group-hover:scale-110 transition-transform ${f.colorClass}`}>
                   {f.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3">{f.title}</h3>
@@ -124,12 +124,12 @@ export default function Features({ onNavigate }) {
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center opacity-60 group-hover:opacity-80 transition-opacity duration-700"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent"></div>
                   {/* Floating Mock UI */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#0A0F24]/80 backdrop-blur-xl rounded-2xl border border-white/10 flex items-center justify-between px-6">
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#0A0F24]/80 backdrop-blur-xl rounded-full border border-white/10 flex items-center justify-between px-6">
                      <div className="flex space-x-4">
                         <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><Video size={18}/></div>
                         <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400"><Monitor size={18}/></div>
                      </div>
-                     <div className="w-16 h-10 rounded-xl bg-purple-500 flex items-center justify-center font-bold">End</div>
+                     <div className="w-16 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">End</div>
                   </div>
                 </div>
               </motion.div>
@@ -188,13 +188,13 @@ export default function Features({ onNavigate }) {
                <div className="w-[280px] h-[580px] bg-[#0A0F24] rounded-[3rem] border-[8px] border-[#1E113C] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative">
                   <div className="absolute top-0 w-full h-6 bg-[#1E113C] flex justify-center rounded-b-xl"><div className="w-1/3 h-4 bg-[#0A0F24] rounded-b-xl"></div></div>
                   <div className="w-full h-full bg-[#050816] pt-10 px-4 flex flex-col">
-                    <div className="flex-1 bg-[#160B2A] rounded-2xl border border-white/5 mb-4 relative overflow-hidden">
+                    <div className="flex-1 bg-[#160B2A] rounded-full border border-white/5 mb-4 relative overflow-hidden">
                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400')] bg-cover bg-center opacity-70"></div>
                     </div>
-                    <div className="h-20 bg-[#0A0F24] rounded-2xl mb-4 flex items-center justify-around border border-white/5">
+                    <div className="h-20 bg-[#0A0F24] rounded-full mb-4 flex items-center justify-around border border-white/5">
                       <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400"><Video size={16}/></div>
                       <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"><Monitor size={16}/></div>
-                      <div className="w-12 h-10 rounded-xl bg-purple-500 flex items-center justify-center text-white text-xs font-bold">End</div>
+                      <div className="w-12 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">End</div>
                     </div>
                   </div>
                </div>
@@ -208,17 +208,18 @@ export default function Features({ onNavigate }) {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 rounded-[3rem] p-12 md:p-20 shadow-[0_20px_60px_-15px_rgba(99,102,241,0.5)] relative overflow-hidden"
+            className="bg-[#0A0F24]/80 backdrop-blur-xl border border-white/10 rounded-[3rem] p-12 md:p-20 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 group-hover:opacity-10 transition-opacity"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none group-hover:from-indigo-500/10 transition-colors duration-500"></div>
             <div className="relative z-10">
               <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Ready to host your next masterpiece?</h2>
-              <p className="text-indigo-100 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">Join thousands of professionals who have upgraded their meeting experience with WabiSeminar.</p>
+              <p className="text-[#94A3B8] text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">Join thousands of professionals who have upgraded their meeting experience with WabiSeminar.</p>
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('dashboard')}
-                className="bg-white text-indigo-600 px-10 py-4 rounded-full font-bold text-lg shadow-xl flex items-center justify-center mx-auto space-x-2 group"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-4 rounded-full font-bold text-lg shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center mx-auto space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
               >
                 <span>Start for free</span>
                 <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
