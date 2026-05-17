@@ -67,18 +67,6 @@ export const api = {
     return parseApiResponse(response);
   },
 
-  async upgradePlan(token, plan) {
-    const response = await fetch(`${API_BASE_URL}/auth/upgrade-plan`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ plan }),
-    });
-    return parseApiResponse(response);
-  },
-
   // Room endpoints
   async createRoom(token, roomId = null) {
     try {

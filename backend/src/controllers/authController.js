@@ -40,7 +40,6 @@ export const register = async (req, res, next) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        plan: user.plan || 'Free',
         createdAt: user.createdAt,
         token,
       },
@@ -86,7 +85,6 @@ export const login = async (req, res, next) => {
           id: user.id,
           username: user.username,
           email: user.email,
-          plan: user.plan || 'Free',
         },
       },
     });
@@ -103,7 +101,6 @@ export const getMe = async (req, res, next) => {
         id: req.user.id,
         username: req.user.username,
         email: req.user.email,
-        plan: req.user.plan || 'Free',
         createdAt: req.user.createdAt,
       },
     });
@@ -135,29 +132,6 @@ export const changePassword = async (req, res, next) => {
     await user.save();
 
     res.json({ success: true, message: 'Password updated successfully' });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const upgradePlan = async (req, res, next) => {
-  try {
-    const { plan } = req.body;
-    
-    const validPlans = ['Free', 'Pro', 'Enterprise'];
-    if (!validPlans.includes(plan)) {
-      return res.status(400).json({ success: false, message: 'Invalid plan selected' });
-    }
-
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    user.plan = plan;
-    await user.save();
-
-    res.json({ success: true, message: `Successfully upgraded to ${plan} plan`, data: { plan: user.plan } });
   } catch (error) {
     next(error);
   }

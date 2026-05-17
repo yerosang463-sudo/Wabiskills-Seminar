@@ -45,9 +45,9 @@ const User = sequelize.define(
       allowNull: true,
     },
     plan: {
-      type: DataTypes.ENUM('Free', 'Pro', 'Enterprise'),
-      defaultValue: 'Free',
-      allowNull: false,
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'free',
     },
   },
   {
