@@ -3,17 +3,19 @@ import { motion } from 'framer-motion';
 
 export default function Footer({ onNavigate }) {
   return (
-    <footer className="border-t border-white/5 bg-[#050816] pt-20 pb-10 px-6 lg:px-8 xl:px-16 relative z-10 text-white font-sans">
+    <footer className="border-t border-white/5 bg-[#050816] pt-12 pb-6 px-4 sm:px-6 lg:px-8 xl:px-16 relative z-10 text-white font-sans">
       <div className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center space-x-3 mb-6">
+        {/* Mobile-optimized grid: 1 column on mobile, 2 on tablet, 4 on desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16">
+          {/* Brand Section - Full width on mobile */}
+          <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+            <div className="flex items-center space-x-3 mb-4 sm:mb-6">
               <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
                 <Video className="text-white w-4 h-4" />
               </div>
               <span className="font-bold text-lg tracking-wide text-white">WabiSeminar</span>
             </div>
-            <p className="text-[#94A3B8] text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="text-[#94A3B8] text-sm leading-relaxed mb-4 sm:mb-6 max-w-xs">
               The modern platform for hosting engaging masterclasses, secure meetings, and instant webinars without limits.
             </p>
             <div className="flex items-center space-x-4">
@@ -29,47 +31,49 @@ export default function Footer({ onNavigate }) {
             </div>
           </div>
           
+          {/* Product Section */}
           <div>
-            <h4 className="font-semibold text-white mb-6 tracking-wide">Product</h4>
-            <ul className="space-y-4 text-sm text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">Features</button></li>
-              <li><button onClick={() => onNavigate('how-it-works')} className="hover:text-indigo-400 transition-colors">How it Works</button></li>
-              <li><button onClick={() => onNavigate('pricing')} className="hover:text-indigo-400 transition-colors">Pricing</button></li>
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">Integrations</button></li>
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">Changelog</button></li>
+            <h4 className="font-semibold text-white mb-4 sm:mb-6 tracking-wide text-base">Product</h4>
+            <ul className="space-y-3 sm:space-y-4 text-sm text-[#94A3B8]">
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">Features</button></li>
+              <li><button onClick={() => onNavigate('how-it-works')} className="hover:text-indigo-400 transition-colors text-left">How it Works</button></li>
+              <li><button onClick={() => onNavigate('pricing')} className="hover:text-indigo-400 transition-colors text-left">Pricing</button></li>
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">Integrations</button></li>
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">Changelog</button></li>
             </ul>
           </div>
           
+          {/* Resources Section */}
           <div>
-            <h4 className="font-semibold text-white mb-6 tracking-wide">Resources</h4>
-            <ul className="space-y-4 text-sm text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Documentation</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">API Reference</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Community</button></li>
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">Blog</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Help Center</button></li>
+            <h4 className="font-semibold text-white mb-4 sm:mb-6 tracking-wide text-base">Resources</h4>
+            <ul className="space-y-3 sm:space-y-4 text-sm text-[#94A3B8]">
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Documentation</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">API Reference</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Community</button></li>
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">Blog</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Help Center</button></li>
             </ul>
           </div>
           
+          {/* Company Section */}
           <div>
-            <h4 className="font-semibold text-white mb-6 tracking-wide">Company</h4>
-            <ul className="space-y-4 text-sm text-[#94A3B8]">
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">About</button></li>
-              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors">Careers</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Legal</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Privacy Policy</button></li>
-              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors">Terms of Service</button></li>
+            <h4 className="font-semibold text-white mb-4 sm:mb-6 tracking-wide text-base">Company</h4>
+            <ul className="space-y-3 sm:space-y-4 text-sm text-[#94A3B8]">
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">About</button></li>
+              <li><button onClick={() => onNavigate('features')} className="hover:text-indigo-400 transition-colors text-left">Careers</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Legal</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Privacy Policy</button></li>
+              <li><button onClick={() => onNavigate('faq')} className="hover:text-indigo-400 transition-colors text-left">Terms of Service</button></li>
             </ul>
           </div>
         </div>
         
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-[#94A3B8]">
-          <p>&copy; {new Date().getFullYear()} WabiSeminar Inc. All rights reserved.</p>
-          <div className="flex items-center space-x-6 mt-4 md:mt-0">
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>All systems operational</span>
-            </div>
+        {/* Footer Bottom - Mobile optimized */}
+        <div className="border-t border-white/5 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-[#94A3B8]">
+          <p className="text-center sm:text-left">&copy; {new Date().getFullYear()} WabiSeminar Inc. All rights reserved.</p>
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs sm:text-sm">All systems operational</span>
           </div>
         </div>
       </div>
