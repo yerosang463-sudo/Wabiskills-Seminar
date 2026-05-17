@@ -22,14 +22,14 @@ export default function UserProfile({ onNavigate }) {
           className="lg:col-span-1"
         >
           <div className="bg-[#0A0F24]/60 light:bg-white backdrop-blur-md light:backdrop-blur-none border border-white/10 light:border-slate-200 rounded-[2rem] p-8 shadow-[0_10px_30px_-15px_rgba(99,102,241,0.2)] light:shadow-md text-center relative">
-            <button 
+            <button className="cursor-pointer"  
               onClick={() => onNavigate('settings')}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 light:bg-slate-100 border border-white/10 light:border-slate-200 flex items-center justify-center text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 transition-colors"
+              className="absolute top-6 right-6 w-10 h-10 rounded-2xl bg-white/5 light:bg-slate-100 border border-white/10 light:border-slate-200 flex items-center justify-center text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 transition-colors"
             >
               <Edit3 size={16} />
             </button>
-            <div className="w-32 h-32 mx-auto rounded-full bg-indigo-500 p-[2px] mb-6 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
-              <div className="w-full h-full rounded-full bg-[#050816] light:bg-white flex items-center justify-center text-4xl font-bold text-white light:text-slate-900">
+            <div className="w-32 h-32 mx-auto rounded-2xl bg-indigo-500 p-[2px] mb-6 shadow-[0_0_30px_rgba(147,51,234,0.3)]">
+              <div className="w-full h-full rounded-2xl bg-[#050816] light:bg-white flex items-center justify-center text-4xl font-bold text-white light:text-slate-900">
                 {username.charAt(0).toUpperCase()}
               </div>
             </div>
@@ -77,9 +77,9 @@ export default function UserProfile({ onNavigate }) {
                 <textarea rows="3" placeholder="Tell us about yourself..." className="w-full bg-[#050816]/60 light:bg-slate-50 border border-white/10 light:border-slate-200 rounded-[1.5rem] px-4 py-3 text-sm text-white light:text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 light:focus:ring-indigo-400 focus:border-indigo-500/50 light:focus:border-indigo-400 transition-all resize-none"></textarea>
               </div>
               <div className="flex justify-end pt-4">
-                <button 
+                <button className="cursor-pointer"  
                   onClick={() => onNavigate('dashboard')}
-                  className="px-6 py-2.5 rounded-full font-bold bg-indigo-600 hover:bg-indigo-500 text-white light:text-slate-900 transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+                  className="px-6 py-2.5 rounded-2xl font-bold bg-indigo-600 hover:bg-indigo-500 text-white light:text-slate-900 transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)]"
                 >
                   Save Changes
                 </button>

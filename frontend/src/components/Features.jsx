@@ -35,8 +35,8 @@ export default function Features({ onNavigate }) {
   return (
     <div className="min-h-screen bg-[#050816] light:bg-[#FAFAFA] text-white light:text-slate-900 font-sans overflow-hidden relative">
       {/* Background Animated Blobs */}
-      <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] left-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-2xl top-[-20%] left-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-2xl bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
       {/* Navbar handled globally in App.jsx */}
 
@@ -80,7 +80,7 @@ export default function Features({ onNavigate }) {
               { icon: <MessageSquare size={24}/>, title: "Real-time Comm.", desc: "Synchronized chat and audio for seamless audience interaction.", colorClass: "text-orange-400 bg-orange-500/10 border-orange-500/20", hoverClass: "hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]" }
             ].map((f, i) => (
               <motion.div key={i} variants={fadeIn} whileHover={{ scale: 1.03, y: -5 }} className={`bg-[#0A0F24]/60 light:bg-white backdrop-blur-xl light:backdrop-blur-none border border-white/5 light:border-slate-200 p-8 rounded-[2rem] transition-all duration-300 group ${f.hoverClass} light:shadow-md light:hover:shadow-xl`}>
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 border group-hover:scale-110 transition-transform ${f.colorClass}`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border group-hover:scale-110 transition-transform ${f.colorClass}`}>
                   {f.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white light:text-slate-900">{f.title}</h3>
@@ -96,7 +96,7 @@ export default function Features({ onNavigate }) {
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-500/10 to-transparent pointer-events-none"></div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-purple-500/30 light:border-purple-200 bg-purple-500/10 light:bg-purple-50 text-purple-300 light:text-purple-600 w-fit text-xs font-bold mb-6">
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-2xl border border-purple-500/30 light:border-purple-200 bg-purple-500/10 light:bg-purple-50 text-purple-300 light:text-purple-600 w-fit text-xs font-bold mb-6">
                   Collaboration
                 </div>
                 <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 text-white light:text-slate-900">Designed for interactive masterclasses.</h2>
@@ -110,23 +110,23 @@ export default function Features({ onNavigate }) {
                     "Real-time synchronized chat without interrupting the flow."
                   ].map((item, i) => (
                     <li key={i} className="flex items-center space-x-3 text-white light:text-slate-700">
-                      <div className="w-6 h-6 rounded-full bg-purple-500/20 light:bg-purple-100 flex items-center justify-center text-purple-400 light:text-purple-600">✓</div>
+                      <div className="w-6 h-6 rounded-2xl bg-purple-500/20 light:bg-purple-100 flex items-center justify-center text-purple-400 light:text-purple-600">✓</div>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </motion.div>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative">
-                <div className="aspect-[4/3] rounded-3xl bg-[#050816] light:bg-slate-50 border border-white/10 shadow-2xl overflow-hidden relative group">
+                <div className="aspect-[4/3] rounded-3xl bg-[#050816] light:bg-slate-50 border border-white/10 light:border-slate-200 shadow-2xl overflow-hidden relative group">
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center opacity-60 group-hover:opacity-80 transition-opacity duration-700"></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050816] light:from-slate-50 via-transparent to-transparent"></div>
                   {/* Floating Mock UI */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#0A0F24]/80 light:bg-white/90 backdrop-blur-xl rounded-full border border-white/10 flex items-center justify-between px-6">
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#0A0F24]/80 light:bg-white/90 backdrop-blur-xl rounded-2xl border border-white/10 light:border-slate-200 flex items-center justify-between px-6">
                      <div className="flex space-x-4">
-                        <div className="w-10 h-10 rounded-full bg-white/10 light:bg-slate-200 flex items-center justify-center"><Video size={18}/></div>
-                        <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400"><Monitor size={18}/></div>
+                        <div className="w-10 h-10 rounded-2xl bg-white/10 light:bg-slate-200 flex items-center justify-center"><Video size={18}/></div>
+                        <div className="w-10 h-10 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-400"><Monitor size={18}/></div>
                      </div>
-                     <div className="w-16 h-10 rounded-full bg-purple-500 flex items-center justify-center font-bold">End</div>
+                     <div className="w-16 h-10 rounded-2xl bg-purple-500 flex items-center justify-center font-bold">End</div>
                   </div>
                 </div>
               </motion.div>
@@ -185,13 +185,13 @@ export default function Features({ onNavigate }) {
                <div className="w-[280px] h-[580px] bg-[#0A0F24] light:bg-white rounded-[3rem] border-[8px] border-[#1E113C] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative">
                   <div className="absolute top-0 w-full h-6 bg-[#1E113C] light:bg-slate-100 flex justify-center rounded-b-xl"><div className="w-1/3 h-4 bg-[#0A0F24] light:bg-white rounded-b-xl"></div></div>
                   <div className="w-full h-full bg-[#050816] light:bg-slate-50 pt-10 px-4 flex flex-col">
-                    <div className="flex-1 bg-[#160B2A] light:bg-slate-100 rounded-full border border-white/5 mb-4 relative overflow-hidden">
+                    <div className="flex-1 bg-[#160B2A] light:bg-slate-100 rounded-2xl border border-white/5 light:border-slate-200 mb-4 relative overflow-hidden">
                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400')] bg-cover bg-center opacity-70"></div>
                     </div>
-                    <div className="h-20 bg-[#0A0F24] light:bg-white rounded-full mb-4 flex items-center justify-around border border-white/5">
-                      <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400"><Video size={16}/></div>
-                      <div className="w-10 h-10 rounded-full bg-white/10 light:bg-slate-200 flex items-center justify-center text-white light:text-slate-900"><Monitor size={16}/></div>
-                      <div className="w-12 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white light:text-slate-900 text-xs font-bold">End</div>
+                    <div className="h-20 bg-[#0A0F24] light:bg-white rounded-2xl mb-4 flex items-center justify-around border border-white/5 light:border-slate-200">
+                      <div className="w-10 h-10 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-400"><Video size={16}/></div>
+                      <div className="w-10 h-10 rounded-2xl bg-white/10 light:bg-slate-200 flex items-center justify-center text-white light:text-slate-900"><Monitor size={16}/></div>
+                      <div className="w-12 h-10 rounded-2xl bg-purple-500 flex items-center justify-center text-white light:text-slate-900 text-xs font-bold">End</div>
                     </div>
                   </div>
                </div>
@@ -205,18 +205,18 @@ export default function Features({ onNavigate }) {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-[#0A0F24]/80 light:bg-white/90 backdrop-blur-xl border border-white/10 rounded-[3rem] p-12 md:p-20 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group"
+            className="bg-[#0A0F24]/80 light:bg-white/90 backdrop-blur-xl border border-white/10 light:border-slate-200 rounded-[3rem] p-12 md:p-20 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 group-hover:opacity-10 transition-opacity"></div>
             <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none group-hover:from-indigo-500/10 transition-colors duration-500"></div>
             <div className="relative z-10">
               <h2 className="text-4xl md:text-6xl font-extrabold text-white light:text-slate-900 mb-6 tracking-tight">Ready to host your next masterpiece?</h2>
               <p className="text-[#94A3B8] light:text-slate-500 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-medium">Join thousands of professionals who have upgraded their meeting experience with WabiSeminar.</p>
-              <motion.button 
+              <motion.button className="cursor-pointer"  
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('dashboard')}
-                className="bg-indigo-500 hover:bg-indigo-600 text-white light:text-slate-900 px-10 py-4 rounded-full font-bold text-lg shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center mx-auto space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white light:text-slate-900 px-10 py-4 rounded-2xl font-bold text-lg shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center mx-auto space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
               >
                 <span>Start for free</span>
                 <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />

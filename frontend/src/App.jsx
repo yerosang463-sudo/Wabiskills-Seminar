@@ -125,7 +125,7 @@ function App() {
 
       <AnimatePresence mode="wait">
         <PageTransition currentKey={currentView}>
-          {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} />}
+          {currentView === 'auth' && <Auth onNavigate={handleAuthSuccess} notify={notify} />}
           
           {currentView === 'dashboard' && isAuthenticated && (
             <UserDashboard onNavigate={setCurrentView} onJoinRoom={navigateToRoom} notify={notify} />
@@ -156,7 +156,7 @@ function App() {
       {toast && (
         <div className="fixed top-4 left-1/2 z-[100] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2">
           <div
-            className={`rounded-full border px-4 py-3 text-sm shadow-2xl backdrop-blur-md ${
+            className={`rounded-2xl border px-4 py-3 text-sm shadow-2xl backdrop-blur-md ${
               toast.type === 'error'
                 ? 'border-red-500/30 bg-red-950/80 text-red-100'
                 : 'border-emerald-500/30 bg-emerald-950/80 text-emerald-100'

@@ -77,7 +77,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
       >
         {/* Logo */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleNavClick('dashboard')}>
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,174,239,0.4)]">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-2xl bg-indigo-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,174,239,0.4)]">
             <Video className="text-white light:text-slate-900 w-5 h-5 lg:w-6 lg:h-6" />
           </div>
           <span className="font-bold text-lg lg:text-xl tracking-wide text-white light:text-slate-900">
@@ -90,12 +90,12 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
           {navLinks.map((link) => {
             const isActive = currentView === link.id || (currentView === 'user-dashboard' && link.id === 'dashboard');
             return (
-              <button 
+              <button className="cursor-pointer"  
                 key={link.id}
                 onClick={() => handleNavClick(link.id)} 
                 className={`text-sm font-medium transition-colors ${
                   isActive 
-                    ? 'text-purple-300 light:text-orange-600 bg-purple-600/20 light:bg-orange-500/10 px-6 py-2 rounded-full border border-purple-500/20 light:border-orange-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] light:shadow-none' 
+                    ? 'text-purple-300 light:text-orange-600 bg-purple-600/20 light:bg-orange-500/10 px-6 py-2 rounded-2xl border border-purple-500/20 light:border-orange-500/20 shadow-[0_0_15px_rgba(147,51,234,0.15)] light:shadow-none' 
                     : 'text-[#94A3B8] light:text-slate-600 hover:text-white light:text-slate-900 light:hover:text-slate-900'
                 }`}
               >
@@ -109,7 +109,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
         <div className="flex items-center space-x-3 lg:space-x-4">
           <button 
             onClick={toggleTheme}
-            className="flex w-10 h-10 rounded-full border border-white/10 light:border-slate-200 items-center justify-center text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 transition-colors hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-100"
+            className="cursor-pointer flex w-10 h-10 rounded-full border border-white/10 light:border-slate-200 items-center justify-center text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 transition-colors hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-100"
             title="Toggle theme"
           >
             {isLight ? <Sun size={18} /> : <Moon size={18} />}
@@ -117,10 +117,10 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
           {isAuthenticated ? (
             <div className="relative">
               <button 
-                className="flex items-center space-x-2 text-sm font-semibold text-white light:text-slate-900 bg-indigo-500/10 border border-indigo-500/20 light:border-indigo-500/30 px-4 py-2 lg:py-2.5 rounded-full hover:bg-indigo-500/20 light:hover:bg-indigo-500/10 transition-all"
+                className="cursor-pointer flex items-center space-x-2 text-sm font-semibold text-white light:text-slate-900 bg-indigo-500/10 border border-indigo-500/20 light:border-indigo-500/30 px-4 py-2 lg:py-2.5 rounded-full hover:bg-indigo-500/20 light:hover:bg-indigo-500/10 transition-all"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
-                <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold shadow-lg text-white light:text-slate-900">
+                <div className="w-6 h-6 rounded-2xl bg-indigo-500 flex items-center justify-center text-xs font-bold shadow-lg text-white light:text-slate-900">
                   {username.charAt(0).toUpperCase()}
                 </div>
                 <span className="hidden sm:inline">{username}</span>
@@ -130,7 +130,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
               {/* Dropdown Menu */}
               {isProfileOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
+                  <div className="cursor-pointer fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -141,20 +141,20 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
                       <p className="text-sm font-bold text-white light:text-slate-900 truncate">{username}</p>
                     </div>
                     <button 
-                      className="w-full px-4 py-2 text-sm text-left text-[#94A3B8] light:text-slate-600 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 flex items-center gap-2 transition-colors"
+                      className="cursor-pointer w-full px-4 py-2 text-sm text-left text-[#94A3B8] light:text-slate-600 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 flex items-center gap-2 transition-colors"
                       onClick={() => { setIsProfileOpen(false); handleNavClick('profile'); }}
                     >
                       <User size={16} /> Profile
                     </button>
                     <button 
-                      className="w-full px-4 py-2 text-sm text-left text-[#94A3B8] light:text-slate-600 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 flex items-center gap-2 transition-colors"
+                      className="cursor-pointer w-full px-4 py-2 text-sm text-left text-[#94A3B8] light:text-slate-600 hover:text-white light:text-slate-900 light:hover:text-slate-900 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 flex items-center gap-2 transition-colors"
                       onClick={() => { setIsProfileOpen(false); handleNavClick('settings'); }}
                     >
                       <Settings size={16} /> Settings
                     </button>
                     <div className="h-px bg-white/5 light:bg-slate-100 my-1 w-full"></div>
                     <button 
-                      className="w-full px-4 py-2 text-sm text-left text-rose-400 hover:text-rose-300 light:hover:text-rose-500 hover:bg-rose-500/10 light:hover:bg-rose-50 flex items-center gap-2 transition-colors"
+                      className="cursor-pointer w-full px-4 py-2 text-sm text-left text-rose-400 hover:text-rose-300 light:hover:text-rose-500 hover:bg-rose-500/10 light:hover:bg-rose-50 flex items-center gap-2 transition-colors"
                       onClick={() => { setIsProfileOpen(false); handleAuthAction(); }}
                     >
                       <LogOut size={16} /> Logout
@@ -165,7 +165,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
             </div>
           ) : (
             <button 
-              className="flex items-center space-x-2 text-sm font-semibold text-white light:text-slate-900 bg-white/10 light:bg-slate-100 border border-white/10 light:border-slate-200 px-5 py-2 lg:py-2.5 rounded-full hover:bg-white/20 light:hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)] light:shadow-sm"
+              className="cursor-pointer flex items-center space-x-2 text-sm font-semibold text-white light:text-slate-900 bg-white/10 light:bg-slate-100 border border-white/10 light:border-slate-200 px-5 py-2 lg:py-2.5 rounded-full hover:bg-white/20 light:hover:bg-slate-200 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)] light:shadow-sm"
               onClick={() => { setIsMenuOpen(false); handleAuthAction(); }}
             >
               <LogIn size={16} />
@@ -175,7 +175,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
           
           {/* Mobile Menu Toggle */}
           <button 
-            className="lg:hidden p-2 text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900"
+            className="cursor-pointer lg:hidden p-2 text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -189,7 +189,7 @@ export default function Header({ currentView, onNavigate, isAuthenticated, handl
           {navLinks.map((link) => {
             const isActive = currentView === link.id || (currentView === 'user-dashboard' && link.id === 'dashboard');
             return (
-              <button 
+              <button className="cursor-pointer"  
                 key={link.id}
                 onClick={() => handleNavClick(link.id)} 
                 className={`text-left text-lg font-medium ${isActive ? 'text-purple-400 light:text-orange-600 font-semibold' : 'text-[#94A3B8] light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900'}`}

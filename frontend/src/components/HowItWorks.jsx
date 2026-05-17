@@ -78,8 +78,8 @@ export default function HowItWorks({ onNavigate }) {
   return (
     <div className="min-h-screen bg-[#050816] light:bg-[#FAFAFA] text-white light:text-slate-900 font-sans overflow-hidden relative">
       {/* Background Animated Blobs */}
-      <div className="fixed bg-blue-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] right-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-indigo-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] left-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-blue-600/10 blur-[150px] w-[800px] h-[800px] rounded-2xl top-[-20%] right-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-indigo-600/10 blur-[150px] w-[600px] h-[600px] rounded-2xl bottom-[-10%] left-[-10%] pointer-events-none"></div>
 
       {/* Navbar handled globally in App.jsx */}
 
@@ -113,7 +113,7 @@ export default function HowItWorks({ onNavigate }) {
             className="relative"
           >
             {/* Connecting Line (Desktop) */}
-            <div className="hidden lg:block absolute top-24 left-10 right-10 h-1 bg-white/5 light:bg-slate-100 rounded-full overflow-hidden z-0">
+            <div className="hidden lg:block absolute top-24 left-10 right-10 h-1 bg-white/5 light:bg-slate-100 rounded-2xl overflow-hidden z-0">
                <motion.div 
                  animate={{ x: ["-100%", "400%"] }} 
                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -122,7 +122,7 @@ export default function HowItWorks({ onNavigate }) {
             </div>
 
             {/* Connecting Line (Mobile) */}
-            <div className="lg:hidden absolute top-10 bottom-10 left-8 w-1 bg-white/5 light:bg-slate-100 rounded-full overflow-hidden z-0">
+            <div className="lg:hidden absolute top-10 bottom-10 left-8 w-1 bg-white/5 light:bg-slate-100 rounded-2xl overflow-hidden z-0">
                <motion.div 
                  animate={{ y: ["-100%", "400%"] }} 
                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -139,7 +139,7 @@ export default function HowItWorks({ onNavigate }) {
                   </div>
 
                   {/* Icon Node */}
-                  <div className={`w-16 h-16 rounded-full bg-[#0A0F24] light:bg-white border-2 flex items-center justify-center transition-all duration-300 relative z-10 mb-6 lg:mt-16 ${step.colorClass} light:shadow-sm`}>
+                  <div className={`w-16 h-16 rounded-2xl bg-[#0A0F24] light:bg-white border-2 flex items-center justify-center transition-all duration-300 relative z-10 mb-6 lg:mt-16 ${step.colorClass} light:shadow-sm`}>
                     {step.icon}
                   </div>
 
@@ -155,7 +155,7 @@ export default function HowItWorks({ onNavigate }) {
                   )}
 
                   {/* Content Card */}
-                  <div className={`bg-[#0A0F24]/60 light:bg-white backdrop-blur-md border border-white/5 p-6 rounded-full transition-colors w-full z-10 shadow-lg group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${step.cardHoverClass}`}>
+                  <div className={`bg-[#0A0F24]/60 light:bg-white backdrop-blur-md border border-white/5 light:border-slate-200 p-6 rounded-2xl transition-colors w-full z-10 shadow-lg group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${step.cardHoverClass}`}>
                     <h3 className={`text-xl font-bold mb-3 text-white light:text-slate-900 group-hover:text-indigo-500 transition-all ${step.textGradientClass}`}>{step.title}</h3>
                     <p className="text-[#94A3B8] light:text-slate-500 text-sm leading-relaxed">{step.desc}</p>
                   </div>
@@ -189,7 +189,7 @@ export default function HowItWorks({ onNavigate }) {
              <div className="grid grid-cols-1 md:grid-cols-3 w-full h-full p-8 relative z-10 gap-8">
                 {/* Host Column */}
                 <div className="flex flex-col items-center justify-center space-y-6 relative">
-                   <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="bg-[#160B2A]/90 light:bg-slate-50 backdrop-blur-md light:backdrop-blur-none border border-indigo-500/30 light:border-indigo-200 p-5 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.2)] light:shadow-md w-full max-w-[240px]">
+                   <motion.div animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="bg-[#160B2A]/90 light:bg-slate-50 backdrop-blur-md light:backdrop-blur-none border border-indigo-500/30 light:border-indigo-200 p-5 rounded-[2rem] shadow-[0_0_30px_rgba(99,102,241,0.2)] light:shadow-md w-full max-w-[240px]">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-10 h-10 rounded-full bg-indigo-500/20 light:bg-indigo-100 flex items-center justify-center text-indigo-400 light:text-indigo-600"><Monitor size={20}/></div>
                         <span className="font-bold text-white light:text-slate-900">Host Client</span>
@@ -223,7 +223,7 @@ export default function HowItWorks({ onNavigate }) {
 
                 {/* Participants Column */}
                 <div className="flex flex-col items-center justify-center space-y-6 relative">
-                   <motion.div animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }} className="bg-[#160B2A]/90 light:bg-slate-50 backdrop-blur-md light:backdrop-blur-none border border-emerald-500/30 light:border-emerald-200 p-5 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.2)] light:shadow-md w-full max-w-[240px]">
+                   <motion.div animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }} className="bg-[#160B2A]/90 light:bg-slate-50 backdrop-blur-md light:backdrop-blur-none border border-emerald-500/30 light:border-emerald-200 p-5 rounded-[2rem] shadow-[0_0_30px_rgba(16,185,129,0.2)] light:shadow-md w-full max-w-[240px]">
                       <div className="flex items-center space-x-3 mb-4">
                         <div className="w-10 h-10 rounded-full bg-emerald-500/20 light:bg-emerald-100 flex items-center justify-center text-emerald-400 light:text-emerald-600"><UserPlus size={20}/></div>
                         <span className="font-bold text-white light:text-slate-900">Participants</span>
@@ -254,23 +254,23 @@ export default function HowItWorks({ onNavigate }) {
                 </p>
                 <ul className="space-y-4 mb-10">
                   <li className="flex items-center space-x-3 text-white light:text-slate-700">
-                    <div className="w-8 h-8 rounded-full bg-yellow-500/20 light:bg-yellow-100 flex items-center justify-center"><Zap size={16} className="text-yellow-400 light:text-yellow-600"/></div>
+                    <div className="w-8 h-8 rounded-2xl bg-yellow-500/20 light:bg-yellow-100 flex items-center justify-center"><Zap size={16} className="text-yellow-400 light:text-yellow-600"/></div>
                     <span className="font-medium">One-click room generation</span>
                   </li>
                   <li className="flex items-center space-x-3 text-white light:text-slate-700">
-                    <div className="w-8 h-8 rounded-full bg-indigo-500/20 light:bg-indigo-100 flex items-center justify-center"><LinkIcon size={16} className="text-indigo-400 light:text-indigo-600"/></div>
+                    <div className="w-8 h-8 rounded-2xl bg-indigo-500/20 light:bg-indigo-100 flex items-center justify-center"><LinkIcon size={16} className="text-indigo-400 light:text-indigo-600"/></div>
                     <span className="font-medium">Shareable URL links</span>
                   </li>
                   <li className="flex items-center space-x-3 text-white light:text-slate-700">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 light:bg-emerald-100 flex items-center justify-center"><Video size={16} className="text-emerald-400 light:text-emerald-600"/></div>
+                    <div className="w-8 h-8 rounded-2xl bg-emerald-500/20 light:bg-emerald-100 flex items-center justify-center"><Video size={16} className="text-emerald-400 light:text-emerald-600"/></div>
                     <span className="font-medium">Instant camera and mic detection</span>
                   </li>
                 </ul>
-                <motion.button 
+                <motion.button className="cursor-pointer"  
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => onNavigate('dashboard')}
-                  className="bg-white text-indigo-900 px-8 py-3.5 rounded-full font-bold flex items-center space-x-3 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                  className="bg-white text-indigo-900 px-8 py-3.5 rounded-2xl font-bold flex items-center space-x-3 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 >
                   <PlayCircle size={20} className="text-indigo-600 group-hover:scale-110 transition-transform"/>
                   <span>Try it yourself</span>
@@ -282,7 +282,7 @@ export default function HowItWorks({ onNavigate }) {
                   <div className="absolute inset-0 bg-indigo-500/20 light:bg-indigo-100 rounded-full blur-[80px] group-hover:bg-indigo-500/30 light:group-hover:bg-indigo-200 transition-colors duration-500"></div>
                   
                   {/* Center Hub */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[#0A0F24] light:bg-white border border-indigo-500/50 light:border-indigo-200 rounded-[2rem] flex flex-col items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)] light:shadow-xl z-20 group-hover:scale-110 transition-transform duration-500">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[#0A0F24] light:bg-white border border-indigo-500/50 light:border-indigo-200 rounded-full flex flex-col items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)] light:shadow-xl z-20 group-hover:scale-110 transition-transform duration-500">
                     <Video size={32} className="text-indigo-400 light:text-indigo-600 mb-2" />
                     <span className="text-xs font-bold text-white light:text-slate-900">Room Active</span>
                   </div>
@@ -320,20 +320,20 @@ export default function HowItWorks({ onNavigate }) {
               Check out our detailed documentation or reach out to our support team. We're here to help you host the perfect masterclass.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 relative z-10">
-              <motion.button 
+              <motion.button className="cursor-pointer"  
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('dashboard')} 
-                className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 px-8 py-4 rounded-full font-bold text-white light:text-slate-900 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
+                className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 px-8 py-4 rounded-2xl font-bold text-white light:text-slate-900 shadow-[0_10px_20px_-10px_rgba(99,102,241,0.6)] flex items-center justify-center space-x-2 transition-colors hover:shadow-[0_15px_25px_-10px_rgba(99,102,241,0.8)] group"
               >
                 <span>Start Now</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </motion.button>
-              <motion.button 
+              <motion.button className="cursor-pointer"  
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onNavigate('faq')}
-                className="w-full sm:w-auto bg-white/5 light:bg-slate-50 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-100 border border-white/10 light:border-slate-200 px-8 py-4 rounded-full font-bold text-white light:text-slate-900 transition-colors hover:border-white/20 light:hover:border-slate-300"
+                className="w-full sm:w-auto bg-white/5 light:bg-slate-50 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-100 border border-white/10 light:border-slate-200 px-8 py-4 rounded-2xl font-bold text-white light:text-slate-900 transition-colors hover:border-white/20 light:hover:border-slate-300"
               >
                 View Documentation
               </motion.button>

@@ -130,8 +130,8 @@ export default function Pricing({ onNavigate }) {
   return (
     <div className="min-h-screen bg-[#050816] light:bg-[#FAFAFA] text-white light:text-slate-900 font-sans overflow-hidden relative">
       {/* Background Animated Blobs */}
-      <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] left-[-10%] pointer-events-none"></div>
-      <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-indigo-600/10 blur-[150px] w-[800px] h-[800px] rounded-2xl top-[-20%] left-[-10%] pointer-events-none"></div>
+      <div className="fixed bg-purple-600/10 blur-[150px] w-[600px] h-[600px] rounded-2xl bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
       {/* Navbar handled globally in App.jsx */}
 
@@ -154,21 +154,21 @@ export default function Pricing({ onNavigate }) {
             </motion.p>
 
             {/* Billing Toggle */}
-            <motion.div variants={fadeIn} className="flex items-center space-x-4 bg-[#0A0F24]/80 light:bg-white p-2 rounded-full border border-white/10 light:border-slate-200 backdrop-blur-md light:backdrop-blur-none shadow-xl light:shadow-md">
+            <motion.div variants={fadeIn} className="flex items-center space-x-4 bg-[#0A0F24]/80 light:bg-white p-2 rounded-2xl border border-white/10 light:border-slate-200 backdrop-blur-md light:backdrop-blur-none shadow-xl light:shadow-md">
                <span className={`text-sm font-bold pl-4 transition-colors ${!isAnnual ? 'text-white light:text-slate-900' : 'text-[#94A3B8] light:text-slate-500'}`}>Monthly</span>
-               <button 
+               <button className="cursor-pointer"  
                  onClick={() => setIsAnnual(!isAnnual)}
-                 className="w-16 h-8 bg-indigo-500/20 light:bg-indigo-100 border border-indigo-500/30 light:border-indigo-200 rounded-full relative transition-colors focus:outline-none flex items-center px-1 cursor-pointer"
+                 className="w-16 h-8 bg-indigo-500/20 light:bg-indigo-100 border border-indigo-500/30 light:border-indigo-200 rounded-2xl relative transition-colors focus:outline-none flex items-center px-1 cursor-pointer"
                >
                   <motion.div 
                     animate={{ x: isAnnual ? 32 : 0 }} 
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="w-6 h-6 bg-indigo-400 light:bg-indigo-500 rounded-full shadow-md"
+                    className="w-6 h-6 bg-indigo-400 light:bg-indigo-500 rounded-2xl shadow-md"
                   />
                </button>
                <span className={`text-sm font-bold pr-4 flex items-center space-x-2 transition-colors ${isAnnual ? 'text-white light:text-slate-900' : 'text-[#94A3B8] light:text-slate-500'}`}>
                   <span>Annually</span>
-                  <span className="text-[10px] bg-emerald-500/20 light:bg-emerald-100 text-emerald-400 light:text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-500/30 light:border-emerald-200">Save 20%</span>
+                  <span className="text-[10px] bg-emerald-500/20 light:bg-emerald-100 text-emerald-400 light:text-emerald-600 px-2 py-0.5 rounded-2xl border border-emerald-500/30 light:border-emerald-200">Save 20%</span>
                </span>
             </motion.div>
           </motion.div>
@@ -192,11 +192,11 @@ export default function Pricing({ onNavigate }) {
                 >
                    {/* Animated border for recommended */}
                    {plan.recommended && (
-                      <div className="absolute inset-[-2px] rounded-[2rem] border-2 border-transparent bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 bg-[length:200%_100%] animate-[gradient_4s_linear_infinite] opacity-50 z-[-1] pointer-events-none mix-blend-screen mask-border"></div>
+                      <div className="absolute inset-[-2px] rounded-[2rem] border-2 border-transparent bg-indigo-500 opacity-50 z-[-1] pointer-events-none mix-blend-screen mask-border"></div>
                    )}
 
                    {plan.recommended && (
-                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-purple-500 text-white light:text-slate-900 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg">
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-purple-500 text-white light:text-slate-900 px-4 py-1.5 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-lg">
                         Most Popular
                      </div>
                    )}
@@ -243,7 +243,7 @@ export default function Pricing({ onNavigate }) {
 
                     <div className="space-y-4">
                       {plan.features.map((feature, i) => (
-                         <div key={i} className={`flex items-start space-x-3 ${feature.included ? 'text-white light:text-slate-900' : 'text-slate-600 light:text-slate-400'}`}>
+                         <div key={i} className={`flex items-start space-x-3 ${feature.included ? 'text-white light:text-slate-900' : 'text-slate-600 light:text-slate-400 light:text-slate-500'}`}>
                             {feature.included ? (
                                <Check size={20} className={`text-${plan.colorClass}-400 light:text-${plan.colorClass}-600 shrink-0`} />
                             ) : (
@@ -311,9 +311,9 @@ export default function Pricing({ onNavigate }) {
            <p className="text-slate-400 light:text-slate-500 text-sm font-bold tracking-[0.2em] uppercase mb-8">Trusted by educators at</p>
            <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-60 light:opacity-80">
               <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800"><div className="w-6 h-6 rounded bg-indigo-500"></div> Harvard</div>
-              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800"><div className="w-6 h-6 rounded-full bg-indigo-500"></div> Stanford</div>
-              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800"><div className="w-6 h-6 rounded-tr-xl rounded-bl-xl bg-gradient-to-br from-rose-500 to-orange-500"></div> MIT</div>
-              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800 hidden sm:flex"><div className="w-6 h-6 rotate-45 bg-gradient-to-br from-blue-500 to-cyan-500"></div> Oxford</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800"><div className="w-6 h-6 rounded-2xl bg-indigo-500"></div> Stanford</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800"><div className="w-6 h-6 rounded-tr-xl rounded-bl-xl bg-orange-500"></div> MIT</div>
+              <div className="text-xl font-bold flex items-center gap-2 text-white light:text-slate-800 hidden sm:flex"><div className="w-6 h-6 rotate-45 bg-blue-500"></div> Oxford</div>
            </div>
         </section>
 
@@ -329,7 +329,7 @@ export default function Pricing({ onNavigate }) {
                  { q: "Is there a discount for non-profits?", a: "Absolutely! We offer a 50% discount on Pro and Enterprise plans for registered non-profits and educational institutions." },
                  { q: "How does the free trial work?", a: "Our Pro plan comes with a 14-day free trial. No credit card required to start. You can cancel before the trial ends and you won't be charged." }
               ].map((faq, i) => (
-                 <div key={i} className="bg-[#0A0F24]/40 light:bg-white border border-white/5 light:border-slate-200 p-6 rounded-full hover:border-white/10 light:hover:border-slate-300 light:shadow-sm transition-colors">
+                 <div key={i} className="bg-[#0A0F24]/40 light:bg-white border border-white/5 light:border-slate-200 p-6 rounded-2xl hover:border-white/10 light:border-slate-200 light:hover:border-slate-300 light:shadow-sm transition-colors">
                     <h4 className="text-lg font-bold text-white light:text-slate-900 mb-3 flex items-start gap-3">
                        <HelpCircle size={20} className="text-purple-400 light:text-purple-600 shrink-0 mt-0.5" />
                        {faq.q}

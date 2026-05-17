@@ -1,16 +1,16 @@
   if (joinDenied) {
     return (
       <div className="flex-1 flex items-center justify-center h-screen bg-[#050816] light:bg-slate-50 text-white light:text-slate-900 relative overflow-hidden font-sans">
-        <div className="absolute bg-rose-600/10 blur-[120px] w-[500px] h-[500px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bg-rose-600/10 blur-[120px] w-[500px] h-[500px] rounded-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         <div className="text-center space-y-6 z-10 max-w-md w-full mx-4 p-10 bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-2xl border border-white/10 light:border-slate-200 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <div className="w-20 h-20 bg-rose-500/20 rounded-full flex items-center justify-center mx-auto border border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.3)]">
+          <div className="w-20 h-20 bg-rose-500/20 rounded-2xl flex items-center justify-center mx-auto border border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.3)]">
             <X size={40} className="text-rose-400" />
           </div>
           <div>
             <h2 className="text-3xl font-bold text-white light:text-slate-900 mb-2 tracking-tight">Entry Denied</h2>
             <p className="text-[#94A3B8] light:text-slate-500">The host declined your request to join.</p>
           </div>
-          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-full font-semibold text-white light:text-slate-900 bg-white/5 light:bg-slate-100 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-white/10 light:border-slate-200 transition-all hover:-translate-y-0.5">
+          <button type="button" onClick={onLeave} className="cursor-pointer w-full py-4 px-6 rounded-full font-semibold text-white light:text-slate-900 bg-white/5 light:bg-slate-100 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-white/10 light:border-slate-200 transition-all hover:-translate-y-0.5">
             Return to Dashboard
           </button>
         </div>
@@ -21,16 +21,16 @@
   if (roomNotFound) {
     return (
       <div className="flex-1 flex items-center justify-center h-screen bg-[#050816] light:bg-slate-50 text-white light:text-slate-900 relative overflow-hidden font-sans">
-        <div className="absolute bg-rose-600/10 blur-[120px] w-[500px] h-[500px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bg-rose-600/10 blur-[120px] w-[500px] h-[500px] rounded-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         <div className="text-center space-y-6 z-10 max-w-md w-full mx-4 p-10 bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-2xl border border-white/10 light:border-slate-200 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <div className="w-20 h-20 bg-rose-500/20 rounded-full flex items-center justify-center mx-auto border border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.3)]">
+          <div className="w-20 h-20 bg-rose-500/20 rounded-2xl flex items-center justify-center mx-auto border border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.3)]">
             <X size={40} className="text-rose-400" />
           </div>
           <div>
             <h2 className="text-3xl font-bold text-white light:text-slate-900 mb-2 tracking-tight">Room Not Found</h2>
             <p className="text-[#94A3B8] light:text-slate-500">This meeting link is invalid or the meeting has ended.</p>
           </div>
-          <button type="button" onClick={onLeave} className="w-full py-4 px-6 rounded-full font-semibold text-white light:text-slate-900 bg-white/5 light:bg-slate-100 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-white/10 light:border-slate-200 transition-all hover:-translate-y-0.5">
+          <button type="button" onClick={onLeave} className="cursor-pointer w-full py-4 px-6 rounded-full font-semibold text-white light:text-slate-900 bg-white/5 light:bg-slate-100 hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-white/10 light:border-slate-200 transition-all hover:-translate-y-0.5">
             Return to Dashboard
           </button>
         </div>
@@ -41,18 +41,18 @@
   if (isWaiting) {
     return (
       <div className="flex-1 flex items-center justify-center h-screen bg-[#050816] light:bg-slate-50 text-white light:text-slate-900 relative overflow-hidden font-sans">
-        <div className="absolute bg-indigo-600/15 blur-[120px] w-[500px] h-[500px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bg-indigo-600/15 blur-[120px] w-[500px] h-[500px] rounded-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         <div className="text-center space-y-6 z-10 max-w-md w-full mx-4 p-10 bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-2xl border border-white/10 light:border-slate-200 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-            <div className="absolute inset-0 border-t-2 border-indigo-500 rounded-full animate-spin"></div>
-            <div className="absolute inset-2 border-r-2 border-purple-500 rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
+            <div className="absolute inset-0 border-t-2 border-indigo-500 rounded-2xl animate-spin"></div>
+            <div className="absolute inset-2 border-r-2 border-purple-500 rounded-2xl animate-[spin_1.5s_linear_infinite_reverse]"></div>
             <Users size={32} className="text-indigo-400 light:text-indigo-600" />
           </div>
           <div>
             <h2 className="text-3xl font-bold text-white light:text-slate-900 mb-2 tracking-tight">Waiting for Host</h2>
             <p className="text-[#94A3B8] light:text-slate-500">Please wait, the meeting host will let you in soon.</p>
           </div>
-          <button type="button" onClick={onLeave} className="text-rose-400 hover:text-rose-300 mt-2 block mx-auto text-sm font-medium transition-colors hover:underline">
+          <button type="button" onClick={onLeave} className="cursor-pointer text-rose-400 hover:text-rose-300 mt-2 block mx-auto text-sm font-medium transition-colors hover:underline">
             Cancel & Return
           </button>
         </div>
@@ -63,11 +63,11 @@
   if (isJoining) {
     return (
       <div className="flex-1 flex items-center justify-center h-screen bg-[#050816] light:bg-slate-50 text-white light:text-slate-900 relative overflow-hidden font-sans">
-        <div className="absolute bg-blue-600/15 blur-[120px] w-[500px] h-[500px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+        <div className="absolute bg-blue-600/15 blur-[120px] w-[500px] h-[500px] rounded-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         <div className="text-center space-y-6 z-10 max-w-md w-full mx-4 p-10 bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-2xl border border-white/10 light:border-slate-200 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-            <div className="absolute inset-0 border-t-2 border-blue-500 rounded-full animate-spin"></div>
-            <div className="absolute inset-2 border-l-2 border-indigo-500 rounded-full animate-[spin_1s_linear_infinite_reverse]"></div>
+            <div className="absolute inset-0 border-t-2 border-blue-500 rounded-2xl animate-spin"></div>
+            <div className="absolute inset-2 border-l-2 border-indigo-500 rounded-2xl animate-[spin_1s_linear_infinite_reverse]"></div>
             <Video size={32} className="text-blue-400 light:text-blue-600" />
           </div>
           <div>
@@ -91,8 +91,8 @@
   return (
     <div className="flex-1 flex h-screen overflow-hidden bg-[#050816] light:bg-slate-50 text-white light:text-slate-900 font-sans relative">
       {/* Background Blobs for main room */}
-      <div className="absolute bg-purple-600/10 blur-[150px] w-[800px] h-[800px] rounded-full top-[-20%] left-[-10%] pointer-events-none"></div>
-      <div className="absolute bg-blue-600/10 blur-[150px] w-[600px] h-[600px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
+      <div className="absolute bg-purple-600/10 blur-[150px] w-[800px] h-[800px] rounded-2xl top-[-20%] left-[-10%] pointer-events-none"></div>
+      <div className="absolute bg-blue-600/10 blur-[150px] w-[600px] h-[600px] rounded-2xl bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col transition-all duration-300 relative z-10 ${isChatOpen ? 'pr-0 md:pr-80' : 'pr-0'}`}>
@@ -106,7 +106,7 @@
             </div>
 
             {/* Right: Participant Count */}
-            <div className="flex items-center space-x-2 bg-[#0A0F24] light:bg-white shadow-xl dark:shadow-none/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 light:border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center space-x-2 bg-[#0A0F24] light:bg-white shadow-xl dark:shadow-none/60 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10 light:border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
               <User size={16} className="text-indigo-400 light:text-indigo-600" />
               <span className="text-sm font-semibold text-white light:text-slate-900">{allParticipantsCount}</span>
             </div>
@@ -117,11 +117,11 @@
         <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pt-20 sm:pt-24 md:pt-28 pb-32 sm:pb-28 md:pb-24 overflow-y-auto w-full h-full flex items-center justify-center">
           <div className={`${getGridClass()} gap-3 sm:gap-4 md:gap-6 w-full h-full max-w-7xl mx-auto`}>
             {/* Local Video */}
-            <div className={`bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md rounded-full md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-300 dark:border-indigo-500/40 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}>
+            <div className={`bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center min-h-[160px] sm:min-h-[200px] md:min-h-[220px] border border-indigo-300 dark:border-indigo-500/40 shadow-[0_0_30px_rgba(99,102,241,0.15)] group ${allParticipantsCount === 1 ? 'max-w-4xl w-full aspect-video shadow-[0_0_50px_rgba(99,102,241,0.2)]' : ''}`}>
               {isInitializing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-400" />
+                    <div className="animate-spin rounded-2xl h-10 w-10 border-b-2 border-indigo-400" />
                     <span className="text-indigo-600 dark:text-indigo-300 text-sm font-medium">Initializing camera...</span>
                   </div>
                 </div>
@@ -129,11 +129,11 @@
 
               {!isInitializing && mediaError && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center space-y-4 p-6 bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-sm">
-                  <div className="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
+                  <div className="w-16 h-16 rounded-2xl bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
                     <VideoOff size={32} className="text-rose-400" />
                   </div>
                   <span className="text-rose-300 text-sm text-center font-medium max-w-[200px]">{mediaError}</span>
-                  <button type="button" onClick={handleRetryCamera} className="px-5 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50 rounded-full text-sm font-semibold transition-all">
+                  <button type="button" onClick={handleRetryCamera} className="cursor-pointer px-5 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50 rounded-full text-sm font-semibold transition-all">
                     Retry
                   </button>
                 </div>
@@ -152,7 +152,7 @@
                   />
                   {isVideoOff && (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md">
-                      <div className="w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 light:border-indigo-200 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                      <div className="w-24 h-24 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 light:border-indigo-200 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
                         <User size={40} className="text-indigo-400 light:text-indigo-600" />
                       </div>
                     </div>
@@ -172,13 +172,13 @@
               return (
                 <div
                   key={participant.socketId}
-                  className="bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md rounded-full md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-white/10 light:border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
+                  className="bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center justify-center group border border-white/10 light:border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.3)] aspect-video min-h-[160px] sm:min-h-[200px] md:min-h-[220px]"
                 >
                   {remoteStream && participant.videoEnabled !== false ? (
                     <RemoteVideoPlayer stream={remoteStream} className="w-full h-full min-h-[160px] sm:min-h-[200px] object-cover" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#0A0F24] light:bg-white shadow-none/80 light:shadow-xl backdrop-blur-md">
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
+                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
                         <span className="text-3xl md:text-4xl text-purple-600 dark:text-purple-400 font-bold">
                           {participant.username?.[0]?.toUpperCase() || 'U'}
                         </span>
@@ -197,20 +197,20 @@
 
         {/* Waiting Room Panel (Host Only) */}
         {isHost && waitingUsers.length > 0 && (
-          <div className="absolute top-20 right-4 md:right-8 z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-[#0A0F24] light:bg-white shadow-none/95 light:shadow-xl backdrop-blur-2xl border border-indigo-500/30 light:border-indigo-200 rounded-full shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.2)] p-5">
+          <div className="absolute top-20 right-4 md:right-8 z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-[#0A0F24] light:bg-white shadow-none/95 light:shadow-xl backdrop-blur-2xl border border-indigo-500/30 light:border-indigo-200 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5),0_0_20px_rgba(99,102,241,0.2)] p-5">
             <h3 className="text-white light:text-slate-900 font-bold mb-4 flex items-center text-sm sm:text-base tracking-wide">
-              <span className="bg-indigo-500 text-xs px-2.5 py-1 rounded-full mr-3 shadow-[0_0_10px_rgba(99,102,241,0.4)]">{waitingUsers.length}</span>
+              <span className="bg-indigo-500 text-xs px-2.5 py-1 rounded-2xl mr-3 shadow-[0_0_10px_rgba(99,102,241,0.4)]">{waitingUsers.length}</span>
               Waiting to join
             </h3>
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
               {waitingUsers.map((user) => (
-                <div key={user.socketId} className="flex items-center justify-between bg-[#160B2A]/50 light:bg-slate-100 border border-white/5 light:border-slate-100 p-3 rounded-full hover:border-white/10 light:border-slate-200 transition-colors">
+                <div key={user.socketId} className="flex items-center justify-between bg-[#160B2A]/50 light:bg-slate-100 border border-white/5 light:border-slate-100 p-3 rounded-2xl hover:border-white/10 light:border-slate-200 transition-colors">
                   <span className="text-sm font-semibold text-slate-200 light:text-slate-700 truncate pr-2">{user.username}</span>
                   <div className="flex space-x-2">
-                    <button type="button" onClick={() => handleDeny(user.socketId)} className="p-2 text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors border border-rose-500/20" title="Reject">
+                    <button className="cursor-pointer"  type="button" onClick={() => handleDeny(user.socketId)} className="p-2 text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors border border-rose-500/20" title="Reject">
                       <X size={16} />
                     </button>
-                    <button type="button" onClick={() => handleAdmit(user.socketId)} className="p-2 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors border border-emerald-500/20" title="Admit">
+                    <button className="cursor-pointer"  type="button" onClick={() => handleAdmit(user.socketId)} className="p-2 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors border border-emerald-500/20" title="Admit">
                       <Check size={16} />
                     </button>
                   </div>
@@ -233,7 +233,7 @@
                 <button 
                   type="button" 
                   onClick={handleCopyLink} 
-                  className="px-4 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 light:border-indigo-200 rounded-full text-indigo-600 dark:text-indigo-300 text-sm font-semibold transition-all hover:scale-105 flex items-center space-x-2"
+                  className="cursor-pointer px-4 py-2.5 bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 light:border-indigo-200 rounded-full text-indigo-600 dark:text-indigo-300 text-sm font-semibold transition-all hover:scale-105 flex items-center space-x-2"
                 >
                   {copied ? (
                     <>
@@ -281,7 +281,7 @@
             {/* Leave Call */}
             <button 
               type="button" 
-              className="px-6 h-12 sm:h-14 rounded-full flex items-center justify-center bg-purple-500 text-white light:text-slate-900 hover:from-rose-500 hover:to-rose-400 transition-all duration-300 shadow-[0_0_20px_rgba(225,29,72,0.4)] ml-2 hover:scale-105" 
+              className="cursor-pointer px-6 h-12 sm:h-14 rounded-full flex items-center justify-center bg-purple-500 text-white light:text-slate-900 hover:from-rose-500 hover:to-rose-400 transition-all duration-300 shadow-[0_0_20px_rgba(225,29,72,0.4)] ml-2 hover:scale-105" 
               onClick={onLeave}
               title="Leave call"
             >
@@ -301,7 +301,7 @@
             >
               <MessageSquare size={20} />
               {messages.length > 0 && !isChatOpen && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-indigo-500 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center border-2 border-[#0A0F24] shadow-lg">
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-indigo-500 rounded-2xl text-[10px] sm:text-[11px] font-bold flex items-center justify-center border-2 border-[#0A0F24] shadow-lg">
                   {messages.length > 9 ? '9+' : messages.length}
                 </span>
               )}
@@ -322,7 +322,7 @@
           <span className="text-lg font-bold text-white light:text-slate-900 tracking-wide">Meeting Chat</span>
           <button 
             type="button" 
-            className="text-slate-400 light:text-slate-500 hover:text-white light:text-slate-900 transition-colors p-2 rounded-full hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-transparent hover:border-white/10 light:border-slate-200" 
+            className="cursor-pointer text-slate-400 light:text-slate-500 hover:text-white light:text-slate-900 transition-colors p-2 rounded-full hover:bg-white/10 light:hover:bg-slate-200 light:bg-slate-200 light:hover:bg-slate-200 border border-transparent hover:border-white/10 light:border-slate-200" 
             onClick={() => setIsChatOpen(false)}
           >
             <X size={20} />
@@ -352,8 +352,8 @@
                 </div>
                 <div className={`text-[14px] p-3.5 shadow-md max-w-[85%] break-words leading-relaxed ${
                   msg.isOwn 
-                    ? 'bg-indigo-500 text-white light:text-slate-900 rounded-full rounded-tr-sm shadow-[0_5px_15px_rgba(99,102,241,0.2)]' 
-                    : 'bg-white/5 light:bg-slate-100 border border-white/10 light:border-slate-200 text-slate-200 light:text-slate-700 rounded-full rounded-tl-sm backdrop-blur-md'
+                    ? 'bg-indigo-500 text-white light:text-slate-900 rounded-2xl rounded-tr-sm shadow-[0_5px_15px_rgba(99,102,241,0.2)]' 
+                    : 'bg-white/5 light:bg-slate-100 border border-white/10 light:border-slate-200 text-slate-200 light:text-slate-700 rounded-2xl rounded-tl-sm backdrop-blur-md'
                 }`}>
                   {msg.message}
                 </div>
@@ -371,7 +371,7 @@
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="w-full bg-[#050816] light:bg-slate-50 border border-white/10 light:border-slate-200 rounded-full pl-5 pr-14 py-4 text-sm text-white light:text-slate-900 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
+              className="w-full bg-[#050816] light:bg-slate-50 border border-white/10 light:border-slate-200 rounded-2xl pl-5 pr-14 py-4 text-sm text-white light:text-slate-900 placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all shadow-inner"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && message.trim()) handleSendMessage();
               }}

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Mail, Lock, ArrowRight, Video, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Video, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import api, { API_BASE_URL } from '../services/api';
 
-export default function Auth({ onNavigate }) {
+export default function Auth({ onNavigate, notify }) {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,6 +30,11 @@ export default function Auth({ onNavigate }) {
       return;
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -47,6 +53,12 @@ export default function Auth({ onNavigate }) {
         const userUsername = response.data.user?.username || response.data.username || username;
         localStorage.setItem('username', userUsername);
         setIsLoading(false);
+        
+        // Real-product success notifications
+        if (notify) {
+          notify('success', isLogin ? `Welcome back, ${userUsername}!` : 'Account created successfully!');
+        }
+        
         onNavigate('dashboard');
       } else {
         setError(response.message || 'Authentication failed');
@@ -81,18 +93,18 @@ export default function Auth({ onNavigate }) {
   return (
     <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-[#050816] light:bg-[#FAFAFA] min-h-screen font-sans text-white light:text-slate-900">
       {/* Background Glow Effects */}
-      <div className="absolute bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-full top-[-10%] left-[-10%] pointer-events-none"></div>
-      <div className="absolute bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-full bottom-[-10%] right-[-10%] pointer-events-none"></div>
+      <div className="absolute bg-purple-600/15 blur-[120px] w-[600px] h-[600px] rounded-2xl top-[-10%] left-[-10%] pointer-events-none"></div>
+      <div className="absolute bg-blue-600/10 blur-[120px] w-[500px] h-[500px] rounded-2xl bottom-[-10%] right-[-10%] pointer-events-none"></div>
 
       <div className="premium-card w-full max-w-md p-10 flex flex-col items-center space-y-8 z-10 relative">
         
         {/* Floating Accent */}
-        <div className="absolute top-4 right-4 w-10 h-10 bg-[#050816] light:bg-slate-50 border border-purple-500/50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
+        <div className="absolute top-4 right-4 w-10 h-10 bg-[#050816] light:bg-slate-50 border border-purple-500/50 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.5)] z-20">
           <Lock size={18} className="text-indigo-300" />
         </div>
 
         {/* Logo/Icon */}
-        <div className="w-16 h-16 rounded-full bg-indigo-500 p-[1px] shadow-[0_10px_20px_-10px_rgba(0,174,239,0.6)]">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-500 p-[1px] shadow-[0_10px_20px_-10px_rgba(0,174,239,0.6)]">
           <div className="w-full h-full bg-[#0A0F24] light:bg-white rounded-[15px] flex items-center justify-center">
             <Video className="text-indigo-400" size={32} />
           </div>
@@ -107,7 +119,7 @@ export default function Auth({ onNavigate }) {
         
         <form onSubmit={handleSubmit} className="w-full space-y-5">
           {error && (
-            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm p-3 rounded-full text-center">
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm p-3 rounded-2xl text-center">
               {error}
             </div>
           )}
@@ -131,7 +143,7 @@ export default function Auth({ onNavigate }) {
           <div className="space-y-2 group">
             <label className="text-xs font-semibold text-slate-300 light:text-slate-600 uppercase tracking-wider ml-1">Email</label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 light:text-slate-400 group-focus-within:text-indigo-400 light:group-focus-within:text-indigo-600 transition-colors" size={18} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 light:text-slate-400 light:text-slate-500 group-focus-within:text-indigo-400 light:group-focus-within:text-indigo-600 transition-colors" size={18} />
               <input 
                 type="email" 
                 value={email}
@@ -155,14 +167,30 @@ export default function Auth({ onNavigate }) {
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 light:text-slate-400 group-focus-within:text-indigo-400 light:group-focus-within:text-indigo-600 transition-colors" size={18} />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
-                className="premium-input pl-11" 
+                className="premium-input pl-11 pr-12" 
                 required
               />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 light:text-slate-400 hover:text-slate-300 light:hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
+            
+            {/* Password Strength Indicator (Only for Sign Up) */}
+            {!isLogin && password.length > 0 && (
+              <div className="flex items-center space-x-2 pt-2 ml-1">
+                <div className={`h-1.5 flex-1 rounded-full ${password.length >= 6 ? 'bg-emerald-500' : 'bg-slate-700 light:bg-slate-300'}`}></div>
+                <div className={`h-1.5 flex-1 rounded-full ${password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'bg-emerald-500' : 'bg-slate-700 light:bg-slate-300'}`}></div>
+                <div className={`h-1.5 flex-1 rounded-full ${password.length >= 10 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password) ? 'bg-emerald-500' : 'bg-slate-700 light:bg-slate-300'}`}></div>
+              </div>
+            )}
           </div>
 
           <div className="w-full pt-4 space-y-4">
@@ -190,7 +218,7 @@ export default function Auth({ onNavigate }) {
                   <div className="w-full border-t border-white/10 light:border-slate-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-[#0A0F24] light:bg-white text-[#94A3B8] light:text-slate-500 font-medium rounded-full border border-white/5 light:border-slate-200">Or continue with</span>
+                  <span className="px-4 bg-[#0A0F24] light:bg-white text-[#94A3B8] light:text-slate-500 font-medium rounded-2xl border border-white/5 light:border-slate-200">Or continue with</span>
                 </div>
               </div>
             )}
@@ -199,7 +227,7 @@ export default function Auth({ onNavigate }) {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center space-x-3 bg-[#0A0F24]/60 light:bg-white border border-white/10 light:border-slate-200 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 text-white light:text-slate-900 py-3.5 rounded-full font-semibold transition-all shadow-lg light:shadow-sm hover:shadow-xl light:hover:shadow-md backdrop-blur-md light:backdrop-blur-none"
+                className="cursor-pointer w-full flex items-center justify-center space-x-3 bg-[#0A0F24]/60 light:bg-white border border-white/10 light:border-slate-200 hover:bg-white/5 light:hover:bg-slate-100 light:bg-slate-100 light:hover:bg-slate-50 text-white light:text-slate-900 py-3.5 rounded-full font-semibold transition-all shadow-lg light:shadow-sm hover:shadow-xl light:hover:shadow-md backdrop-blur-md light:backdrop-blur-none"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -213,7 +241,7 @@ export default function Auth({ onNavigate }) {
 
             <button 
               type="button"
-              className="w-full pt-2 text-sm font-medium text-slate-400 light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 transition-colors"
+              className="cursor-pointer w-full pt-2 text-sm font-medium text-slate-400 light:text-slate-500 hover:text-white light:text-slate-900 light:hover:text-slate-900 transition-colors"
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
