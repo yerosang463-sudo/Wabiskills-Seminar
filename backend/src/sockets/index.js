@@ -444,6 +444,13 @@ export const setupSocketHandlers = (io) => {
       emitParticipantsList(io, roomId);
     });
 
+    socket.on('room-reaction', ({ roomId: rawRoomId, reaction }) => {
+      const roomId = normalizeRoomId(rawRoomId);
+      const participant = activeUsers.get(socket.id);
+      if (!participant || participant.roomId !== roomId) return;
+      io.to(roomId).emit('room-reaction', { socketId: socket.id, reaction, username: participant.username });
+    });
+
     socket.on('disconnect', () => {
       removeSocketFromWaiting(io, socket.id);
 
