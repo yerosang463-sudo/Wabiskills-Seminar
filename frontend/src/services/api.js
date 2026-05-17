@@ -165,6 +165,34 @@ export const api = {
     return data;
   },
 
+  async deleteRoom(token, roomId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/rooms/${roomId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await parseApiResponse(response);
+      
+      // Auto-logout on authentication errors
+      if (data.status === 401 && data.code && ['INVALID_TOKEN', 'TOKEN_EXPIRED', 'NO_TOKEN'].includes(data.code)) {
+        localStorage.clear();
+        window.location.href = '/';
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('[API] Delete room error:', error);
+      return {
+        success: false,
+        message: 'Connection error. Please check your internet or if the server is running.',
+        error: error.message,
+      };
+    }
+  },
+
   async getStats() {
     const response = await fetch(`${API_BASE_URL}/stats`, {
       method: 'GET',
