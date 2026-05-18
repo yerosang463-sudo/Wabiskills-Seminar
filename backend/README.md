@@ -2,28 +2,85 @@
 
 A real-time video conferencing backend built with Node.js, Express, Socket.IO, and Sequelize ORM. Supports peer-to-peer video calls with WebRTC signaling, real-time chat, and meeting controls for small group seminars (2-4 participants).
 
+## Tech Stack
+
+- **Node.js** - JavaScript runtime
+- **Express** - Web framework
+- **Socket.IO** - Real-time WebSocket communication
+- **Sequelize** - ORM for database operations
+- **MySQL2** - MySQL database driver
+- **JWT** - JSON Web Tokens for authentication
+- **Passport** - Authentication middleware (including Google OAuth)
+- **Bcryptjs** - Password hashing
+- **Joi** - Input validation
+- **Vitest** - Testing framework
+- **Nodemon** - Development auto-reload
+
 ## Project Structure
 
 ```
 backend/
-├── src/
-│   ├── config/
-│   │   └── config.js              # Environment configuration loader
-│   ├── controllers/               # Route controllers (to be implemented)
-│   ├── middleware/                # Express middleware (to be implemented)
-│   ├── models/                    # Sequelize data models (to be implemented)
-│   ├── routes/                    # API route definitions (to be implemented)
-│   ├── services/                  # Business logic services (to be implemented)
-│   ├── sockets/                   # Socket.IO event handlers (to be implemented)
-│   ├── utils/                     # Utility functions (to be implemented)
-│   └── server.js                  # Express app initialization and startup
-├── database/
-│   ├── sequelize.js               # Sequelize connection setup
-│   └── index.js                   # Database models export
-├── .env                           # Environment variables (development)
-├── .env.example                   # Environment variables template
-├── package.json                   # Project dependencies and scripts
-└── README.md                      # This file
+├── src/                          # Main source code
+│   ├── config/                   # Configuration files
+│   │   ├── config.js             # Environment configuration loader
+│   │   └── passport.js           # Passport authentication strategies
+│   ├── controllers/              # Route controllers
+│   │   ├── authController.js     # Authentication logic (register, login, OAuth)
+│   │   └── roomController.js     # Room management logic
+│   ├── database/                 # Database setup
+│   │   └── (3 database files)
+│   ├── middleware/               # Express middleware
+│   │   ├── auth.js               # JWT authentication middleware
+│   │   ├── errorHandler.js      # Global error handling
+│   │   └── validation.js         # Request validation middleware
+│   ├── models/                   # Sequelize data models
+│   │   ├── Message.js            # Chat message model
+│   │   ├── Room.js               # Meeting room model
+│   │   ├── User.js               # User model
+│   │   ├── Message.test.js       # Message model tests
+│   │   ├── Room.test.js          # Room model tests
+│   │   └── User.test.js          # User model tests
+│   ├── routes/                   # API route definitions
+│   │   ├── auth.js               # Authentication routes
+│   │   ├── index.js              # Route aggregator
+│   │   ├── rooms.js              # Room management routes
+│   │   └── stats.js              # Statistics routes
+│   ├── server.js                 # Express app initialization and startup
+│   ├── services/                 # Business logic services (empty)
+│   ├── sockets/                  # Socket.IO event handlers
+│   │   └── index.js              # WebRTC signaling and room events
+│   └── utils/                    # Utility functions
+│       ├── helpers.js            # Helper functions
+│       ├── logger.js             # Logging utilities
+│       └── publicUrl.js          # URL utilities
+├── models/                       # Legacy models (root level)
+│   ├── Room.js                   # Legacy room model
+│   └── User.js                   # Legacy user model
+├── middleware/                   # Legacy middleware (root level)
+│   └── authMiddleware.js         # Legacy auth middleware
+├── config/                       # Legacy config (root level)
+│   └── db.js                     # Legacy database config
+├── scripts/                      # Database management scripts
+│   ├── add-google-id-field.js    # Add Google OAuth ID field
+│   ├── add-plan-column.js        # Add plan column to users
+│   ├── add-plan-column-production.js # Production plan column migration
+│   ├── check-data.js             # Check database data
+│   ├── check-database.js         # Check database connection
+│   ├── check-table-structure.js  # Verify table structure
+│   ├── create-tables.sql         # SQL table creation script
+│   ├── init-database.js          # Initialize database
+│   ├── inspect-tidb-schema.js    # Inspect TiDB schema
+│   ├── repair-tidb-schema.js     # Repair TiDB schema
+│   ├── reset-database.js         # Reset database
+│   ├── test-connection.js        # Test database connection
+│   └── test-tidb-room-create.js  # Test TiDB room creation
+├── server.js                     # Legacy server entry point (root level)
+├── .env                          # Environment variables (development)
+├── .env.example                  # Environment variables template
+├── database.sqlite               # SQLite database file
+├── package.json                  # Project dependencies and scripts
+├── render.yaml                   # Render deployment configuration
+└── README.md                     # This file
 ```
 
 ## Prerequisites
